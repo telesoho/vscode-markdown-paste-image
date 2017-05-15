@@ -35,7 +35,7 @@ When you editing a markdown, it will pasted as markdown image link format `![](i
 
 ## Contact
 
-If you have some any question or advice, Welcome to [issue](https://github.com/tanbunko/vscode-markdown-paste-image/issues)
+If you have some any question or advice, Welcome to [issue](https://github.com/telesoho/vscode-markdown-paste-image/issues)
 
 ## TODO
 

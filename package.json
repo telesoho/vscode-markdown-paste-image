@@ -10,11 +10,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/tanbunko/vscode-paste-image.git"
+    "url": "https://github.com/telesoho/vscode-markdown-paste-image.git"
   },
-  "homepage": "https://github.com/tanbunko/vscode-paste-image/blob/master/README.md",
+  "homepage": "https://github.com/telesoho/vscode-markdown-paste-image",
   "bugs": {
-    "url": "https://github.com/tanbunko/vscode-paste-image/issues"
+    "url": "https://github.com/telesoho/vscode-markdown-paste-image/issues"
   },
   "icon": "res/icon.svg",
   "galleryBanner": {
@@ -64,11 +64,6 @@
         "when": "editorTextFocus"
       }
     ]
-  },
-  "scripts": {
-    "vscode:prepublish": "node ./node_modules/vscode/bin/compile",
-    "compile": "node ./node_modules/vscode/bin/compile -watch -p ./",
-    "postinstall": "node ./node_modules/vscode/bin/install"
   },
   "dependencies": {
     "copy-paste": "^1.2.0",
