@@ -6,9 +6,9 @@ import {spawn} from 'child_process';
 import * as moment from 'moment';
 
 export function activate(context: vscode.ExtensionContext) {
-    console.log('Congratulations, your extension "vscode-paste-image" is now active!');
+    console.log('Congratulations, your extension "vscode-markdown-paste-image" is now active!');
 
-    let disposable = vscode.commands.registerCommand('extension.pasteImage', () => {
+    let disposable = vscode.commands.registerCommand('extension.MarkdownPasteImage', () => {
         Paster.paste();
     });
 
@@ -35,19 +35,31 @@ class Paster {
         // get selection as image file name, need check
         var selection = editor.selection;
         var selectText = editor.document.getText(selection);
+
         if(selectText && !/^[\w\-.]+$/.test(selectText)){
             vscode.window.showInformationMessage('Your selection is not a valid file name!');
             return;
         }
 
+
         // get image destination path
-        let folderPathFromConfig = vscode.workspace.getConfiguration('pasteImage')['path'];
+        let folderPathFromConfig = vscode.workspace.getConfiguration('pasteImage').path;
+
+        folderPathFromConfig = folderPathFromConfig.replace("${workspaceRoot}", vscode.workspace.rootPath);
+
+        vscode.workspace.asRelativePath(folderPathFromConfig);
+
         if (folderPathFromConfig && (folderPathFromConfig.length !== folderPathFromConfig.trim().length)) {
             vscode.window.showErrorMessage('The specified path is invalid. "' + folderPathFromConfig + '"');
             return;
         }
+
         let filePath = fileUri.fsPath;
         let imagePath = this.getImagePath(filePath, selectText, folderPathFromConfig);
+
+        let currentFileDir = path.dirname(filePath)
+
+        let relativePathOfImage = path.relative(currentFileDir, imagePath)
 
         this.createImageDirWithImagePath(imagePath).then(imagePath => {
             // save image and insert to current edit file

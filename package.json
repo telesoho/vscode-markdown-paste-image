@@ -1,20 +1,20 @@
 {
-  "name": "vscode-paste-image",
-  "displayName": "Paste Image",
+  "name": "vscode-markdown-paste-image",
+  "displayName": "Markdown Paste Image",
   "description": "paste image from clipboard directly",
   "version": "0.3.0",
-  "publisher": "mushan",
+  "publisher": "telesoho",
   "author": {
-    "name": "mushan",
-    "email": "mushanmail@126.com"
+    "name": "telesoho",
+    "email": "telesoho@gmail.com"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/mushanshitiancai/vscode-paste-image.git"
+    "url": "https://github.com/tanbunko/vscode-paste-image.git"
   },
-  "homepage": "https://github.com/mushanshitiancai/vscode-paste-image/blob/master/README.md",
+  "homepage": "https://github.com/tanbunko/vscode-paste-image/blob/master/README.md",
   "bugs": {
-    "url": "https://github.com/mushanshitiancai/vscode-paste-image/issues"
+    "url": "https://github.com/tanbunko/vscode-paste-image/issues"
   },
   "icon": "res/icon.svg",
   "galleryBanner": {
@@ -35,7 +35,7 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:extension.pasteImage"
+    "onCommand:extension.MarkdownPasteImage"
   ],
   "main": "./out/src/extension",
   "contributes": {
@@ -52,13 +52,13 @@
     },
     "commands": [
       {
-        "command": "extension.pasteImage",
-        "title": "Paste Image"
+        "command": "extension.MarkdownPasteImage",
+        "title": "Markdown Paste Image"
       }
     ],
     "keybindings": [
       {
-        "command": "extension.pasteImage",
+        "command": "extension.MarkdownPasteImage",
         "key": "ctrl+alt+v",
         "mac": "cmd+alt+v",
         "when": "editorTextFocus"
