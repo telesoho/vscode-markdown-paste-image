@@ -1,4 +1,4 @@
-# Paste Image
+# Markdown Paste Image
 
 Paste image directly from clipboard to markdown(or other file)!
 
