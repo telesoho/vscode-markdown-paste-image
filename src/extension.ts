@@ -2,7 +2,9 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
-import {spawn} from 'child_process';
+import {
+    spawn
+} from 'child_process';
 import * as moment from 'moment';
 
 export function activate(context: vscode.ExtensionContext) {
@@ -15,8 +17,7 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(disposable);
 }
 
-export function deactivate() {
-}
+export function deactivate() {}
 
 class Paster {
 
@@ -36,62 +37,71 @@ class Paster {
         var selection = editor.selection;
         var selectText = editor.document.getText(selection);
 
-        if(selectText && !/^[\w\-.]+$/.test(selectText)){
+        if (selectText && !/^[\w\-.]+$/.test(selectText)) {
             vscode.window.showInformationMessage('Your selection is not a valid file name!');
             return;
         }
-
 
         // get image destination path
         let folderPathFromConfig = vscode.workspace.getConfiguration('pasteImage').path;
 
         folderPathFromConfig = folderPathFromConfig.replace("${workspaceRoot}", vscode.workspace.rootPath);
 
-        vscode.workspace.asRelativePath(folderPathFromConfig);
-
         if (folderPathFromConfig && (folderPathFromConfig.length !== folderPathFromConfig.trim().length)) {
-            vscode.window.showErrorMessage('The specified path is invalid. "' + folderPathFromConfig + '"');
+            vscode.window.showErrorMessage('The specified path is invalid: "' + folderPathFromConfig + '"');
             return;
         }
 
         let filePath = fileUri.fsPath;
         let imagePath = this.getImagePath(filePath, selectText, folderPathFromConfig);
 
-        let currentFileDir = path.dirname(filePath)
+        let options: vscode.InputBoxOptions = {
+            prompt: "You can change the filename, exist file will be overwrite!.",
+            value: imagePath,
+            placeHolder: "(e.g:../test/myimage.png)"
+        }
+        vscode.window.showInputBox(options).then(inputVal => {
+            if (!inputVal) return;
 
-        let relativePathOfImage = path.relative(currentFileDir, imagePath)
+            inputVal = inputVal.replace("${workspaceRoot}", vscode.workspace.rootPath);
 
-        this.createImageDirWithImagePath(imagePath).then(imagePath => {
-            // save image and insert to current edit file
-            this.saveClipboardImageToFileAndGetPath(imagePath, imagePath => {
-                if(!imagePath) return;
-                if(imagePath === 'no image'){
-                    vscode.window.showInformationMessage('There is not a image in clipboard.');
-                    return;
-                }
+            if (inputVal && (inputVal.length !== inputVal.trim().length)) {
+                vscode.window.showErrorMessage('The specified path is invalid: "' + inputVal + '"');
+                return;
+            }
 
-                imagePath = this.renderFilePath(editor.document.languageId,filePath,imagePath);
-
-                editor.edit(edit => {
-                    let current = editor.selection;
-                    
-                    if(current.isEmpty){
-                        edit.insert(current.start,imagePath);
-                    }else{
-                        edit.replace(current,imagePath);
+            this.createImageDirWithImagePath(inputVal).then(imgPath => {
+                // save image and insert to current edit file
+                this.saveClipboardImageToFileAndGetPath(imgPath, imagePath => {
+                    if (!imagePath) return;
+                    if (imagePath === 'no image') {
+                        vscode.window.showInformationMessage('There is not a image in clipboard.');
+                        return;
                     }
+
+                    imagePath = this.renderFilePath(editor.document.languageId, filePath, imagePath);
+
+                    editor.edit(edit => {
+                        let current = editor.selection;
+
+                        if (current.isEmpty) {
+                            edit.insert(current.start, imagePath);
+                        } else {
+                            edit.replace(current, imagePath);
+                        }
+                    });
                 });
+            }).catch(err => {
+                vscode.window.showErrorMessage('Make folder failed:' + inputVal);
+                return;
             });
-        }).catch(err => {
-            vscode.window.showErrorMessage('Failed make folder.');
-            return;
         });
     }
 
-    public static getImagePath(filePath:string, selectText:string, folderPathFromConfig:string): string {
+    public static getImagePath(filePath: string, selectText: string, folderPathFromConfig: string): string {
         // image file name
         let imageFileName = "";
-        if (! selectText) {
+        if (!selectText) {
             imageFileName = moment().format("Y-MM-DD-HH-mm-ss") + ".png";
         } else {
             imageFileName = selectText + ".png";
@@ -114,7 +124,7 @@ class Paster {
     /**
      * create directory for image when directory does not exist
      */
-    private static createImageDirWithImagePath(imagePath:string) {
+    private static createImageDirWithImagePath(imagePath: string) {
         return new Promise((resolve, reject) => {
             let imageDir = path.dirname(imagePath);
 
@@ -138,7 +148,7 @@ class Paster {
     /**
      * use applescript to save image from clipboard and get file path
      */
-    private static saveClipboardImageToFileAndGetPath(imagePath,cb:(imagePath:string)=>void) {
+    private static saveClipboardImageToFileAndGetPath(imagePath, cb: (imagePath: string) => void) {
         if (!imagePath) return;
 
         let platform = process.platform;
@@ -146,23 +156,22 @@ class Paster {
             // Windows
             const scriptPath = path.join(__dirname, '../../res/pc.ps1');
             const powershell = spawn('powershell', [
-                '-noprofile', 
+                '-noprofile',
                 '-noninteractive',
                 '-nologo',
                 '-sta',
-                '-executionpolicy','unrestricted',
+                '-executionpolicy', 'unrestricted',
                 '-windowstyle', 'hidden',
                 '-file', scriptPath,
                 imagePath
             ]);
-            powershell.on('exit', function(code, signal) {
+            powershell.on('exit', function (code, signal) {
                 // console.log('exit', code, signal);
             });
             powershell.stdout.on('data', function (data: Buffer) {
                 cb(data.toString().trim());
             });
-        }
-        else if(platform === 'darwin'){
+        } else if (platform === 'darwin') {
             // Mac
             let scriptPath = path.join(__dirname, '../../res/mac.applescript');
 
@@ -171,22 +180,22 @@ class Paster {
                 // console.log('exit',code,signal);
             });
 
-            ascript.stdout.on('data', function (data:Buffer) {
+            ascript.stdout.on('data', function (data: Buffer) {
                 cb(data.toString().trim());
             });
         } else {
             // Linux 
 
             let scriptPath = path.join(__dirname, '../../res/linux.sh');
-            
+
             let ascript = spawn('sh', [scriptPath, imagePath]);
             ascript.on('exit', function (code, signal) {
                 // console.log('exit',code,signal);
             });
 
-            ascript.stdout.on('data', function (data:Buffer) {
+            ascript.stdout.on('data', function (data: Buffer) {
                 let result = data.toString().trim();
-                if(result == "no xclip"){
+                if (result == "no xclip") {
                     vscode.window.showInformationMessage('You need to install xclip command first.');
                     return;
                 }
@@ -199,12 +208,12 @@ class Paster {
      * render the image file path dependen on file type
      * e.g. in markdown image file path will render to ![](path)
      */
-    public static renderFilePath(languageId:string,docPath:string,imageFilePath:string):string{
-        imageFilePath = path.relative(path.dirname(docPath),imageFilePath);
+    public static renderFilePath(languageId: string, docPath: string, imageFilePath: string): string {
+        imageFilePath = path.relative(path.dirname(docPath), imageFilePath);
 
-        if(languageId === 'markdown'){
+        if (languageId === 'markdown') {
             return `![](${imageFilePath})`;
-        }else{
+        } else {
             return imageFilePath;
         }
     }

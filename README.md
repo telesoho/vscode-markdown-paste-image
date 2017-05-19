@@ -4,13 +4,13 @@ Paste image directly from clipboard to markdown(or other file)!
 
 **Support Mac/Windows/Linux!** And support config destination folder.
 
-![paste-image](https://raw.githubusercontent.com/mushanshitiancai/vscode-paste-image/master/res/vscode-paste-image.gif)
+![paste-image](./res/markdown_paste_image_demo-compressor.gif)
 
 ## Usage
 
 1. capture screen to clipboard
 1. Open the command palette: `Ctrl+Shift+P` (`Cmd+Shift+P` on Mac)
-1. Type: "Paste Image" or you can use default keyboard binding: `Ctrl+Alt+V` (`Cmd+Alt+V` on Mac).
+1. Type: "Markdown Paste Image" or you can use default keyboard binding: `Ctrl+Alt+V` (`Cmd+Alt+V` on Mac).
 1. Image will be saved in the folder that contains current editing file
 1. The relative path will be paste to current editing file
 
@@ -36,15 +36,6 @@ When you editing a markdown, it will pasted as markdown image link format `![](i
 ## Contact
 
 If you have some any question or advice, Welcome to [issue](https://github.com/telesoho/vscode-markdown-paste-image/issues)
-
-## TODO
-
-- [x] support win (by @kivle)
-- [x] support linux
-- [x] support use the selected text as the image name
-- [x] support config (@ysknkd in #4)
-- [x] support config relative/absolute path (@ysknkd in #4)
-- [ ] support config image name pattern
 
 
 ## License

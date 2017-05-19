@@ -1,8 +1,12 @@
 # Change Log
 
+## 0.4.0 (May 19, 2017)
+
+- Feature: Support rename image after paste.
+
 ## 0.3.0 (December 31, 2016)
 
-- Feature: Support config the path(absolute or relative) to save image.(@ysknkd in #4)
+- Feature: Support config the path(absolute or relative) to save image.
 
 ## 0.2.0 (November 13, 2016)
 
@@ -11,7 +15,7 @@
 
 ## 0.1.0 (November 12, 2016)
 
-- Feature: Add windows support by powershell(@kivle in #2)
+- Feature: Add windows support by powershell
 
 ## 0.0.1
 
