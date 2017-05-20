@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.4.1 (May 20, 2017)
+
+- Fix #2: Use forward slashes "/" in the image url
+
 ## 0.4.0 (May 19, 2017)
 
 - Feature: Support rename image after paste.

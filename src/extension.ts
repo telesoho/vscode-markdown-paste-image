@@ -37,7 +37,7 @@ class Paster {
         var selection = editor.selection;
         var selectText = editor.document.getText(selection);
 
-        if (selectText && !/^[\w\-.]+$/.test(selectText)) {
+        if (selectText && !/^[a-z_\-\s0-9\.\\\/]+$/.test(selectText)) {
             vscode.window.showInformationMessage('Your selection is not a valid file name!');
             return;
         }
@@ -51,9 +51,11 @@ class Paster {
             vscode.window.showErrorMessage('The specified path is invalid: "' + folderPathFromConfig + '"');
             return;
         }
+        
 
         let filePath = fileUri.fsPath;
-        let imagePath = this.getImagePath(filePath, selectText, folderPathFromConfig);
+        let imagePath = this.getImagePath(
+            filePath, selectText, folderPathFromConfig);
 
         let options: vscode.InputBoxOptions = {
             prompt: "You can change the filename, exist file will be overwrite!.",
@@ -63,7 +65,9 @@ class Paster {
         vscode.window.showInputBox(options).then(inputVal => {
             if (!inputVal) return;
 
-            inputVal = inputVal.replace("${workspaceRoot}", vscode.workspace.rootPath);
+            // User may be input a path with backward slashes (\), so need to replace all '\' to '/'.
+            inputVal = inputVal.replace(
+                "${workspaceRoot}", vscode.workspace.rootPath).replace(/\\/g, '/');
 
             if (inputVal && (inputVal.length !== inputVal.trim().length)) {
                 vscode.window.showErrorMessage('The specified path is invalid: "' + inputVal + '"');
@@ -113,9 +117,11 @@ class Paster {
 
         // generate image path
         if (path.isAbsolute(folderPathFromConfig)) {
-            imagePath = path.join(folderPathFromConfig, imageFileName);
+            // important: replace must be done at the end, path.join() will build a path with backward slashes (\)
+            imagePath = path.join(folderPathFromConfig, imageFileName).replace(/\\/g, '/');
         } else {
-            imagePath = path.join(folderPath, folderPathFromConfig, imageFileName);
+            // important: replace must be done at the end, path.join() will build a path with backward slashes (\)
+            imagePath = path.join(folderPath, folderPathFromConfig, imageFileName).replace(/\\/g, '/');
         }
 
         return imagePath;
@@ -126,22 +132,24 @@ class Paster {
      */
     private static createImageDirWithImagePath(imagePath: string) {
         return new Promise((resolve, reject) => {
-            let imageDir = path.dirname(imagePath);
+            let imageDir = path.dirname(imagePath).replace(/\\/g, '/');
 
-            fs.exists(imageDir, (exists) => {
-                if (exists) {
-                    resolve(imagePath);
-                    return;
-                }
-
-                fs.mkdir(imageDir, (err) => {
-                    if (err) {
-                        reject(err);
+            try {
+                imageDir.split('/').forEach((dir, index, splits) => {
+                    const parent = splits.slice(0, index).join('/');
+                    const dirPath = path.resolve(parent, dir);
+                    if (!fs.existsSync(dirPath)) {
+                        fs.mkdirSync(dirPath);
+                    } else if(!fs.lstatSync(dirPath).isDirectory()) {
+                        reject("${dirPath} is not a directory");
                         return;
                     }
-                    resolve(imagePath);
                 });
-            });
+            } catch (error) {
+                reject(error);
+                return;
+            }
+            resolve(imagePath);
         });
     }
 
@@ -209,7 +217,8 @@ class Paster {
      * e.g. in markdown image file path will render to ![](path)
      */
     public static renderFilePath(languageId: string, docPath: string, imageFilePath: string): string {
-        imageFilePath = path.relative(path.dirname(docPath), imageFilePath);
+        // relative will be add backslash characters so need to replace '\' to '/' here.
+        imageFilePath = path.relative(path.dirname(docPath), imageFilePath).replace(/\\/g, '/');
 
         if (languageId === 'markdown') {
             return `![](${imageFilePath})`;
