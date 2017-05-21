@@ -2,7 +2,7 @@
   "name": "vscode-markdown-paste-image",
   "displayName": "Markdown Paste Image",
   "description": "paste image from clipboard directly",
-  "version": "0.4.1",
+  "version": "0.4.3",
   "publisher": "telesoho",
   "author": {
     "name": "telesoho",
@@ -40,11 +40,11 @@
   ],
   "main": "./out/src/extension",
   "scripts": {
-      "vscode:prepublish": "tsc -p ./",
-      "compile": "tsc -watch -p ./",
-      "postinstall": "node ./node_modules/vscode/bin/install",
-      "test": "node ./node_modules/vscode/bin/test"
-  },  
+    "vscode:prepublish": "tsc -p ./",
+    "compile": "tsc -watch -p ./",
+    "postinstall": "node ./node_modules/vscode/bin/install",
+    "test": "node ./node_modules/vscode/bin/test"
+  },
   "contributes": {
     "configuration": {
       "type": "object",
@@ -56,7 +56,7 @@
           "description": "The destination to save image file."
         }
       }
-    },    
+    },
     "commands": [
       {
         "command": "extension.MarkdownPasteImage",
@@ -74,13 +74,15 @@
   },
   "dependencies": {
     "copy-paste": "^1.2.0",
-    "moment": "^2.14.1"
+    "moment": "^2.14.1",
+    "shelljs": "^0.7.7"
   },
   "devDependencies": {
-    "typescript": "^2.0.3",
-    "vscode": "^1.0.0",
-    "mocha": "^2.3.3",
+    "@types/mocha": "^2.2.32",
     "@types/node": "^6.0.40",
-    "@types/mocha": "^2.2.32"    
+    "mocha": "^2.3.3",
+    "shelljs": "^0.7.7",
+    "typescript": "^2.0.3",
+    "vscode": "^1.0.0"
   }
 }

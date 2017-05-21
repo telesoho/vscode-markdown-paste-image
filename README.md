@@ -38,6 +38,7 @@ When you editing a markdown, it will pasted as markdown image link format `![](i
 If you have some any question or advice, Welcome to [issue](https://github.com/telesoho/vscode-markdown-paste-image/issues)
 
 
+
 ## License
 
 The extension and source are licensed under the [MIT license](LICENSE.txt).

@@ -2,6 +2,8 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
+import * as shell from 'shelljs'
+
 import {
     spawn
 } from 'child_process';
@@ -135,17 +137,9 @@ class Paster {
             let imageDir = path.dirname(imagePath).replace(/\\/g, '/');
 
             try {
-                imageDir.split('/').forEach((dir, index, splits) => {
-                    const parent = splits.slice(0, index).join('/');
-                    const dirPath = path.resolve(parent, dir);
-                    if (!fs.existsSync(dirPath)) {
-                        fs.mkdirSync(dirPath);
-                    } else if(!fs.lstatSync(dirPath).isDirectory()) {
-                        reject("${dirPath} is not a directory");
-                        return;
-                    }
-                });
+                shell.mkdir('-p', imageDir);
             } catch (error) {
+                console.log(error);
                 reject(error);
                 return;
             }

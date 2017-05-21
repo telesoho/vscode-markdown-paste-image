@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.4.3 (May 21, 2017)
+
+- Fix #4: Cannot create first level sub folder of root folder on windows.
+
 ## 0.4.1 (May 20, 2017)
 
 - Fix #2: Use forward slashes "/" in the image url
