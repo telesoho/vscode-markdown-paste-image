@@ -24,7 +24,7 @@ Paste image directly from clipboard to markdown(or other file)!
 
 - `pasteImage.silence`
 
-    enable/disable showing confirm box while paste image.
+    enable/disable showing confirm box while paste image. Set this config option to `true`, filename confirm box will not be shown whill paste image.
 
     Default value is `false`
 

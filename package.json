@@ -2,7 +2,7 @@
   "name": "vscode-markdown-paste-image",
   "displayName": "Markdown Paste Image",
   "description": "Paste image from clipboard directly",
-  "version": "0.4.4",
+  "version": "0.4.6",
   "publisher": "telesoho",
   "author": {
     "name": "telesoho",
@@ -58,7 +58,7 @@
         "pasteImage.silence" : {
           "type" : "boolean",
           "default" : false,
-          "description" : "Show confirm box (false) or not (true)."
+          "description" : "Enable/disable showing confirm box while paste image."
         }
       }
     },
