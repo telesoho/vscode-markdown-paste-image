@@ -8,7 +8,7 @@ Paste image directly from clipboard to markdown(or other file)!
 
 ## Usage
 
-1. capture screen to clipboard
+1. Capture screen to clipboard
 1. Open the command palette: `Ctrl+Shift+P` (`Cmd+Shift+P` on Mac)
 1. Type: "Markdown Paste Image" or you can use default keyboard binding: `Ctrl+Alt+V` (`Cmd+Alt+V` on Mac).
 1. Image will be saved in the folder that contains current editing file
@@ -21,6 +21,12 @@ Paste image directly from clipboard to markdown(or other file)!
     the folder path that image will be saved. Support absolute path and relative path and variable ${workspaceRoot}.
 
     Default value is `./`, mean save image in the folder contains current file.
+
+- `pasteImage.silence`
+
+    enable/disable showing confirm box while paste image.
+
+    Default value is `false`
 
 ## Format
 

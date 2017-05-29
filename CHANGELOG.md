@@ -1,5 +1,10 @@
 # Change Log
 
+## 0.4.4 (May 21, 2017)
+
+- Fix #5: Enable upper case as file name.
+- Add pasteImage.silence configure option.
+
 ## 0.4.3 (May 21, 2017)
 
 - Fix #4: Cannot create first level sub folder of root folder on windows.

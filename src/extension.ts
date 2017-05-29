@@ -23,6 +23,53 @@ export function deactivate() {}
 
 class Paster {
 
+    protected static saveImage(inputVal) {
+        if (!inputVal) return;
+
+        let editor = vscode.window.activeTextEditor;
+        if (!editor) return;
+        
+        let fileUri = editor.document.uri;
+        if (!fileUri) return;
+
+        let filePath = fileUri.fsPath;
+
+        // User may be input a path with backward slashes (\), so need to replace all '\' to '/'.
+        inputVal = inputVal.replace(
+            "${workspaceRoot}", vscode.workspace.rootPath).replace(/\\/g, '/');
+
+        if (inputVal && (inputVal.length !== inputVal.trim().length)) {
+            vscode.window.showErrorMessage('The specified path is invalid: "' + inputVal + '"');
+            return;
+        }
+
+        this.createImageDirWithImagePath(inputVal).then(imgPath => {
+            // save image and insert to current edit file
+            this.saveClipboardImageToFileAndGetPath(imgPath, imagePath => {
+                if (!imagePath) return;
+                if (imagePath === 'no image') {
+                    vscode.window.showInformationMessage('There is not a image in clipboard.');
+                    return;
+                }
+
+                imagePath = this.renderFilePath(editor.document.languageId, filePath, imagePath);
+
+                editor.edit(edit => {
+                    let current = editor.selection;
+
+                    if (current.isEmpty) {
+                        edit.insert(current.start, imagePath);
+                    } else {
+                        edit.replace(current, imagePath);
+                    }
+                });
+            });
+        }).catch(err => {
+            vscode.window.showErrorMessage('Make folder failed:' + inputVal);
+            return;
+        });        
+    }
+
     public static paste() {
         // get current edit file path
         let editor = vscode.window.activeTextEditor;
@@ -39,7 +86,7 @@ class Paster {
         var selection = editor.selection;
         var selectText = editor.document.getText(selection);
 
-        if (selectText && !/^[a-z_\-\s0-9\.\\\/]+$/.test(selectText)) {
+        if (selectText && !/^[a-z_A-Z\-\s0-9\.\\\/]+$/.test(selectText)) {
             vscode.window.showInformationMessage('Your selection is not a valid file name!');
             return;
         }
@@ -53,55 +100,23 @@ class Paster {
             vscode.window.showErrorMessage('The specified path is invalid: "' + folderPathFromConfig + '"');
             return;
         }
-        
 
-        let filePath = fileUri.fsPath;
         let imagePath = this.getImagePath(
-            filePath, selectText, folderPathFromConfig);
-
-        let options: vscode.InputBoxOptions = {
-            prompt: "You can change the filename, exist file will be overwrite!.",
-            value: imagePath,
-            placeHolder: "(e.g:../test/myimage.png)"
-        }
-        vscode.window.showInputBox(options).then(inputVal => {
-            if (!inputVal) return;
-
-            // User may be input a path with backward slashes (\), so need to replace all '\' to '/'.
-            inputVal = inputVal.replace(
-                "${workspaceRoot}", vscode.workspace.rootPath).replace(/\\/g, '/');
-
-            if (inputVal && (inputVal.length !== inputVal.trim().length)) {
-                vscode.window.showErrorMessage('The specified path is invalid: "' + inputVal + '"');
-                return;
+            fileUri.fsPath, selectText, folderPathFromConfig);
+        
+        let silence = vscode.workspace.getConfiguration('pasteImage').silence;
+        if( silence ) {
+            Paster.saveImage(imagePath);
+        } else {
+            let options: vscode.InputBoxOptions = {
+                prompt: "You can change the filename, exist file will be overwrite!.",
+                value: imagePath,
+                placeHolder: "(e.g:../test/myimage.png)"
             }
-
-            this.createImageDirWithImagePath(inputVal).then(imgPath => {
-                // save image and insert to current edit file
-                this.saveClipboardImageToFileAndGetPath(imgPath, imagePath => {
-                    if (!imagePath) return;
-                    if (imagePath === 'no image') {
-                        vscode.window.showInformationMessage('There is not a image in clipboard.');
-                        return;
-                    }
-
-                    imagePath = this.renderFilePath(editor.document.languageId, filePath, imagePath);
-
-                    editor.edit(edit => {
-                        let current = editor.selection;
-
-                        if (current.isEmpty) {
-                            edit.insert(current.start, imagePath);
-                        } else {
-                            edit.replace(current, imagePath);
-                        }
-                    });
-                });
-            }).catch(err => {
-                vscode.window.showErrorMessage('Make folder failed:' + inputVal);
-                return;
+            vscode.window.showInputBox(options).then(inputVal => {
+                Paster.saveImage(inputVal);
             });
-        });
+        }
     }
 
     public static getImagePath(filePath: string, selectText: string, folderPathFromConfig: string): string {
