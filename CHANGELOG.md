@@ -1,6 +1,6 @@
 # Change Log
 
-## 0.4.4 (May 21, 2017)
+## 0.4.7 (May 21, 2017)
 
 - Fix #5: Enable upper case as file name.
 - Add pasteImage.silence configure option.
