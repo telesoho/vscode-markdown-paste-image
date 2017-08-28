@@ -22,4 +22,6 @@ $encoder.Frames.Add([Windows.Media.Imaging.BitmapFrame]::Create($fcb)) | out-nul
 $encoder.Save($stream) | out-null
 $stream.Dispose() | out-null
 
-$imagePath
+
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+[Console]::WriteLine($imagePath)
