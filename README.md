@@ -39,6 +39,12 @@ If not the image will be saved in this format: "Y-MM-DD-HH-mm-ss.png".
 
 When you editing a markdown, it will pasted as markdown image link format `![](imagePath)`, the imagePath will be resolve to relative path of current markdown file. In other file, it just paste the image's path.
 
+## FAQ
+
+1. Extension not working on windows os.
+
+*  https://github.com/telesoho/vscode-markdown-paste-image/issues/6
+
 ## Contact
 
 If you have some any question or advice, Welcome to [issue](https://github.com/telesoho/vscode-markdown-paste-image/issues)
