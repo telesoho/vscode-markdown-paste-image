@@ -1,8 +1,8 @@
 # Change Log
 
-## 0.4.8 (August 28, 2017)
+## 0.4.9 (August 28, 2017)
 
-- Fix #7:Fix encoding problem in non-english language in Windows os
+- Fix #7:Fix encoding problem in non-english language in Windows os.
 
 ## 0.4.7 (May 21, 2017)
 
