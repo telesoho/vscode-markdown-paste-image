@@ -103,7 +103,8 @@ class Paster {
 
         let imagePath = this.getImagePath(
             fileUri.fsPath, selectText, folderPathFromConfig);
-        
+        let fileNameLength = selectText ? selectText.length : 19;  // yyyy-mm-dd-hh-mm-ss
+
         let silence = vscode.workspace.getConfiguration('pasteImage').silence;
         if( silence ) {
             Paster.saveImage(imagePath);
@@ -111,7 +112,8 @@ class Paster {
             let options: vscode.InputBoxOptions = {
                 prompt: "You can change the filename, exist file will be overwrite!.",
                 value: imagePath,
-                placeHolder: "(e.g:../test/myimage.png)"
+                placeHolder: "(e.g:../test/myimage.png)",
+                valueSelection: [imagePath.length - 4 - fileNameLength, imagePath.length - 4],
             }
             vscode.window.showInputBox(options).then(inputVal => {
                 Paster.saveImage(inputVal);
