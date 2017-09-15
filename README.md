@@ -43,13 +43,11 @@ When you editing a markdown, it will pasted as markdown image link format `![](i
 
 1. Extension not working on windows os.
 
-*  https://github.com/telesoho/vscode-markdown-paste-image/issues/6
+   https://github.com/telesoho/vscode-markdown-paste-image/issues/6
 
 ## Contact
 
 If you have some any question or advice, Welcome to [issue](https://github.com/telesoho/vscode-markdown-paste-image/issues)
-
-
 
 ## License
 

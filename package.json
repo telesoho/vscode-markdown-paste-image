@@ -2,7 +2,7 @@
   "name": "vscode-markdown-paste-image",
   "displayName": "Markdown Paste Image",
   "description": "Paste image from clipboard directly",
-  "version": "0.4.9",
+  "version": "0.5.0",
   "publisher": "telesoho",
   "author": {
     "name": "telesoho",

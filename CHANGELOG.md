@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.5.0 (September 15, 2017)
+
+- Feature: Autoselect filename for easier renaming.
+
 ## 0.4.9 (August 28, 2017)
 
 - Fix #7:Fix encoding problem in non-english language in Windows os.
