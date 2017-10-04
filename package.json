@@ -1,8 +1,8 @@
 {
   "name": "vscode-markdown-paste-image",
-  "displayName": "Markdown Paste Image",
-  "description": "Paste image from clipboard directly",
-  "version": "0.5.0",
+  "displayName": "Markdown Paste",
+  "description": "Automaticaly create file for pasting image content. Parse text content and generator content on your rules for pasting text.",
+  "version": "0.6.2",
   "publisher": "telesoho",
   "author": {
     "name": "telesoho",
@@ -27,7 +27,7 @@
     "image",
     "markdown",
     "paste image",
-    "keybindings"
+    "paste url"
   ],
   "engines": {
     "vscode": "^1.12.0"
@@ -36,7 +36,7 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:extension.MarkdownPasteImage"
+    "onCommand:extension.MarkdownPaste"
   ],
   "main": "./out/src/extension",
   "scripts": {
@@ -48,34 +48,45 @@
   "contributes": {
     "configuration": {
       "type": "object",
-      "title": "Markdown Paste Image Configuration",
+      "title": "Markdown Paste Configuration",
       "properties": {
         "pasteImage.path": {
           "type": "string",
           "default": "./",
           "description": "The destination to save image file."
         },
-        "pasteImage.silence" : {
-          "type" : "boolean",
-          "default" : false,
-          "description" : "Enable/disable showing confirm box while paste image."
+        "pasteImage.silence": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable/disable showing confirm box while paste image."
+        },
+        "MarkdownPaste.rules": {
+          "type": "array",
+          "default": [{
+              "regex": "(?:https?:\/\/)?(?:(?:(?:www\\.?)?youtube\\.com(?:\/(?:(?:watch\\?.*?v=([^&\\s]+).*)|))?))",
+              "options": "g",
+              "replace": "[![](https://img.youtube.com/vi/$1/0.jpg)](https://www.youtube.com/watch?v=$1)"
+            },
+            {
+              "regex": "(https?:\/\/.*)",
+              "options": "ig",
+              "replace": "[]($1)"
+            }
+          ],
+          "description": "Rules for markdown paste."
         }
       }
     },
-    "commands": [
-      {
-        "command": "extension.MarkdownPasteImage",
-        "title": "Markdown Paste Image"
-      }
-    ],
-    "keybindings": [
-      {
-        "command": "extension.MarkdownPasteImage",
-        "key": "ctrl+alt+v",
-        "mac": "cmd+alt+v",
-        "when": "editorTextFocus"
-      }
-    ]
+    "commands": [{
+      "command": "extension.MarkdownPaste",
+      "title": "Markdown Paste"
+    }],
+    "keybindings": [{
+      "command": "extension.MarkdownPaste",
+      "key": "ctrl+alt+v",
+      "mac": "cmd+alt+v",
+      "when": "editorTextFocus"
+    }]
   },
   "dependencies": {
     "copy-paste": "^1.2.0",

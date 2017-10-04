@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.6.2 (October 04, 2017)
+
+- Feature: Parse and replace content for pasting text.
+
 ## 0.5.0 (September 15, 2017)
 
 - Feature: Autoselect filename for easier renaming.

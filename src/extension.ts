@@ -2,7 +2,8 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
-import * as shell from 'shelljs'
+import * as shell from 'shelljs';
+import * as copyPaste from 'copy-paste';
 
 import {
     spawn
@@ -12,8 +13,8 @@ import * as moment from 'moment';
 export function activate(context: vscode.ExtensionContext) {
     console.log('Congratulations, your extension "vscode-markdown-paste-image" is now active!');
 
-    let disposable = vscode.commands.registerCommand('extension.MarkdownPasteImage', () => {
-        Paster.paste();
+    let disposable = vscode.commands.registerCommand('extension.MarkdownPaste', () => {
+        Paster.pasteText();
     });
 
     context.subscriptions.push(disposable);
@@ -22,6 +23,15 @@ export function activate(context: vscode.ExtensionContext) {
 export function deactivate() {}
 
 class Paster {
+    
+    private static writeToEditor(content): Thenable<boolean> {
+        let startLine = vscode.window.activeTextEditor.selection.start.line;
+        var selection = vscode.window.activeTextEditor.selection
+        let position = new vscode.Position(startLine, selection.start.character);
+        return vscode.window.activeTextEditor.edit((editBuilder) => {
+            editBuilder.insert(position, content);
+        });
+    }
 
     protected static saveImage(inputVal) {
         if (!inputVal) return;
@@ -70,7 +80,34 @@ class Paster {
         });        
     }
 
-    public static paste() {
+    private static parse(content) {                
+        let rules = vscode.workspace.getConfiguration('MarkdownPaste').rules;
+        for(var i = 0;i<rules.length;i++) { 
+            let rule = rules[i];
+            var re = new RegExp(rule.regex, rule.options);
+            var reps = rule.replace;
+            if(re.test(content)) {
+                var newstr = content.replace(re, reps);
+                return newstr;
+            }
+        }
+        return content;
+    }
+
+    public static pasteText() {
+        // try to paste as text
+        copyPaste.paste((error, content) => {
+            if (content) {
+                let newContent = Paster.parse(content);
+                Paster.writeToEditor(newContent);
+                return ;
+            } else {
+                Paster.pasteImage();
+            }
+        })
+    }
+
+    public static pasteImage() {
         // get current edit file path
         let editor = vscode.window.activeTextEditor;
         if (!editor) return;
