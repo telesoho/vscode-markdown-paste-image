@@ -62,14 +62,15 @@
         },
         "MarkdownPaste.rules": {
           "type": "array",
-          "default": [{
-              "regex": "(?:https?:\/\/)?(?:(?:(?:www\\.?)?youtube\\.com(?:\/(?:(?:watch\\?.*?v=([^&\\s]+).*)|))?))",
-              "options": "g",
+          "default": [
+            {
+              "regex": "^(?:https?://)?(?:(?:(?:www\\.?)?youtube\\.com(?:/(?:(?:watch\\?.*?v=([^&\\s]+).*)|))?))",
+              "options": "",
               "replace": "[![](https://img.youtube.com/vi/$1/0.jpg)](https://www.youtube.com/watch?v=$1)"
             },
             {
-              "regex": "(https?:\/\/.*)",
-              "options": "ig",
+              "regex": "^(https?://.*)",
+              "options": "i",
               "replace": "[]($1)"
             }
           ],
@@ -77,21 +78,26 @@
         }
       }
     },
-    "commands": [{
-      "command": "extension.MarkdownPaste",
-      "title": "Markdown Paste"
-    }],
-    "keybindings": [{
-      "command": "extension.MarkdownPaste",
-      "key": "ctrl+alt+v",
-      "mac": "cmd+alt+v",
-      "when": "editorTextFocus"
-    }]
+    "commands": [
+      {
+        "command": "extension.MarkdownPaste",
+        "title": "Markdown Paste"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "extension.MarkdownPaste",
+        "key": "ctrl+alt+v",
+        "mac": "cmd+alt+v",
+        "when": "editorTextFocus"
+      }
+    ]
   },
   "dependencies": {
     "copy-paste": "^1.2.0",
     "moment": "^2.14.1",
-    "shelljs": "^0.7.7"
+    "shelljs": "^0.7.7",
+    "to-markdown": "^3.1.0"
   },
   "devDependencies": {
     "@types/mocha": "^2.2.32",

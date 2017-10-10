@@ -23,7 +23,11 @@ export function activate(context: vscode.ExtensionContext) {
 export function deactivate() {}
 
 class Paster {
-    
+
+    private static isHTML(content) {
+        return /<[a-z][\s\S]*>/i.test(content);
+    }
+
     private static writeToEditor(content): Thenable<boolean> {
         let startLine = vscode.window.activeTextEditor.selection.start.line;
         var selection = vscode.window.activeTextEditor.selection
@@ -80,7 +84,7 @@ class Paster {
         });        
     }
 
-    private static parse(content) {                
+    private static parse(content) {
         let rules = vscode.workspace.getConfiguration('MarkdownPaste').rules;
         for(var i = 0;i<rules.length;i++) { 
             let rule = rules[i];
@@ -94,17 +98,63 @@ class Paster {
         return content;
     }
 
-    public static pasteText() {
-        // try to paste as text
-        copyPaste.paste((error, content) => {
-            if (content) {
-                let newContent = Paster.parse(content);
-                Paster.writeToEditor(newContent);
-                return ;
+    public static pasteWin32(cb) {
+        // Windows
+        const scriptPath = path.join(__dirname, '../../res/paste_win.ps1');
+        const powershell = spawn('powershell', [
+            '-noprofile',
+            '-noninteractive',
+            '-nologo',
+            '-sta',
+            '-executionpolicy', 'unrestricted',
+            '-windowstyle', 'hidden',
+            '-file', scriptPath
+        ]);
+        powershell.on('exit', function (code, signal) {
+            // console.log('exit', code, signal);
+        });
+        powershell.stdout.on('data', function (data: Buffer) {
+            let content = data.toString().trim();
+            let re = /Version:.*\r\nStartHTML:\d+\r\nEndHTML:\d+\r\nStartFragment:(\d+)\r\nEndFragment:(\d+)/g;
+            let m = re.exec(content);
+            if(m) {
+                let StartFragment = Number(m[1])
+                let EndFragment = Number(m[2])
+                cb(content.substr(StartFragment, EndFragment - StartFragment))
             } else {
-                Paster.pasteImage();
+                cb(content);
             }
-        })
+        });
+    }
+
+    public static pasteText() {
+        let platform = process.platform;
+        if (platform === 'win32') {
+            Paster.pasteWin32( content => {
+                if(content) {
+                    if(Paster.isHTML(content)) {
+                        var toMarkdown = require("to-markdown");
+                        Paster.writeToEditor(toMarkdown(content))
+                    } else {
+                        Paster.writeToEditor(content)
+                    }
+                } else {
+                    Paster.pasteImage();
+                }
+            });
+        } else {
+            // try to paste as text
+            copyPaste.paste((error, content) => {
+                if (content) {
+                    let newContent = Paster.parse(content);
+                    Paster.writeToEditor(newContent);
+                    return;
+                } else {
+                    Paster.pasteImage();
+                }
+            })
+        }
+        
     }
 
     public static pasteImage() {
