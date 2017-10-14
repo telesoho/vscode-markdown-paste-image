@@ -11,24 +11,33 @@ import {
 import * as moment from 'moment';
 
 export function activate(context: vscode.ExtensionContext) {
-    console.log('Congratulations, your extension "vscode-markdown-paste-image" is now active!');
-
-    let disposable = vscode.commands.registerCommand('extension.MarkdownPaste', () => {
-        Paster.pasteText();
-    });
-
-    context.subscriptions.push(disposable);
+    console.log('Congratulations, your extension "vscode-markdown-paste" is now active!');
+    context.subscriptions.push(vscode.commands.registerCommand(
+        'extension.MarkdownPaste', () => {
+            Paster.pasteText();
+        }));
+    context.subscriptions.push(vscode.commands.registerCommand(
+        'extension.MarkdownRuby', () => {
+            Paster.Ruby();
+        }));
 }
 
 export function deactivate() {}
 
 class Paster {
 
+    public static Ruby() {
+        let editor = vscode.window.activeTextEditor;
+        if (!editor) return;
+        let rubyTag = new vscode.SnippetString("<ruby>${TM_SELECTED_TEXT}<rp>(</rp><rt>${1:pronunciation}</rt><rp>)</rp></ruby>");
+        editor.insertSnippet(rubyTag);
+    }
+
     private static isHTML(content) {
         return /<[a-z][\s\S]*>/i.test(content);
     }
 
-    private static writeToEditor(content): Thenable<boolean> {
+    private static writeToEditor(content): Thenable < boolean > {
         let startLine = vscode.window.activeTextEditor.selection.start.line;
         var selection = vscode.window.activeTextEditor.selection
         let position = new vscode.Position(startLine, selection.start.character);
@@ -42,7 +51,7 @@ class Paster {
 
         let editor = vscode.window.activeTextEditor;
         if (!editor) return;
-        
+
         let fileUri = editor.document.uri;
         if (!fileUri) return;
 
@@ -81,23 +90,23 @@ class Paster {
         }).catch(err => {
             vscode.window.showErrorMessage('Make folder failed:' + inputVal);
             return;
-        });        
+        });
     }
 
     private static parse(content) {
         let rules = vscode.workspace.getConfiguration('MarkdownPaste').rules;
 
-        for(var i = 0;i<rules.length;i++) { 
+        for (var i = 0; i < rules.length; i++) {
             let rule = rules[i];
             var re = new RegExp(rule.regex, rule.options);
             var reps = rule.replace;
-            if(re.test(content)) {
+            if (re.test(content)) {
                 var newstr = content.replace(re, reps);
                 return newstr;
             }
         }
 
-        if(Paster.isHTML(content)){
+        if (Paster.isHTML(content)) {
             var toMarkdown = require("to-markdown");
             return toMarkdown(content);
         }
@@ -124,7 +133,7 @@ class Paster {
             let content = data.toString().trim();
             let re = /Version:.*\r\nStartHTML:\d+\r\nEndHTML:\d+\r\nStartFragment:(\d+)\r\nEndFragment:(\d+)/g;
             let m = re.exec(content);
-            if(m) {
+            if (m) {
                 let StartFragment = Number(m[1])
                 let EndFragment = Number(m[2])
                 cb(content.substr(StartFragment, EndFragment - StartFragment))
@@ -181,10 +190,10 @@ class Paster {
 
         let imagePath = this.getImagePath(
             fileUri.fsPath, selectText, folderPathFromConfig);
-        let fileNameLength = selectText ? selectText.length : 19;  // yyyy-mm-dd-hh-mm-ss
+        let fileNameLength = selectText ? selectText.length : 19; // yyyy-mm-dd-hh-mm-ss
 
         let silence = vscode.workspace.getConfiguration('pasteImage').silence;
-        if( silence ) {
+        if (silence) {
             Paster.saveImage(imagePath);
         } else {
             let options: vscode.InputBoxOptions = {

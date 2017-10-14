@@ -2,7 +2,7 @@
   "name": "vscode-markdown-paste-image",
   "displayName": "Markdown Paste",
   "description": "Automaticaly create file for pasting image content. Parse text content and generator content on your rules for pasting text.",
-  "version": "0.6.2",
+  "version": "0.7.0",
   "publisher": "telesoho",
   "author": {
     "name": "telesoho",
@@ -36,7 +36,8 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:extension.MarkdownPaste"
+    "onCommand:extension.MarkdownPaste",
+    "onCommand:extension.MarkdownRuby"
   ],
   "main": "./out/src/extension",
   "scripts": {
@@ -65,12 +66,12 @@
           "default": [
             {
               "regex": "^(?:https?://)?(?:(?:(?:www\\.?)?youtube\\.com(?:/(?:(?:watch\\?.*?v=([^&\\s]+).*)|))?))",
-              "options": "",
+              "options": "g",
               "replace": "[![](https://img.youtube.com/vi/$1/0.jpg)](https://www.youtube.com/watch?v=$1)"
             },
             {
               "regex": "^(https?://.*)",
-              "options": "i",
+              "options": "ig",
               "replace": "[]($1)"
             }
           ],
@@ -82,6 +83,10 @@
       {
         "command": "extension.MarkdownPaste",
         "title": "Markdown Paste"
+      },
+      {
+        "command": "extension.MarkdownRuby",
+        "title": "Markdown Ruby"
       }
     ],
     "keybindings": [
@@ -90,6 +95,18 @@
         "key": "ctrl+alt+v",
         "mac": "cmd+alt+v",
         "when": "editorTextFocus"
+      },
+      {
+        "command": "extension.MarkdownRuby",
+        "key": "ctrl+alt+t",
+        "mac": "cmd+alt+t",
+        "when": "editorTextFocus"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "markdown",
+        "path": "./snippets/snippets.json"
       }
     ]
   },

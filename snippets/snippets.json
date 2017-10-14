@@ -1,0 +1,7 @@
+{
+    "ruby": {
+      "prefix": "ruby",
+      "body": "<ruby>${TM_SELECTED_TEXT}<rp>(</rp><rt>${1:pronunciation}</rt><rp>)</rp></ruby>",
+      "description": "Add a ruby tag"
+    }
+}

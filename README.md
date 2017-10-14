@@ -1,24 +1,28 @@
 # Markdown Paste
 
-Automaticaly create file for pasting image content. Parse text content and generator content on your rules for pasting text.
+Smary paste for Markdown.
 
 **Support Mac/Windows/Linux!**.
 
 ![markdown paste demo](./res/markdown_paste_demo_min.gif)
 
-## Paste Image
+## Features
 
-1. Capture screen to clipboard
-1. Open the command palette: `Ctrl+Shift+P` (`Cmd+Shift+P` on Mac)
-1. Type: "Markdown Paste" or you can use default keyboard binding: `Ctrl+Alt+V` (`Cmd+Alt+V` on Mac).
-1. Image will be saved in the folder that you specified in configuration.
+Smart paste by only pressing 'Ctrl+Alt+V'
 
-## Paste Text
+- If you paste an image, the extension will create an new file for the image and insert link code to Markdown.
+- If you paste a text, it will test the text with customize regex, and replace matched content by regex.
+- If you paste a text contain HTML tag, it will try to convert the HTML content to Markdown.
 
-1. Copy a youtube video url.
-1. Open the command palette: `Ctrl+Shift+P` (`Cmd+Shift+P` on Mac)
-1. Type: "Markdown Paste" or you can use default keyboard binding: `Ctrl+Alt+V` (`Cmd+Alt+V` on Mac).
-1. The youtube embedded code will be generated for the video.
+Also if you want to write article for learning asian laguage like Chinese or Japanese, ruby tag may be useful (for example:<ruby>聪明<rp>(</rp><rt>Cōngmíng</rt><rp>)</rp></ruby>).
+
+If you want to use it. All you should do are select some text then press 'Ctrl+Alt+T'.A ruby tag snippet will be created for the selected text like this:
+
+    ```HTML
+    <ruby>聪明<rp>(</rp><rt>pronunciation</rt><rp>)</rp></ruby>
+    ```
+
+This extionsion will not get the pronuncialtion for you in this version. You have to replace 'pronunciation' by youself.
 
 ## Config
 
@@ -36,7 +40,7 @@ Automaticaly create file for pasting image content. Parse text content and gener
 
 - `MarkdownPaste.rules`
 
-    This option is an array of regex replace JSON rule. If you want to define your own rule to parse and replace content for pasting text. You can fill the following JSON, and add it to this option.
+    If you want to define your own regex to parse and replace content for pasting text. You can fill the following JSON, and set it to this option.
     ```JSON
     [{
         // rule 1
@@ -49,22 +53,23 @@ Automaticaly create file for pasting image content. Parse text content and gener
         "regex": "(https?:\/\/.*)", // your javascript style regex
         "options": "ig",            // regex option
         "replace": "[]($1)"         // replace string
-    }
+    },
+    ...
     ]
     ```
 
-    The extension will test pasting text by your regex, if matched then do regex replace by using the TypeScript function string.replace().
+    The extension will try to test text content by regex defined in this option, if matched it whill replace content by using the TypeScript function string.replace().
 
     Default value is
 
     ```JSON
     [{
-        "regex": "(?:https?:\/\/)?(?:(?:(?:www\\.?)?youtube\\.com(?:\/(?:(?:watch\\?.*?v=([^&\\s]+).*)|))?))",
+        "regex": "^(?:https?:\/\/)?(?:(?:(?:www\\.?)?youtube\\.com(?:\/(?:(?:watch\\?.*?v=([^&\\s]+).*)|))?))",
         "options": "g",
         "replace": "[![](https://img.youtube.com/vi/$1/0.jpg)](https://www.youtube.com/watch?v=$1)"
     },
     {
-        "regex": "(https?:\/\/.*)",
+        "regex": "^(https?:\/\/.*)",
         "options": "ig",
         "replace": "[]($1)"
     }]

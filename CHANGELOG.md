@@ -1,29 +1,34 @@
 # Change Log
 
+## 0.7.0 (October 14, 2017)
+
+- Feature: Convert HTML to Markdown for pasing HTML content.
+- Feature: Add a snippets for adding ruby tag.
+
 ## 0.6.2 (October 04, 2017)
 
 - Feature: Parse and replace content for pasting text.
 
 ## 0.5.0 (September 15, 2017)
 
-- Feature: Autoselect filename for easier renaming.
+- Feature #8 : Autoselect filename for easier renaming.(thank @huhk-sysu)
 
 ## 0.4.9 (August 28, 2017)
 
-- Fix #7:Fix encoding problem in non-english language in Windows os.
+- Fix #7 :Fix encoding problem in non-english language in Windows os.
 
 ## 0.4.7 (May 21, 2017)
 
-- Fix #5: Enable upper case as file name.
+- Fix #5 : Enable upper case as file name.
 - Add pasteImage.silence configure option.
 
 ## 0.4.3 (May 21, 2017)
 
-- Fix #4: Cannot create first level sub folder of root folder on windows.
+- Fix #4 : Cannot create first level sub folder of root folder on windows.
 
 ## 0.4.1 (May 20, 2017)
 
-- Fix #2: Use forward slashes "/" in the image url
+- Fix #2 : Use forward slashes "/" in the image url
 
 ## 0.4.0 (May 19, 2017)
 
