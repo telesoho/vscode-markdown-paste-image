@@ -86,6 +86,7 @@ class Paster {
 
     private static parse(content) {
         let rules = vscode.workspace.getConfiguration('MarkdownPaste').rules;
+
         for(var i = 0;i<rules.length;i++) { 
             let rule = rules[i];
             var re = new RegExp(rule.regex, rule.options);
@@ -95,6 +96,12 @@ class Paster {
                 return newstr;
             }
         }
+
+        if(Paster.isHTML(content)){
+            var toMarkdown = require("to-markdown");
+            return toMarkdown(content);
+        }
+
         return content;
     }
 
@@ -128,33 +135,17 @@ class Paster {
     }
 
     public static pasteText() {
-        let platform = process.platform;
-        if (platform === 'win32') {
-            Paster.pasteWin32( content => {
-                if(content) {
-                    if(Paster.isHTML(content)) {
-                        var toMarkdown = require("to-markdown");
-                        Paster.writeToEditor(toMarkdown(content))
-                    } else {
-                        Paster.writeToEditor(content)
-                    }
-                } else {
-                    Paster.pasteImage();
-                }
-            });
-        } else {
-            // try to paste as text
-            copyPaste.paste((error, content) => {
-                if (content) {
-                    let newContent = Paster.parse(content);
-                    Paster.writeToEditor(newContent);
-                    return;
-                } else {
-                    Paster.pasteImage();
-                }
-            })
-        }
-        
+        copyPaste.paste((error, content) => {
+            if (content) {
+                let newContent = Paster.parse(content);
+                Paster.writeToEditor(newContent);
+                return;
+            } else {
+                // if no any content in clipboard, may be a image in clipboard.
+                // So try it.
+                Paster.pasteImage();
+            }
+        })
     }
 
     public static pasteImage() {
