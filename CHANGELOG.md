@@ -1,6 +1,6 @@
 # Change Log
 
-## 0.7.0 (October 14, 2017)
+## 0.7.1 (October 14, 2017)
 
 - Feature: Convert HTML to Markdown for pasing HTML content.
 - Feature: Add a snippets for adding ruby tag.

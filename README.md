@@ -14,13 +14,11 @@ Smart paste by only pressing 'Ctrl+Alt+V'
 - If you paste a text, it will test the text with customize regex, and replace matched content by regex.
 - If you paste a text contain HTML tag, it will try to convert the HTML content to Markdown.
 
-Also if you want to write article for learning asian laguage like Chinese or Japanese, ruby tag may be useful (for example:<ruby>聪明<rp>(</rp><rt>Cōngmíng</rt><rp>)</rp></ruby>).
+Also if you want to write article for learning asian language like Chinese or Japanese, ruby tag(for example:<ruby>聪明<rp>(</rp><rt>Cōngmíng</rt><rp>)</rp></ruby>) may be useful. Now a ruby tag snippet are prepare for you, select some text and press 'Ctrl+Alt+T'.
 
-If you want to use it. All you should do are select some text then press 'Ctrl+Alt+T'.A ruby tag snippet will be created for the selected text like this:
-
-    ```HTML
-    <ruby>聪明<rp>(</rp><rt>pronunciation</rt><rp>)</rp></ruby>
-    ```
+```HTML
+<ruby>聪明<rp>(</rp><rt>pronunciation</rt><rp>)</rp></ruby>
+```
 
 This extionsion will not get the pronuncialtion for you in this version. You have to replace 'pronunciation' by youself.
 

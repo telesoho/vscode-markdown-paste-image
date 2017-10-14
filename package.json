@@ -2,7 +2,7 @@
   "name": "vscode-markdown-paste-image",
   "displayName": "Markdown Paste",
   "description": "Automaticaly create file for pasting image content. Parse text content and generator content on your rules for pasting text.",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "publisher": "telesoho",
   "author": {
     "name": "telesoho",
