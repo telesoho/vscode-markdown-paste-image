@@ -1,19 +1,16 @@
 'use strict';
 import * as vscode from 'vscode';
 import * as path from 'path';
-import * as fs from 'fs';
-import * as shell from 'shelljs';
-import * as copyPaste from 'copy-paste';
-
-import {
-    spawn
-} from 'child_process';
+import {mkdir} from 'shelljs';
+import * as clipboard from 'clipboardy'
+import {spawn} from 'child_process';
 import * as moment from 'moment';
 
 export function activate(context: vscode.ExtensionContext) {
-    console.log('Congratulations, your extension "vscode-markdown-paste" is now active!');
+    console.log('"vscode-markdown-paste" is now active!');
     context.subscriptions.push(vscode.commands.registerCommand(
         'extension.MarkdownPaste', () => {
+            console.log('Paster.pasteText');
             Paster.pasteText();
         }));
     context.subscriptions.push(vscode.commands.registerCommand(
@@ -22,9 +19,24 @@ export function activate(context: vscode.ExtensionContext) {
         }));
 }
 
-export function deactivate() {}
+export function deactivate() {
+    console.log('"vscode-markdown-paste" is now deactivate!');
+}
 
 class Paster {
+
+    public static pasteText() {
+        var content = clipboard.readSync();
+        console.log('you paste:', content)
+        if (content) {
+            let newContent = Paster.parse(content);
+            Paster.writeToEditor(newContent);
+        } else {
+            // if no any content in clipboard, may be a image in clipboard.
+            // So try it.
+            Paster.pasteImage();
+        }
+    }
 
     public static Ruby() {
         let editor = vscode.window.activeTextEditor;
@@ -114,50 +126,7 @@ class Paster {
         return content;
     }
 
-    public static pasteWin32(cb) {
-        // Windows
-        const scriptPath = path.join(__dirname, '../../res/paste_win.ps1');
-        const powershell = spawn('powershell', [
-            '-noprofile',
-            '-noninteractive',
-            '-nologo',
-            '-sta',
-            '-executionpolicy', 'unrestricted',
-            '-windowstyle', 'hidden',
-            '-file', scriptPath
-        ]);
-        powershell.on('exit', function (code, signal) {
-            // console.log('exit', code, signal);
-        });
-        powershell.stdout.on('data', function (data: Buffer) {
-            let content = data.toString().trim();
-            let re = /Version:.*\r\nStartHTML:\d+\r\nEndHTML:\d+\r\nStartFragment:(\d+)\r\nEndFragment:(\d+)/g;
-            let m = re.exec(content);
-            if (m) {
-                let StartFragment = Number(m[1])
-                let EndFragment = Number(m[2])
-                cb(content.substr(StartFragment, EndFragment - StartFragment))
-            } else {
-                cb(content);
-            }
-        });
-    }
-
-    public static pasteText() {
-        copyPaste.paste((error, content) => {
-            if (content) {
-                let newContent = Paster.parse(content);
-                Paster.writeToEditor(newContent);
-                return;
-            } else {
-                // if no any content in clipboard, may be a image in clipboard.
-                // So try it.
-                Paster.pasteImage();
-            }
-        })
-    }
-
-    public static pasteImage() {
+    private static pasteImage() {
         // get current edit file path
         let editor = vscode.window.activeTextEditor;
         if (!editor) return;
@@ -241,7 +210,7 @@ class Paster {
             let imageDir = path.dirname(imagePath).replace(/\\/g, '/');
 
             try {
-                shell.mkdir('-p', imageDir);
+                mkdir('-p', imageDir);
             } catch (error) {
                 console.log(error);
                 reject(error);
