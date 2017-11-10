@@ -1,6 +1,6 @@
 # Markdown Paste
 
-Smary paste for Markdown.
+Smartly paste for Markdown.
 
 **Support Mac/Windows/Linux!**.
 
@@ -8,7 +8,7 @@ Smary paste for Markdown.
 
 ## Features
 
-Smart paste by only pressing 'Ctrl+Alt+V'
+Smartly paste in markdown by pressing 'Ctrl+Alt+V' ('Cmd+Alt+V' on Mac)
 
 - If you paste an image, the extension will create an new file for the image and insert link code to Markdown.
 - If you paste a text, it will test the text with customize regex, and replace matched content by regex.
@@ -20,7 +20,7 @@ Also if you want to write article for learning asian language like Chinese or Ja
 <ruby>聪明<rp>(</rp><rt>pronunciation</rt><rp>)</rp></ruby>
 ```
 
-This extionsion will not get the pronuncialtion for you in this version. You have to replace 'pronunciation' by youself.
+This extension will not get the pronunciation for you in this version. You have to replace 'pronunciation' by yourself.
 
 ## Config
 

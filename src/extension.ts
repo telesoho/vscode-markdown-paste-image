@@ -229,7 +229,7 @@ class Paster {
         let platform = process.platform;
         if (platform === 'win32') {
             // Windows
-            const scriptPath = path.join(__dirname, '../../res/pc.ps1');
+            const scriptPath = path.join(__dirname, '../res/pc.ps1');
             const powershell = spawn('powershell', [
                 '-noprofile',
                 '-noninteractive',
@@ -248,7 +248,7 @@ class Paster {
             });
         } else if (platform === 'darwin') {
             // Mac
-            let scriptPath = path.join(__dirname, '../../res/mac.applescript');
+            let scriptPath = path.join(__dirname, '../res/mac.applescript');
 
             let ascript = spawn('osascript', [scriptPath, imagePath]);
             ascript.on('exit', function (code, signal) {
@@ -261,7 +261,7 @@ class Paster {
         } else {
             // Linux 
 
-            let scriptPath = path.join(__dirname, '../../res/linux.sh');
+            let scriptPath = path.join(__dirname, '../res/linux.sh');
 
             let ascript = spawn('sh', [scriptPath, imagePath]);
             ascript.on('exit', function (code, signal) {

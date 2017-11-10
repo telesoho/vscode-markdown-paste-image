@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.7.3 (November 10, 2017)
+
+- Fix #10: Chinese encoding problem.
+
 ## 0.7.1 (October 14, 2017)
 
 - Feature: Convert HTML to Markdown for pasing HTML content.
