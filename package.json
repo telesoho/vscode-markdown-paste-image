@@ -102,7 +102,7 @@
         "key": "ctrl+alt+t",
         "mac": "cmd+alt+t",
         "when": "editorTextFocus"
-      }    
+      }
     ],
     "snippets": [
       {
