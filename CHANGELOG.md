@@ -1,5 +1,10 @@
 # Change Log
 
+## 0.7.4 (April 20, 2018)
+
+- Update all dependencies.
+- Add requirment setion to README
+
 ## 0.7.3 (November 10, 2017)
 
 - Fix #10: Chinese encoding problem.

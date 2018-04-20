@@ -6,6 +6,11 @@ Smartly paste for Markdown.
 
 ![markdown paste demo](./res/markdown_paste_demo_min.gif)
 
+## Requirements
+
+* 'xsel' command be required (Linux)
+* 'pbpaste' command be required (Mac)
+
 ## Features
 
 Smartly paste in markdown by pressing 'Ctrl+Alt+V' ('Cmd+Alt+V' on Mac)
