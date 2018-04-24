@@ -2,7 +2,7 @@
   "name": "vscode-markdown-paste-image",
   "displayName": "Markdown Paste",
   "description": "A smartly paste for markdown.",
-  "version": "0.7.4",
+  "version": "0.7.5",
   "publisher": "telesoho",
   "author": {
     "name": "telesoho",
@@ -112,7 +112,7 @@
     ]
   },
   "dependencies": {
-    "clipboardy": "^1.2.3",
+    "clipboardy": "^1.1.4",
     "moment": "^2.22.1",
     "shelljs": "^0.7.7",
     "to-markdown": "^3.1.1"

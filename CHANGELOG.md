@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.7.5 (April 23, 2018)
+
+- Fixed #13: downgrade clipboardy to v1.1.4.
+
 ## 0.7.4 (April 20, 2018)
 
 - Update all dependencies.
