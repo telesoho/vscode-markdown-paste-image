@@ -1,4 +1,7 @@
 # Change Log
+## 0.8.0 (August 12, 2018)
+
+- Feature: Insert latex math symbol into current editor.
 
 ## 0.7.5 (April 23, 2018)
 

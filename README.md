@@ -13,19 +13,32 @@ Smartly paste for Markdown.
 
 ## Features
 
-Smartly paste in markdown by pressing 'Ctrl+Alt+V' ('Cmd+Alt+V' on Mac)
+- Paste smart
 
-- If you paste an image, the extension will create an new file for the image and insert link code to Markdown.
-- If you paste a text, it will test the text with customize regex, and replace matched content by regex.
-- If you paste a text contain HTML tag, it will try to convert the HTML content to Markdown.
+    Smartly paste in markdown by pressing 'Ctrl+Alt+V' ('Cmd+Alt+V' on Mac)
 
-Also if you want to write article for learning asian language like Chinese or Japanese, ruby tag(for example:<ruby>聪明<rp>(</rp><rt>Cōngmíng</rt><rp>)</rp></ruby>) may be useful. Now a ruby tag snippet are prepare for you, select some text and press 'Ctrl+Alt+T'.
+    - If you paste an image, the extension will create an new file for the image and insert link code to Markdown.
+    - If you paste a text, it will test the text with customize regex, and replace matched content by regex.
+    - If you paste a text contain HTML tag, it will try to convert the HTML content to Markdown.
 
-```HTML
-<ruby>聪明<rp>(</rp><rt>pronunciation</rt><rp>)</rp></ruby>
-```
+- Ruby tag
 
-This extension will not get the pronunciation for you in this version. You have to replace 'pronunciation' by yourself.
+    Also if you want to write article for learning asian language like Chinese or Japanese, ruby tag(for example:<ruby>聪明<rp>(</rp><rt>Cōngmíng</rt><rp>)</rp></ruby>) may be useful. Now a ruby tag snippet are prepare for you, select some text and press 'Ctrl+Alt+T'.
+
+    ```HTML
+    <ruby>聪明<rp>(</rp><rt>pronunciation</rt><rp>)</rp></ruby>
+    ```
+
+    This extension will not get the pronunciation for you in this version. You have to replace 'pronunciation' by yourself.
+
+- Insert latex math symbol
+
+    You can insert latex math symbol to any text file, such as Julia source file.
+
+    press 'Ctrl+Alt+\' or input "Insert latex math symbol" in vscode command panel, then input latex symbol name and choose symbol you want.
+
+    ![](res/insert-math-symbol-2018-08-12-18-15-12.png)
+
 
 ## Config
 
