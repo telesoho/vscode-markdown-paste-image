@@ -2,7 +2,7 @@
   "name": "vscode-markdown-paste-image",
   "displayName": "Markdown Paste",
   "description": "A smartly paste for markdown.",
-  "version": "0.7.5",
+  "version": "0.8.0",
   "publisher": "telesoho",
   "author": {
     "name": "telesoho",
@@ -36,8 +36,9 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:extension.MarkdownPaste",
-    "onCommand:extension.MarkdownRuby"
+    "onCommand:telesoho.MarkdownPaste",
+    "onCommand:telesoho.MarkdownRuby",
+    "onCommand:telesoho.insertMathSymbol"
   ],
   "main": "./out/extension",
   "scripts": {
@@ -82,25 +83,35 @@
     },
     "commands": [
       {
-        "command": "extension.MarkdownPaste",
+        "command": "telesoho.MarkdownPaste",
         "title": "Markdown Paste"
       },
       {
-        "command": "extension.MarkdownRuby",
+        "command": "telesoho.MarkdownRuby",
         "title": "Markdown Ruby"
+      },
+      {
+        "command": "telesoho.insertMathSymbol",
+        "title": "Insert latex math symbol"
       }
     ],
     "keybindings": [
       {
-        "command": "extension.MarkdownPaste",
+        "command": "telesoho.MarkdownPaste",
         "key": "ctrl+alt+v",
         "mac": "cmd+alt+v",
         "when": "editorTextFocus"
       },
       {
-        "command": "extension.MarkdownRuby",
+        "command": "telesoho.MarkdownRuby",
         "key": "ctrl+alt+t",
         "mac": "cmd+alt+t",
+        "when": "editorTextFocus"
+      },
+      {
+        "key": "ctrl+alt+\\",
+        "mac": "cmd+alt+\\",
+        "command": "telesoho.insertMathSymbol",
         "when": "editorTextFocus"
       }
     ],
