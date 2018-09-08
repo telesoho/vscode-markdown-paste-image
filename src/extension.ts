@@ -185,7 +185,7 @@ class Paster {
         var selection = editor.selection;
         var selectText = editor.document.getText(selection);
 
-        if (selectText && !/^[a-z_A-Z\-\s0-9\.\\\/]+$/.test(selectText)) {
+        if (selectText && !/^[^\\/:\*\?""<>|]{1,120}$/.test(selectText)) {
             vscode.window.showInformationMessage('Your selection is not a valid file name!');
             return;
         }
