@@ -1,4 +1,9 @@
 # Change Log
+## 0.9.0 (September 8, 2018)
+
+- Feature: Convert rich text to markdown
+- Fix #18: Paste Path add `./` and File name verification support for Chinese
+
 ## 0.8.0 (August 12, 2018)
 
 - Feature: Insert latex math symbol into current editor.

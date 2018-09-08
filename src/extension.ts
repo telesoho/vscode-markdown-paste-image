@@ -68,19 +68,46 @@ export function deactivate() {
 
 class Paster {
 
+    /**
+     * Paste text
+     */
     public static pasteText() {
-        var content = clipboard.readSync();
-        console.log('you paste:', content)
-        if (content) {
-            let newContent = Paster.parse(content);
-            Paster.writeToEditor(newContent);
-        } else {
-            // if no any content in clipboard, may be a image in clipboard.
-            // So try it.
-            Paster.pasteImage();
+        var ret = this.getClipboardContentType((ctx_type) => {
+            switch(ctx_type) {
+                case "text/html":
+                    this.pasteTextHtml((html)=>{
+                        var markdown = this.toMarkdown(html);
+                        Paster.writeToEditor(markdown);
+                    });
+                break;
+                case "text/plain":
+                    var content = clipboard.readSync();
+                    if (content) {
+                        let newContent = Paster.parse(content);
+                        Paster.writeToEditor(newContent);
+                    }
+                break;
+                case "image/png":
+                    Paster.pasteImage();
+                break;
+            }
+        });
+
+        // If cannot get content type then try to read clipboard once
+        if(false == ret) {
+            var content = clipboard.readSync();
+            if (content) {
+                let newContent = Paster.parse(content);
+                Paster.writeToEditor(newContent);
+            } else {
+                Paster.pasteImage();
+            }
         }
     }
 
+    /**
+     * Ruby tag
+     */
     public static Ruby() {
         let editor = vscode.window.activeTextEditor;
         if (!editor) return;
@@ -162,11 +189,157 @@ class Paster {
         }
 
         if (Paster.isHTML(content)) {
-            var toMarkdown = require("to-markdown");
-            return toMarkdown(content);
+            return this.toMarkdown(content);
         }
 
         return content;
+    }
+
+    private static pasteTextHtml(callback:(data) => void) {
+        var script = {
+            'win32': "win32_get_clipboard_text_html",
+            'linux': "linux_get_clipboard_text_html.sh"
+        };
+        var ret = this.runScript(script, [], (data) => {
+            callback(data.toString().trim());
+        });
+        return ret;
+    }
+
+    private static toMarkdown(content) {
+        // http://pandoc.org/README.html#pandocs-markdown
+        var pandoc = [
+            {
+                filter: 'h1',
+                replacement: function (content, node) {
+                    var underline = Array(content.length + 1).join('=');
+                    return '\n\n' + content + '\n' + underline + '\n\n';
+                }
+            },
+
+            {
+                filter: 'h2',
+                replacement: function (content, node) {
+                    var underline = Array(content.length + 1).join('-');
+                    return '\n\n' + content + '\n' + underline + '\n\n';
+                }
+            },
+
+            {
+                filter: 'sup',
+                replacement: function (content) {
+                    return '^' + content + '^';
+                }
+            },
+
+            {
+                filter: 'sub',
+                replacement: function (content) {
+                    return '~' + content + '~';
+                }
+            },
+
+            {
+                filter: 'br',
+                replacement: function () {
+                    return '\\\n';
+                }
+            },
+
+            {
+                filter: 'hr',
+                replacement: function () {
+                    return '\n\n* * * * *\n\n';
+                }
+            },
+
+            {
+                filter: ['em', 'i', 'cite', 'var'],
+                replacement: function (content) {
+                    return '*' + content + '*';
+                }
+            },
+
+            {
+                filter: function (node) {
+                    var hasSiblings = node.previousSibling || node.nextSibling;
+                    var isCodeBlock = node.parentNode.nodeName === 'PRE' && !hasSiblings;
+                    var isCodeElem = node.nodeName === 'CODE' ||
+                        node.nodeName === 'KBD' ||
+                        node.nodeName === 'SAMP' ||
+                        node.nodeName === 'TT';
+
+                    return isCodeElem && !isCodeBlock;
+                },
+                replacement: function (content) {
+                    return '`' + content + '`';
+                }
+            },
+
+            {
+                filter: function (node) {
+                    return node.nodeName === 'A' && node.getAttribute('href');
+                },
+                replacement: function (content, node) {
+                    var url = node.getAttribute('href');
+                    var titlePart = node.title ? ' "' + node.title + '"' : '';
+                    if (content === url) {
+                        return '<' + url + '>';
+                    } else if (url === ('mailto:' + content)) {
+                        return '<' + content + '>';
+                    } else {
+                        return '[' + content + '](' + url + titlePart + ')';
+                    }
+                }
+            },
+
+            {
+                filter: 'li',
+                replacement: function (content, node) {
+                    content = content.replace(/^\s+/, '').replace(/\n/gm, '\n    ');
+                    var prefix = '-   ';
+                    var parent = node.parentNode;
+
+                    if (/ol/i.test(parent.nodeName)) {
+                        var index = Array.prototype.indexOf.call(parent.children, node) + 1;
+                        prefix = index + '. ';
+                        while (prefix.length < 4) {
+                            prefix += ' ';
+                        }
+                    }
+
+                    return prefix + content;
+                }
+            },
+            {
+                filter: ['font', 'span'],
+                replacement: function (content) {
+                    return content;
+                }
+            }
+        ];
+
+        // http://pandoc.org/README.html#smart-punctuation
+        var escape = function (str) {
+            return str.replace(/[\u2018\u2019\u00b4]/g, "'")
+                .replace(/[\u201c\u201d\u2033]/g, '"')
+                .replace(/[\u2212\u2022\u00b7\u25aa]/g, '-')
+                .replace(/[\u2013\u2015]/g, '--')
+                .replace(/\u2014/g, '---')
+                .replace(/\u2026/g, '...')
+                .replace(/[ ]+\n/g, '\n')
+                .replace(/\s*\\\n/g, '\\\n')
+                .replace(/\s*\\\n\s*\\\n/g, '\n\n')
+                .replace(/\s*\\\n\n/g, '\n\n')
+                .replace(/\n-\n/g, '\n')
+                .replace(/\n\n\s*\\\n/g, '\n\n')
+                .replace(/\n\n\n*/g, '\n\n')
+                .replace(/[ ]+$/gm, '')
+                .replace(/^\s+|[\s\\]+$/g, '');
+        };
+
+        var toMarkdown = require("to-markdown");
+        return escape(toMarkdown(content, { converters: pandoc, gfm: true }));
     }
 
     private static pasteImage() {
@@ -220,7 +393,7 @@ class Paster {
         }
     }
 
-    public static getImagePath(filePath: string, selectText: string, folderPathFromConfig: string): string {
+    private static getImagePath(filePath: string, selectText: string, folderPathFromConfig: string): string {
         // image file name
         let imageFileName = "";
         if (!selectText) {
@@ -263,63 +436,157 @@ class Paster {
         });
     }
 
-    /**
-     * use applescript to save image from clipboard and get file path
-     */
-    private static saveClipboardImageToFileAndGetPath(imagePath, cb: (imagePath: string) => void) {
-        if (!imagePath) return;
+    private static getClipboardContentType(cb: (targets) => void) {
+        var script = {
+            'linux': "linux_clipboard_content_type.sh",
+            'wind32': "win32_clipboard_content_type.ps1"
+        };
 
+        let ret = this.runScript(script, [], (data) => {
+            let result = data.toString().trim();
+            if (result == "no xclip") {
+                vscode.window.showInformationMessage('You need to install xclip command first.');
+                return;
+            }
+            let result_array = result.split("\n");
+            let content_type = "unknow";
+            if(result_array) {
+                for(var i = 0; i < result_array.length; i++) {
+                    var element = result_array[i];
+                    if(element == "text/html") {
+                        content_type = element;
+                        break;
+                     } else if (element == "text/plain") {
+                         content_type = element;
+                         continue;
+                     } else if(element == "image/png" ) {
+                         content_type = element;
+                         break;
+                     }
+                }
+            }
+            cb(content_type);
+        });
+        return ret;
+    }
+
+    /**
+     * 
+     * @param script 
+     * @param parameters 
+     * @param callback 
+     */
+    private static runScript(script, parameters = [], callback = (data) => {} ) {
         let platform = process.platform;
+        if(typeof script[platform] === "undefined") {
+            console.log(`Cannot found script for ${platform}`);
+            return false;
+        }
+        const scriptPath = path.join(__dirname, '../res/' + script[platform]);
+        let shell = "";
+        let command = [];
+
         if (platform === 'win32') {
             // Windows
-            const scriptPath = path.join(__dirname, '../res/pc.ps1');
-            const powershell = spawn('powershell', [
+            command = [
                 '-noprofile',
                 '-noninteractive',
                 '-nologo',
                 '-sta',
                 '-executionpolicy', 'unrestricted',
                 '-windowstyle', 'hidden',
-                '-file', scriptPath,
-                imagePath
-            ]);
-            powershell.on('exit', function (code, signal) {
-                // console.log('exit', code, signal);
-            });
-            powershell.stdout.on('data', function (data: Buffer) {
-                cb(data.toString().trim());
-            });
+                '-file', scriptPath].concat(parameters)
+            shell = 'powershell';
         } else if (platform === 'darwin') {
             // Mac
-            let scriptPath = path.join(__dirname, '../res/mac.applescript');
-
-            let ascript = spawn('osascript', [scriptPath, imagePath]);
-            ascript.on('exit', function (code, signal) {
-                // console.log('exit',code,signal);
-            });
-
-            ascript.stdout.on('data', function (data: Buffer) {
-                cb(data.toString().trim());
-            });
+            shell = 'osascript';
+            command = [scriptPath].concat(parameters);
         } else {
-            // Linux 
-
-            let scriptPath = path.join(__dirname, '../res/linux.sh');
-
-            let ascript = spawn('sh', [scriptPath, imagePath]);
-            ascript.on('exit', function (code, signal) {
-                // console.log('exit',code,signal);
-            });
-
-            ascript.stdout.on('data', function (data: Buffer) {
-                let result = data.toString().trim();
-                if (result == "no xclip") {
-                    vscode.window.showInformationMessage('You need to install xclip command first.');
-                    return;
-                }
-                cb(result);
-            });
+            // Linux
+            shell = 'sh';
+            command = [scriptPath].concat(parameters);
         }
+
+        const runer = spawn(shell, command);
+        runer.on('exit', function (code, signal) {
+            // console.log('exit', code, signal);
+        });
+        runer.stdout.on('data', function (data: Buffer) {
+            if(callback) {
+                callback(data);
+            }
+        });
+        return true;
+    }
+
+    /**
+     * use applescript to save image from clipboard and get file path
+     */
+    private static saveClipboardImageToFileAndGetPath(imagePath, cb: (imagePath: string) => void) {
+        if (!imagePath) return;
+
+        const script = {
+            'win32':"win32_save_clipboard_png.ps1",
+            "darwin": "mac.applescript",
+            "linux": "linux_save_clipboard_png.sh"
+        };
+
+        let ret = this.runScript(script,[imagePath], (data) => {
+            cb(data.toString().trim());
+        });
+
+        // let platform = process.platform;
+        // if (platform === 'win32') {
+        //     // Windows
+        //     const scriptPath = path.join(__dirname, '../res/pc.ps1');
+        //     const powershell = spawn('powershell', [
+        //         '-noprofile',
+        //         '-noninteractive',
+        //         '-nologo',
+        //         '-sta',
+        //         '-executionpolicy', 'unrestricted',
+        //         '-windowstyle', 'hidden',
+        //         '-file', scriptPath,
+        //         imagePath
+        //     ]);
+        //     powershell.on('exit', function (code, signal) {
+        //         // console.log('exit', code, signal);
+        //     });
+        //     powershell.stdout.on('data', function (data: Buffer) {
+        //         cb(data.toString().trim());
+        //     });
+        // } else if (platform === 'darwin') {
+        //     // Mac
+        //     let scriptPath = path.join(__dirname, '../res/mac.applescript');
+
+        //     let ascript = spawn('osascript', [scriptPath, imagePath]);
+        //     ascript.on('exit', function (code, signal) {
+        //         // console.log('exit',code,signal);
+        //     });
+
+        //     ascript.stdout.on('data', function (data: Buffer) {
+        //         cb(data.toString().trim());
+        //     });
+        // } else {
+        //     // Linux 
+        //     let scriptPath = path.join(__dirname, '../res/linux_save_clipboard_png.sh');
+
+        //     console.log('sh', [scriptPath, imagePath]);
+        //     let ascript = spawn('sh', [scriptPath, imagePath]);
+        //     ascript.on('exit', function (code, signal) {
+        //         // console.log('exit',code,signal);
+        //     });
+
+        //     ascript.stdout.on('data', function (data: Buffer) {
+        //         let result = data.toString().trim();
+        //         if (result == "no xclip") {
+        //             vscode.window.showInformationMessage('You need to install xclip command first.');
+        //             return;
+        //         }
+        //         cb(result);
+        //     });
+        // }
+        return ret;
     }
 
     /**
