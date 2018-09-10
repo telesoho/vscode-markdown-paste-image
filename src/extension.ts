@@ -197,7 +197,7 @@ class Paster {
 
     private static pasteTextHtml(callback:(data) => void) {
         var script = {
-            'win32': "win32_get_clipboard_text_html",
+            'win32': "win32_get_clipboard_text_html.ps1",
             'linux': "linux_get_clipboard_text_html.sh"
         };
         var ret = this.runScript(script, [], (data) => {
