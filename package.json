@@ -2,7 +2,7 @@
   "name": "vscode-markdown-paste-image",
   "displayName": "Markdown Paste",
   "description": "A smartly paste for markdown.",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "publisher": "telesoho",
   "author": {
     "name": "telesoho",
@@ -131,8 +131,8 @@
   "devDependencies": {
     "@types/mocha": "^2.2.48",
     "@types/node": "^6.0.106",
-    "mocha": "^2.3.3",
+    "mocha": "^5.2.0",
     "typescript": "^2.8.3",
-    "vscode": "^1.1.14"
+    "vscode": "^1.1.21"
   }
 }

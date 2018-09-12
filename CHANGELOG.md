@@ -1,4 +1,9 @@
 # Change Log
+## 0.9.1 (September 12, 2018)
+
+- Remove devDependencies clipboardy for Window and Linux
+- Optimize convert html to markdown.
+
 ## 0.9.0 (September 8, 2018)
 
 - Feature: Convert rich text to markdown

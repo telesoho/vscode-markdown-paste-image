@@ -8,7 +8,6 @@ Smartly paste for Markdown.
 
 ## Requirements
 
-* 'xsel' command be required (Linux)
 * 'xclip' command be required (Linux)
 * 'powershell' command be required (Win32)
 * 'pbpaste' command be required (Mac)
@@ -22,7 +21,7 @@ Smartly paste for Markdown.
     - If you paste an image, the extension will create an new file for the image and insert link code to Markdown.
     - If you paste a text, it will test the text with customize regex, and replace matched content by regex.
     - If you paste a text contain HTML tag, it will try to convert the HTML content to Markdown.
-    - If you paste a rich text, it will try to convert the rich text to Markdown.(This feature doesn't support for Mac yet)
+    - If you paste a rich text, it will try to convert the rich text to Markdown.(Linux only)
 
 - Ruby tag
 
