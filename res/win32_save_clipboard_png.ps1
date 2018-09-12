@@ -1,17 +1,23 @@
 param($imagePath)
-
 # Adapted from https://github.com/octan3/img-clipboard-dump/blob/master/dump-clipboard-png.ps1
-
+add-type -an system.windows.forms
 Add-Type -Assembly PresentationCore
-$img = [Windows.Clipboard]::GetImage()
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+$noImage = "no image"
+if(![System.Windows.Forms.Clipboard]::ContainsImage())
+{
+    [Console]::WriteLine($noImage)
+    Exit 1
+}
 
+$img = [Windows.Clipboard]::GetImage()
 if ($img -eq $null) {
-    "no image"
+    [Console]::WriteLine($noImage)
     Exit 1
 }
 
 if (-not $imagePath) {
-    "no image"
+    [Console]::WriteLine($noImage)
     Exit 1
 }
 
@@ -22,6 +28,4 @@ $encoder.Frames.Add([Windows.Media.Imaging.BitmapFrame]::Create($fcb)) | out-nul
 $encoder.Save($stream) | out-null
 $stream.Dispose() | out-null
 
-
-[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 [Console]::WriteLine($imagePath)

@@ -7,6 +7,10 @@ import {spawn} from 'child_process';
 import * as moment from 'moment';
 import {latexSymbols} from './latex';
 
+enum ClipboardType {
+    Unkown = -1, Html = 0, Text, Image
+}
+
 class LatexSymbol {
     latexItems: vscode.QuickPickItem[] = [];
 
@@ -73,29 +77,32 @@ class Paster {
      */
     public static pasteText() {
         var ret = this.getClipboardContentType((ctx_type) => {
+            console.log("Clipboard Type:", ctx_type)
             switch(ctx_type) {
-                case "text/html":
-                    this.pasteTextHtml((html)=>{
-                        var markdown = this.toMarkdown(html);
-                        Paster.writeToEditor(markdown);
-                    });
-                break;
-                case "text/plain":
-                    var content = clipboard.readSync();
-                    if (content) {
-                        let newContent = Paster.parse(content);
+            case ClipboardType.Html:
+                this.pasteTextHtml((html)=>{
+                    var markdown = this.toMarkdown(html);
+                    Paster.writeToEditor(markdown);
+                });
+            break;
+            case ClipboardType.Text:
+                this.pasteTextPlain((text) => {
+                    if (text) {
+                        let newContent = Paster.parse(text);
                         Paster.writeToEditor(newContent);
                     }
-                break;
-                case "image/png":
-                    Paster.pasteImage();
-                break;
+                })
+            break;
+            case ClipboardType.Image:
+                Paster.pasteImage();
+            break;
             }
         });
 
         // If cannot get content type then try to read clipboard once
         if(false == ret) {
             var content = clipboard.readSync();
+            console.log("clipboard.readSync();")
             if (content) {
                 let newContent = Paster.parse(content);
                 Paster.writeToEditor(newContent);
@@ -195,13 +202,24 @@ class Paster {
         return content;
     }
 
+    private static pasteTextPlain(callback:(data)=> void) {
+        var script = {
+            'win32': "win32_get_clipboard_text_plain.ps1",
+            'linux': "linux_get_clipboard_text_plain.sh"
+        };
+        var ret = this.runScript(script, [], (data) => {
+            callback(data);
+        });
+        return ret;
+    }
+
     private static pasteTextHtml(callback:(data) => void) {
         var script = {
             'win32': "win32_get_clipboard_text_html.ps1",
             'linux': "linux_get_clipboard_text_html.sh"
         };
         var ret = this.runScript(script, [], (data) => {
-            callback(data.toString().trim());
+            callback(data);
         });
         return ret;
     }
@@ -436,36 +454,55 @@ class Paster {
         });
     }
 
+    private static getClipboardType(type_array) {
+        let content_type = ClipboardType.Unkown;
+        if(!type_array) {
+            return content_type
+        }
+
+        let platform = process.platform;
+        if(platform=="linux") {
+            for(var i = 0; i < type_array.length; i++) {
+                var type = type_array[i];
+                if(type == "image/png") {
+                    content_type = ClipboardType.Image;
+                    break;
+                } else if(type == "text/html") {
+                    content_type = ClipboardType.Html;
+                    break;
+                } else if(type == "text/plain") {
+                    content_type = ClipboardType.Text;
+                }
+            }
+         } else if(platform == "win32") {
+            for(var i = 0; i < type_array.length; i++) {
+                var type = type_array[i];
+                if(type == "PNG" || type=="Bitmap") {
+                    content_type = ClipboardType.Image;
+                    break;
+                } else if(type == "UnicodeText" || type == "Text" || type=="HTML Format") {
+                    content_type = ClipboardType.Text;
+                    break;
+                }
+            }
+        }
+        return content_type
+    }
+
     private static getClipboardContentType(cb: (targets) => void) {
         var script = {
-            'linux': "linux_clipboard_content_type.sh",
-            'wind32': "win32_clipboard_content_type.ps1"
+            'linux': "linux_get_clipboard_content_type.sh",
+            'win32': "win32_get_clipboard_content_type.ps1"
         };
 
         let ret = this.runScript(script, [], (data) => {
-            let result = data.toString().trim();
-            if (result == "no xclip") {
+            console.log("getClipboardContentType",data);
+            if (data == "no xclip") {
                 vscode.window.showInformationMessage('You need to install xclip command first.');
                 return;
             }
-            let result_array = result.split("\n");
-            let content_type = "unknow";
-            if(result_array) {
-                for(var i = 0; i < result_array.length; i++) {
-                    var element = result_array[i];
-                    if(element == "text/html") {
-                        content_type = element;
-                        break;
-                     } else if (element == "text/plain") {
-                         content_type = element;
-                         continue;
-                     } else if(element == "image/png" ) {
-                         content_type = element;
-                         break;
-                     }
-                }
-            }
-            cb(content_type);
+            let type_array = data.split(/\r\n|\n|\r/);
+            cb(this.getClipboardType(type_array));
         });
         return ret;
     }
@@ -506,15 +543,24 @@ class Paster {
             shell = 'sh';
             command = [scriptPath].concat(parameters);
         }
-
         const runer = spawn(shell, command);
         runer.on('exit', function (code, signal) {
-            // console.log('exit', code, signal);
+            console.log('exit', code, signal);
         });
-        runer.stdout.on('data', function (data: Buffer) {
+
+        runer.stdout.on('data', (data: Buffer) => {
             if(callback) {
-                callback(data);
+                callback(data.toString().trim())
             }
+        });
+
+        runer.stderr.on('data', (data) => {
+            console.log(shell, command);
+            console.log(`stderr: ${data.toString()}`);
+        });
+
+        runer.on('close', (code) => {
+            console.log(`child process exited with code ${code}`);
         });
         return true;
     }
@@ -532,60 +578,9 @@ class Paster {
         };
 
         let ret = this.runScript(script,[imagePath], (data) => {
-            cb(data.toString().trim());
+            cb(data);
         });
 
-        // let platform = process.platform;
-        // if (platform === 'win32') {
-        //     // Windows
-        //     const scriptPath = path.join(__dirname, '../res/pc.ps1');
-        //     const powershell = spawn('powershell', [
-        //         '-noprofile',
-        //         '-noninteractive',
-        //         '-nologo',
-        //         '-sta',
-        //         '-executionpolicy', 'unrestricted',
-        //         '-windowstyle', 'hidden',
-        //         '-file', scriptPath,
-        //         imagePath
-        //     ]);
-        //     powershell.on('exit', function (code, signal) {
-        //         // console.log('exit', code, signal);
-        //     });
-        //     powershell.stdout.on('data', function (data: Buffer) {
-        //         cb(data.toString().trim());
-        //     });
-        // } else if (platform === 'darwin') {
-        //     // Mac
-        //     let scriptPath = path.join(__dirname, '../res/mac.applescript');
-
-        //     let ascript = spawn('osascript', [scriptPath, imagePath]);
-        //     ascript.on('exit', function (code, signal) {
-        //         // console.log('exit',code,signal);
-        //     });
-
-        //     ascript.stdout.on('data', function (data: Buffer) {
-        //         cb(data.toString().trim());
-        //     });
-        // } else {
-        //     // Linux 
-        //     let scriptPath = path.join(__dirname, '../res/linux_save_clipboard_png.sh');
-
-        //     console.log('sh', [scriptPath, imagePath]);
-        //     let ascript = spawn('sh', [scriptPath, imagePath]);
-        //     ascript.on('exit', function (code, signal) {
-        //         // console.log('exit',code,signal);
-        //     });
-
-        //     ascript.stdout.on('data', function (data: Buffer) {
-        //         let result = data.toString().trim();
-        //         if (result == "no xclip") {
-        //             vscode.window.showInformationMessage('You need to install xclip command first.');
-        //             return;
-        //         }
-        //         cb(result);
-        //     });
-        // }
         return ret;
     }
 
