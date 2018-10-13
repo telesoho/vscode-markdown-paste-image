@@ -1,4 +1,8 @@
 # Change Log
+## 0.9.2 (Oct 13, 2018)
+
+- Support more predefined variables
+
 ## 0.9.1 (September 12, 2018)
 
 - Remove devDependencies clipboardy for Window and Linux

@@ -46,7 +46,13 @@ Smartly paste for Markdown.
 
 - `pasteImage.path`
 
-    The folder path that image will be saved. Support absolute path and relative path and variable ${workspaceRoot}.
+    The folder path that image will be saved. Support absolute path and relative path and the following predefined variables
+
+    - ${workspaceRoot} - the path of the folder opened in VS Code
+    - ${fileBasename} - the current opened file's basename
+    - ${fileBasenameNoExtension} - the current opened file's basename with no file extension
+    - ${fileExtname} - the current opened file's extension
+    - ${fileDirname} - the current opened file's dirname
 
     Default value is `./`, mean save image in the folder contains current file.
 

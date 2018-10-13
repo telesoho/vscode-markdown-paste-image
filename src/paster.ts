@@ -74,6 +74,31 @@ class Paster {
         });
     }
 
+    private static replacePredefinedVars(str) {
+        let replaceMap = {
+            "${workspaceRoot}": vscode.workspace.rootPath,
+        };
+
+        let editor = vscode.window.activeTextEditor;
+        let fileUri = editor && editor.document.uri;
+        let filePath = fileUri && fileUri.fsPath;
+
+        if(filePath) {
+            replaceMap["${fileExtname}"] = path.extname(filePath);
+            replaceMap["${fileBasenameNoExtension}"] = path.basename(filePath, replaceMap["${fileExtname}"]);
+            replaceMap["${fileBasename}"] = path.basename(filePath);
+            replaceMap["${fileDirname}"] = path.dirname(filePath);
+        }
+
+        for (var search in replaceMap) {
+            str = str.replace(search, replaceMap[search]);
+        }
+
+        // User may be input a path with backward slashes (\), so need to replace all '\' to '/'.
+        return str.replace(/\\/g, '/');
+    }
+    
+
     protected static saveImage(inputVal) {
         if (!inputVal) return;
 
@@ -85,9 +110,7 @@ class Paster {
 
         let filePath = fileUri.fsPath;
 
-        // User may be input a path with backward slashes (\), so need to replace all '\' to '/'.
-        inputVal = inputVal.replace(
-            "${workspaceRoot}", vscode.workspace.rootPath).replace(/\\/g, '/');
+        inputVal = this.replacePredefinedVars(inputVal);
 
         if (inputVal && (inputVal.length !== inputVal.trim().length)) {
             vscode.window.showErrorMessage('The specified path is invalid: "' + inputVal + '"');
@@ -323,7 +346,7 @@ class Paster {
         // get image destination path
         let folderPathFromConfig = vscode.workspace.getConfiguration('pasteImage').path;
 
-        folderPathFromConfig = folderPathFromConfig.replace("${workspaceRoot}", vscode.workspace.rootPath);
+        folderPathFromConfig = this.replacePredefinedVars(folderPathFromConfig);
 
         if (folderPathFromConfig && (folderPathFromConfig.length !== folderPathFromConfig.trim().length)) {
             vscode.window.showErrorMessage('The specified path is invalid: "' + folderPathFromConfig + '"');
