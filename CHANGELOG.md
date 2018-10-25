@@ -1,5 +1,5 @@
 # Change Log
-## 0.9.4 (Oct 25, 2018)
+## 0.9.5 (Oct 25, 2018)
 
 - Fixed: Cannot get all content in clipboard.
 - Optimize convert html table (colspan supported) to markdown.
