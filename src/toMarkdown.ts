@@ -1,14 +1,33 @@
 'use strict';
-function cell(content, node) {
-  var colspan = node.getAttribute("colspan");
-  var rowspan = node.getAttribute("rowspan");
-  colspan = colspan ? " colspan=" + colspan : "";
-  rowspan = rowspan ? " rowspan=" + rowspan : "";
-  var suffix = " " + rowspan ? "|" : "|".repeat(colspan + 1);
+
+function genBorder(content, node) {
+  var colspan = parseInt(node.getAttribute("colspan") || "0");
+  var suffix = " " + content + " |";
+  if(colspan) {
+    suffix = suffix.repeat(colspan)
+  }
+
   var index = Array.prototype.indexOf.call(node.parentNode.childNodes, node);
   var prefix = " ";
-  if (index === 0) prefix = "| ";
-  return prefix + content + suffix;
+  if (index === 0) {
+    prefix = "|";
+  }
+  return prefix + suffix;
+}
+
+function cell(content, node) {
+  var colspan = parseInt(node.getAttribute("colspan") || "0");
+  var suffix = "|"
+  if(colspan) {
+    suffix = suffix.repeat(colspan)
+  }
+
+  var index = Array.prototype.indexOf.call(node.parentNode.childNodes, node);
+  var prefix = " ";
+  if (index === 0) {
+    prefix = "| ";
+  }
+  return prefix + content + ' ' + suffix;
 }
 
 function toMarkdown(content) {
@@ -176,9 +195,8 @@ function toMarkdown(content) {
 
         if (
           node.parentNode.nodeName === "THEAD" ||
-          (node.parentNode.nodeName === "TBODY" &&
-            node.parentNode.previousSibling === null &&
-            node.previousSibling === null)
+          (node.parentNode.nodeName === "TBODY" && node.parentNode.previousSibling === null && node.previousSibling === null) ||
+          (node.previousSibling === null || node.previousSibling.nodeName === 'COLGROUP')
         ) {
           for (var i = 0; i < node.childNodes.length; i++) {
             var align = node.childNodes[i].attributes.align;
@@ -186,7 +204,7 @@ function toMarkdown(content) {
 
             if (align) border = alignMap[align.value] || border;
 
-            borderCells += cell(border, node.childNodes[i]);
+            borderCells += genBorder(border, node.childNodes[i]);
           }
         }
         return "\n" + content + (borderCells ? "\n" + borderCells : "");
