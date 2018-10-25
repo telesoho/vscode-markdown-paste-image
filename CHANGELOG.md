@@ -1,4 +1,9 @@
 # Change Log
+## 0.9.4 (Oct 25, 2018)
+
+- Fixed: Cannot get all content in clipboard.
+- Optimize convert html table (colspan supported) to markdown.
+
 ## 0.9.2 (Oct 13, 2018)
 
 - Support more predefined variables
