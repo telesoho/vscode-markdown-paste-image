@@ -2,7 +2,7 @@
   "name": "vscode-markdown-paste-image",
   "displayName": "Markdown Paste",
   "description": "A smartly paste for markdown.",
-  "version": "0.9.5",
+  "version": "0.10.0",
   "publisher": "telesoho",
   "author": {
     "name": "telesoho",
@@ -42,6 +42,7 @@
   ],
   "main": "./out/extension",
   "scripts": {
+    "publish": "vsce publish",
     "vscode:prepublish": "tsc -p ./",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
@@ -62,6 +63,11 @@
           "type": "boolean",
           "default": false,
           "description": "Enable/disable showing confirm box while paste image."
+        },
+        "pasteImage.enableImgTag": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable/Disable using img tag with width and height for pasting image."
         },
         "MarkdownPaste.rules": {
           "type": "array",

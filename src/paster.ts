@@ -145,6 +145,17 @@ class Paster {
             return;
         }
 
+        let width;
+        let height;
+        let enableImgTag = vscode.workspace.getConfiguration('pasteImage').enableImgTag;
+        if(enableImgTag) {
+            // parse `<filepath>[,width,height]`. for example. /abc/abc.png,200,100
+            let ar = inputVal.split(',');
+            inputVal = ar[0];
+            width = ar[1];
+            height = ar[2];
+        }
+
         this.createImageDirWithImagePath(inputVal).then(imgPath => {
             // save image and insert to current edit file
             this.saveClipboardImageToFileAndGetPath(imgPath, imagePath => {
@@ -154,7 +165,7 @@ class Paster {
                     return;
                 }
 
-                imagePath = this.renderFilePath(editor.document.languageId, filePath, imagePath);
+                imagePath = this.renderFilePath(editor.document.languageId, filePath, imagePath, width, height);
 
                 editor.edit(edit => {
                     let current = editor.selection;
@@ -433,11 +444,15 @@ class Paster {
      * render the image file path dependen on file type
      * e.g. in markdown image file path will render to ![](path)
      */
-    public static renderFilePath(languageId: string, docPath: string, imageFilePath: string): string {
+    public static renderFilePath(languageId: string, docPath: string, imageFilePath: string, width, height): string {
         // relative will be add backslash characters so need to replace '\' to '/' here.
         imageFilePath = path.relative(path.dirname(docPath), imageFilePath).replace(/\\/g, '/');
 
         if (languageId === 'markdown') {
+            if(typeof width !== "undefined" ) {
+                height = height || '';
+                return `<img src='${imageFilePath}' width='${width}' height='${height}'/>`;
+            }
             return `![](${imageFilePath})`;
         } else {
             return imageFilePath;

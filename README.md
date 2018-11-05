@@ -63,6 +63,13 @@ Smartly paste for Markdown.
 
     Default value is `false`
 
+
+- `pasteImage.enableImgTag`
+
+    enable/disable using HTML img tag with width and height for pasting image. If this option be enabled, you can input width and height by using `<filepath>[,width,height]` in filename confirm input box. for example  `\abc\filename.png,200,100`, `<img src='\abc\filename.png' width='200' height='100' />` will be inserted. Note that if `pasteImage.silence` be enabled, this option will be not work.
+
+    Default value is `true`
+
 - `MarkdownPaste.rules`
 
     If you want to define your own regex to parse and replace content for pasting text. You can fill the following JSON, and set it to this option.

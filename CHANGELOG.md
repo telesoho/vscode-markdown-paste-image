@@ -1,4 +1,9 @@
 # Change Log
+
+## 0.10.0 (Nov 5, 2018)
+
+- Feature #20: Paste image in HTML format. 
+
 ## 0.9.5 (Oct 25, 2018)
 
 - Fixed: Cannot get all content in clipboard.
@@ -16,7 +21,7 @@
 ## 0.9.0 (September 8, 2018)
 
 - Feature: Convert rich text to markdown
-- Fix #18: Paste Path add `./` and File name verification support for Chinese
+- Fix #18: Paste path add `./` and File name verification support for Chinese
 
 ## 0.8.0 (August 12, 2018)
 
