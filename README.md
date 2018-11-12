@@ -34,9 +34,9 @@ Smartly paste for Markdown.
 
     This extension will not get the pronunciation for you in this version. You have to replace 'pronunciation' by yourself.
 
-- Insert latex math symbol
+- Insert latex math symbol and emoji
 
-    You can insert latex math symbol to any text file, such as Julia source file.
+    You can insert latex math symbol and emoji to any text file, such as Julia source file.
 
     press 'Ctrl+Alt+\\' or input "Insert latex math symbol" in vscode command panel, then input latex symbol name and choose symbol you want.
 

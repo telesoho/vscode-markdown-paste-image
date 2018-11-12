@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.10.1 (Nov 12, 2018)
+
+-  Feature: emoji supported
+
 ## 0.10.0 (Nov 5, 2018)
 
 - Feature #20: Paste image in HTML format. 
