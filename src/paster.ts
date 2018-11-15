@@ -1,10 +1,11 @@
+'use strict';
 import * as path from 'path';
-import {mkdir} from 'shelljs';
 import * as clipboard from 'clipboardy'
 import {spawn, ChildProcess} from 'child_process';
 import * as moment from 'moment';
 import * as vscode from 'vscode';
 import {toMarkdown} from './toMarkdown';
+import {prepareDirForFile, fetchAndSaveFile} from './utils';
 
 enum ClipboardType {
     Unkown = -1, Html = 0, Text, Image
@@ -156,30 +157,31 @@ class Paster {
             height = ar[2];
         }
 
-        this.createImageDirWithImagePath(inputVal).then(imgPath => {
-            // save image and insert to current edit file
-            this.saveClipboardImageToFileAndGetPath(imgPath, imagePath => {
-                if (!imagePath) return;
-                if (imagePath === 'no image') {
-                    vscode.window.showInformationMessage('There is not a image in clipboard.');
-                    return;
-                }
-
-                imagePath = this.renderFilePath(editor.document.languageId, filePath, imagePath, width, height);
-
-                editor.edit(edit => {
-                    let current = editor.selection;
-
-                    if (current.isEmpty) {
-                        edit.insert(current.start, imagePath);
-                    } else {
-                        edit.replace(current, imagePath);
-                    }
-                });
-            });
-        }).catch(err => {
-            vscode.window.showErrorMessage('Make folder failed:' + inputVal);
+        let imgPath = inputVal.replace(/\\/g, "/");
+        if(!prepareDirForFile(imgPath)) {
+            vscode.window.showErrorMessage('Make folder failed:' + imgPath);
             return;
+        }
+
+        // save image and insert to current edit file
+        this.saveClipboardImageToFileAndGetPath(imgPath, imagePath => {
+            if (!imagePath) return;
+            if (imagePath === 'no image') {
+                vscode.window.showInformationMessage('There is not a image in clipboard.');
+                return;
+            }
+
+            imagePath = this.renderFilePath(editor.document.languageId, filePath, imagePath, width, height);
+
+            editor.edit(edit => {
+                let current = editor.selection;
+
+                if (current.isEmpty) {
+                    edit.insert(current.start, imagePath);
+                } else {
+                    edit.replace(current, imagePath);
+                }
+            });
         });
     }
 
@@ -299,24 +301,6 @@ class Paster {
         }
 
         return imagePath;
-    }
-
-    /**
-     * create directory for image when directory does not exist
-     */
-    private static createImageDirWithImagePath(imagePath: string) {
-        return new Promise((resolve, reject) => {
-            let imageDir = path.dirname(imagePath).replace(/\\/g, '/');
-
-            try {
-                mkdir('-p', imageDir);
-            } catch (error) {
-                console.log(error);
-                reject(error);
-                return;
-            }
-            resolve(imagePath);
-        });
     }
 
     private static getClipboardType(type_array) {

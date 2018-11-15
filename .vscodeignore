@@ -1,10 +1,11 @@
 .vscode/**
 typings/**
 out/test/**
+out/src/**
 test/**
 src/**
+.vscode-test/**
 **/*.map
 .gitignore
 tsconfig.json
 vsc-extension-quickstart.md
-res/vscode-paste-image.gif
