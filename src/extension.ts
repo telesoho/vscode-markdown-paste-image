@@ -45,10 +45,12 @@ export function activate(context: vscode.ExtensionContext) {
             ignoreFocusOut: true,
         }).then(LatexMathSymbol.insertToEditor);
     });
-
+    context.subscriptions.push(vscode.commands.registerCommand(
+        'telesoho.MarkdownDownload', () => {
+            Paster.pasteDownload();
+        }));
     context.subscriptions.push(vscode.commands.registerCommand(
         'telesoho.MarkdownPaste', () => {
-            console.log('Paster.pasteText');
             Paster.pasteText();
         }));
     context.subscriptions.push(vscode.commands.registerCommand(

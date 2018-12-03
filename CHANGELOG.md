@@ -1,4 +1,8 @@
 # Change Log
+## 0.11.0 (Dec 3, 2018)
+
+- Change setting name from `pasteImage` to `MarkdownPaste`
+- Feature: Download url file 
 
 ## 0.10.1 (Nov 12, 2018)
 

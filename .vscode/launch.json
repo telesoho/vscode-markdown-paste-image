@@ -9,11 +9,11 @@
             "type": "extensionHost",
             "request": "launch",
             "runtimeExecutable": "${execPath}",
-            "args": ["--extensionDevelopmentPath=${workspaceRoot}", "--extensionTestsPath=${workspaceRoot}/out/test" ],
+            "args": ["--extensionDevelopmentPath=${workspaceRoot}", "--extensionTestsPath=${workspaceRoot}/out_test/test" ],
             "stopOnEntry": false,
             "sourceMaps": true,
-            "outFiles": ["${workspaceFolder}/out/**/*.js"],
-            "preLaunchTask": "npm: compile"
+            "outFiles": ["${workspaceFolder}/out_test/**/*.js"],
+            "preLaunchTask": "npm: ctest"
         },
         {
             "type": "extensionHost",

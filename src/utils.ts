@@ -26,14 +26,16 @@ function prepareDirForFile(filePath: string) {
  * @param fileURL
  * @param dest
  */
-function fetchAndSaveFile(fileURL, dest) {
+function fetchAndSaveFile(fileURL, filepath) {
+  let dest = path.dirname(filepath);
+  let basename = path.basename(filepath);
   return new Promise((resolve, reject) => {
     const timeout = 10000;
     const urlParsed = url.parse(fileURL);
     const uri = urlParsed.pathname.split("/");
 
     let req;
-    let filename = uri[uri.length - 1].match(/(\w*\.?-?)+/)[0];
+    let filename = basename || uri[uri.length - 1].match(/(\w*\.?-?)+/)[0];
 
     if (urlParsed.protocol === null) {
       fileURL = "http://" + fileURL;
@@ -52,7 +54,7 @@ function fetchAndSaveFile(fileURL, dest) {
         const targetPath = `${dest}/${filename}`;
 
         response.on("end", function() {
-          resolve(`File "${filename}" downloaded successfully.`);
+          resolve(targetPath);
         });
 
         if (response.statusCode === 200) {

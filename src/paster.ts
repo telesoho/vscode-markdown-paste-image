@@ -70,7 +70,6 @@ class Paster {
         // If cannot get content type then try to read clipboard once
         if(false == ret) {
             var content = clipboard.readSync();
-            console.log("clipboard.readSync();")
             if (content) {
                 let newContent = Paster.parse(content);
                 Paster.writeToEditor(newContent);
@@ -80,6 +79,26 @@ class Paster {
         }
     }
 
+    /**
+     * Download url content in clipboard
+     */
+    public static pasteDownload() {
+        var ret = this.getClipboardContentType((ctx_type) => {
+            console.log("Clipboard Type:", ctx_type)
+            switch(ctx_type) {
+            case ClipboardType.Html:
+            case ClipboardType.Text:
+                this.pasteTextPlain((text) => {
+                    if (text) {
+                        if(/^(http[s]:)+\/\/(.*)/i.test(text)) {
+                            Paster.pasteImageURL(text);
+                        }
+                    }
+                })
+            break;
+            }
+        });
+    }    
     /**
      * Ruby tag
      */
@@ -148,7 +167,7 @@ class Paster {
 
         let width;
         let height;
-        let enableImgTag = vscode.workspace.getConfiguration('pasteImage').enableImgTag;
+        let enableImgTag = vscode.workspace.getConfiguration('MarkdownPaste').enableImgTag;
         if(enableImgTag) {
             // parse `<filepath>[,width,height]`. for example. /abc/abc.png,200,100
             let ar = inputVal.split(',');
@@ -185,9 +204,10 @@ class Paster {
         });
     }
 
-    private static parse(content) {
-        let rules = vscode.workspace.getConfiguration('MarkdownPaste').rules;
 
+    private static parse(content) {
+
+        let rules = vscode.workspace.getConfiguration('MarkdownPaste').rules;
         for (var i = 0; i < rules.length; i++) {
             let rule = rules[i];
             var re = new RegExp(rule.regex, rule.options);
@@ -227,6 +247,123 @@ class Paster {
         return ret;
     }
 
+    /**
+     * 
+     * @param image_url url of image
+     */
+    private static pasteImageURL(image_url) {
+        // get current edit file path
+        let editor = vscode.window.activeTextEditor;
+        if (!editor) return;
+
+        let fileUri = editor.document.uri;
+        if (!fileUri) return;
+        if (fileUri.scheme === 'untitled') {
+            vscode.window.showInformationMessage('Before paste image, you need to save current edit file first.');
+            return;
+        }
+
+        // get selection as image file name, need check
+        var selection = editor.selection;
+        var selectText = editor.document.getText(selection);
+
+        if (selectText && !/^[^\\/:\*\?""<>|]{1,120}$/.test(selectText)) {
+            vscode.window.showInformationMessage('Your selection is not a valid file name!');
+            return;
+        }
+
+        // get image destination path
+        let folderPathFromConfig = vscode.workspace.getConfiguration('MarkdownPaste').path;
+
+        folderPathFromConfig = this.replacePredefinedVars(folderPathFromConfig);
+
+        if (folderPathFromConfig && (folderPathFromConfig.length !== folderPathFromConfig.trim().length)) {
+            vscode.window.showErrorMessage('The specified path is invalid: "' + folderPathFromConfig + '"');
+            return;
+        }
+
+        let filename = image_url.split('/').pop().split('?')[0];
+        let imagePath = this.getImagePath(
+            fileUri.fsPath, selectText, folderPathFromConfig, path.extname(filename));
+
+        let silence = vscode.workspace.getConfiguration('MarkdownPaste').silence;
+        if (silence) {
+            Paster.downloadFile(image_url, imagePath);
+        } else {
+            let ext = path.extname(imagePath);
+            
+            let options: vscode.InputBoxOptions = {
+                prompt: "You can change the filename, exist file will be overwrite!.",
+                value: imagePath,
+                placeHolder: "(e.g:../test/myimage.png)",
+                valueSelection: [imagePath.length - path.basename(imagePath).length, imagePath.length - ext.length],
+            }
+            vscode.window.showInputBox(options).then(inputVal => {
+                Paster.downloadFile(image_url, inputVal)
+            });
+        }
+    }
+
+    private static downloadFile(image_url, inputVal) {
+        if (!inputVal) return;
+
+        let editor = vscode.window.activeTextEditor;
+        if (!editor) return;
+
+        let fileUri = editor.document.uri;
+        if (!fileUri) return;
+
+        let filePath = fileUri.fsPath;
+
+        inputVal = this.replacePredefinedVars(inputVal);
+
+        if (inputVal && (inputVal.length !== inputVal.trim().length)) {
+            vscode.window.showErrorMessage('The specified path is invalid: "' + inputVal + '"');
+            return;
+        }
+
+        let width;
+        let height;
+        let enableImgTag = vscode.workspace.getConfiguration('MarkdownPaste').enableImgTag;
+        if(enableImgTag) {
+            // parse `<filepath>[,width,height]`. for example. /abc/abc.png,200,100
+            let ar = inputVal.split(',');
+            inputVal = ar[0];
+            width = ar[1];
+            height = ar[2];
+        }
+
+        let imgPath = inputVal.replace(/\\/g, "/");
+        if(!prepareDirForFile(imgPath)) {
+            vscode.window.showErrorMessage('Make folder failed:' + imgPath);
+            return;
+        }
+
+        // save image and insert to current edit file
+        fetchAndSaveFile(image_url, imgPath)
+        .then((imagePath : string) => {
+            if (!imagePath) return;
+            if (imagePath === 'no image') {
+                vscode.window.showInformationMessage('There is not a image in clipboard.');
+                return;
+            }
+
+            imagePath = this.renderFilePath(editor.document.languageId, filePath, imagePath, width, height);
+
+            editor.edit(edit => {
+                let current = editor.selection;
+
+                if (current.isEmpty) {
+                    edit.insert(current.start, imagePath);
+                } else {
+                    edit.replace(current, imagePath);
+                }
+            });
+        }).catch(err => {
+            vscode.window.showErrorMessage('Download failed:' + err);
+        });
+    }
+
     private static pasteImage() {
         // get current edit file path
         let editor = vscode.window.activeTextEditor;
@@ -249,7 +386,7 @@ class Paster {
         }
 
         // get image destination path
-        let folderPathFromConfig = vscode.workspace.getConfiguration('pasteImage').path;
+        let folderPathFromConfig = vscode.workspace.getConfiguration('MarkdownPaste').path;
 
         folderPathFromConfig = this.replacePredefinedVars(folderPathFromConfig);
 
@@ -262,7 +399,7 @@ class Paster {
             fileUri.fsPath, selectText, folderPathFromConfig);
         let fileNameLength = selectText ? selectText.length : 19; // yyyy-mm-dd-hh-mm-ss
 
-        let silence = vscode.workspace.getConfiguration('pasteImage').silence;
+        let silence = vscode.workspace.getConfiguration('MarkdownPaste').silence;
         if (silence) {
             Paster.saveImage(imagePath);
         } else {
@@ -278,13 +415,13 @@ class Paster {
         }
     }
 
-    private static getImagePath(filePath: string, selectText: string, folderPathFromConfig: string): string {
+    private static getImagePath(filePath: string, selectText: string, folderPathFromConfig: string, extension: string = '.png'): string {
         // image file name
         let imageFileName = "";
         if (!selectText) {
-            imageFileName = moment().format("Y-MM-DD-HH-mm-ss") + ".png";
+            imageFileName = moment().format("Y-MM-DD-HH-mm-ss") + extension;
         } else {
-            imageFileName = selectText + ".png";
+            imageFileName = selectText + extension;
         }
 
         // image output path
@@ -345,7 +482,7 @@ class Paster {
         };
 
         let ret = this.runScript(script, [], (data) => {
-            console.log("getClipboardContentType",data);
+            // console.log("getClipboardContentType",data);
             if (data == "no xclip") {
                 vscode.window.showInformationMessage('You need to install xclip command first.');
                 return;

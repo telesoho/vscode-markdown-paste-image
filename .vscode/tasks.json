@@ -7,7 +7,6 @@
             "label": "build markdown paste",
             "promptOnClose": false,
             "isBackground": true,
-            "identifier": "markdownpaste",
             "type": "typescript",
             "tsconfig": "tsconfig.json",
             "problemMatcher": [

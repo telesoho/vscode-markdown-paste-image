@@ -24,6 +24,12 @@ Smartly paste for Markdown.
     - If you paste a rich text, it will try to convert the rich text to Markdown.(Linux only)
     ![](./res/markdown-paste-rich-text-html-table.gif)
 
+- Download file
+
+    Use `Markdown Download` command (Linux or Windows:`Ctrl+Alt+D`, Mac:`Cmd+Alt+D`) to download file and insert link code into Markdown.
+    ![](./res/markdown-paste-download-gif-demo.gif)
+
+
 - Ruby tag
 
     Also if you want to write article for learning asian language like Chinese or Japanese, ruby tag(for example:<ruby>聪明<rp>(</rp><rt>Cōngmíng</rt><rp>)</rp></ruby>) may be useful. Now a ruby tag snippet are prepare for you, select some text and press 'Ctrl+Alt+T'.
@@ -45,7 +51,7 @@ Smartly paste for Markdown.
 
 ## Config
 
-- `pasteImage.path`
+- `MarkdownPaste.path`
 
     The folder path that image will be saved. Support absolute path and relative path and the following predefined variables
 
@@ -57,16 +63,16 @@ Smartly paste for Markdown.
 
     Default value is `./`, mean save image in the folder contains current file.
 
-- `pasteImage.silence`
+- `MarkdownPaste.silence`
 
     enable/disable showing confirm box while paste image. Set this config option to `true`, filename confirm box will not be shown while paste image.
 
     Default value is `false`
 
 
-- `pasteImage.enableImgTag`
+- `MarkdownPaste.enableImgTag`
 
-    enable/disable using HTML img tag with width and height for pasting image. If this option be enabled, you can input width and height by using `<filepath>[,width,height]` in filename confirm input box. for example input `\abc\filename.png,200,100`, then `<img src='\abc\filename.png' width='200' height='100' />` will be inserted. Note that if `pasteImage.silence` be enabled, this option will be not work.
+    enable/disable using HTML img tag with width and height for pasting image. If this option be enabled, you can input width and height by using `<filepath>[,width,height]` in filename confirm input box. for example input `\abc\filename.png,200,100`, then `<img src='\abc\filename.png' width='200' height='100' />` will be inserted. Note that if `MarkdownPaste.silence` be enabled, this option will be not work.
 
     Default value is `true`
 

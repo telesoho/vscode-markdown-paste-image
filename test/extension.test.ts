@@ -17,18 +17,19 @@ import * as utils from "../src/utils";
 suite("Extension Tests", () => {
   // Defines a Mocha unit test
   test("download test", () => {
-    if (!utils.prepareDirForFile("out/test/data/abc/test.jpg")) {
+    let target_file = 'out_test/data/abc/test.png';
+    if (!utils.prepareDirForFile(target_file)) {
       assert.fail("error", "errora", "prepare dir failed");
     }
     utils
       .fetchAndSaveFile(
         "https://www.google.co.jp/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png",
-        "out/test/data/abc"
+        target_file
       )
       .then(msg => {
         console.log(msg);
         assert.equal(
-          fs.existsSync("out/test/data/abc/googlelogo_color_272x92dp.png"),
+          fs.existsSync(target_file),
           true
         );
       })
