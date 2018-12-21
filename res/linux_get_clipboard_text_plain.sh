@@ -4,4 +4,4 @@
 command -v xclip >/dev/null 2>&1 || { echo >&1 "no xclip"; exit 1; }
 
 # write image in clipboard to file (see http://unix.stackexchange.com/questions/145131/copy-image-from-clipboard-to-file)
-xclip -selection clipboard -o -t text/plain >&1
+xclip -selection clipboard -o >&1

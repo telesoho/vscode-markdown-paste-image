@@ -1,4 +1,9 @@
 # Change Log
+
+## 0.11.1 (Dec 21, 2018)
+
+- Fixed: Paste text doesn't work on some Linux. 
+
 ## 0.11.0 (Dec 3, 2018)
 
 - Change setting name from `pasteImage` to `MarkdownPaste`

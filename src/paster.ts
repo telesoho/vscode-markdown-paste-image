@@ -447,6 +447,7 @@ class Paster {
         }
 
         let platform = process.platform;
+        console.log('platform', platform);
         if(platform=="linux") {
             for(var i = 0; i < type_array.length; i++) {
                 var type = type_array[i];
@@ -456,7 +457,7 @@ class Paster {
                 } else if(type == "text/html") {
                     content_type = ClipboardType.Html;
                     break;
-                } else if(type == "text/plain") {
+                } else {
                     content_type = ClipboardType.Text;
                 }
             }
@@ -482,7 +483,7 @@ class Paster {
         };
 
         let ret = this.runScript(script, [], (data) => {
-            // console.log("getClipboardContentType",data);
+            console.log("getClipboardContentType",data);
             if (data == "no xclip") {
                 vscode.window.showInformationMessage('You need to install xclip command first.');
                 return;
