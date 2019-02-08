@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.12.0 (Feb 8, 2019)
+
+- Feature: Paste local file path that under workspace folder, will add relative path link into markdown.
+
 ## 0.11.1 (Dec 21, 2018)
 
 - Fixed: Paste text doesn't work on some Linux. 

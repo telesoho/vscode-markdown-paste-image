@@ -6,6 +6,7 @@ import * as moment from 'moment';
 import * as vscode from 'vscode';
 import {toMarkdown} from './toMarkdown';
 import {prepareDirForFile, fetchAndSaveFile} from './utils';
+import {existsSync} from 'fs';
 
 enum ClipboardType {
     Unkown = -1, Html = 0, Text, Image
@@ -204,7 +205,6 @@ class Paster {
         });
     }
 
-
     private static parse(content) {
 
         let rules = vscode.workspace.getConfiguration('MarkdownPaste').rules;
@@ -216,6 +216,25 @@ class Paster {
                 var newstr = content.replace(re, reps);
                 return newstr;
             }
+        }
+
+        try {
+            // if copied content is exist file path that under folder of workspace root path 
+            // then add a relative link into markdown.
+            if(existsSync(content)) {
+                let editor = vscode.window.activeTextEditor;
+                let fileUri = editor.document.uri;
+                let current_file_path = fileUri.fsPath;
+                let workspace_dir = vscode.workspace.rootPath;
+
+                if(content.startsWith(workspace_dir)) {
+                    let relative_path = path.relative(path.dirname(current_file_path), content).replace(/\\/g, '/');
+                    return `![](${relative_path})`;
+                }
+            }
+        } catch (error) {
+            // do nothing
+            // console.log(error);
         }
 
         if (Paster.isHTML(content)) {
