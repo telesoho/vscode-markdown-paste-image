@@ -228,7 +228,7 @@ class Paster {
                 let workspace_dir = vscode.workspace.rootPath;
 
                 if(content.startsWith(workspace_dir)) {
-                    let relative_path = path.relative(path.dirname(current_file_path), content).replace(/\\/g, '/');
+                    let relative_path = encodeURI(path.relative(path.dirname(current_file_path), content).replace(/\\/g, '/'));
                     return `![](${relative_path})`;
                 }
             }
