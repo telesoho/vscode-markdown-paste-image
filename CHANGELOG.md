@@ -1,5 +1,8 @@
 # Change Log
 
+## 0.12.1 (Sep 1, 2019)
+- Fix #25: encode url in markdown
+
 ## 0.12.0 (Feb 8, 2019)
 
 - Feature: Paste local file path that under workspace folder, will add relative path link into markdown.

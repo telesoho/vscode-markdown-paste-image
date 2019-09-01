@@ -587,7 +587,7 @@ class Paster {
      */
     public static renderFilePath(languageId: string, docPath: string, imageFilePath: string, width, height): string {
         // relative will be add backslash characters so need to replace '\' to '/' here.
-        imageFilePath = path.relative(path.dirname(docPath), imageFilePath).replace(/\\/g, '/');
+        imageFilePath = encodeURI(path.relative(path.dirname(docPath), imageFilePath).replace(/\\/g, '/'));
 
         if (languageId === 'markdown') {
             if(typeof width !== "undefined" ) {
