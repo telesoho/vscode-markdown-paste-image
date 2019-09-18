@@ -24,7 +24,7 @@ class LatexSymbol {
         if (!item) { return; }
         let editor = vscode.window.activeTextEditor;
         if (!editor) { return; }
-    
+
         editor.edit( (editBuilder) => {
             editBuilder.delete(editor.selection);
         }).then( () => {
@@ -60,6 +60,6 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 export function deactivate() {
-    console.log('"vscode-markdown-paste" is now deactivate!');
+    console.log('"vscode-markdown-paste" is now inactive!');
 }
 
