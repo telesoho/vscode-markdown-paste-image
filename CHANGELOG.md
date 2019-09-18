@@ -1,6 +1,11 @@
 # Change Log
 
+## 0.12.3 (Sep 19, 2019)
+
+- Fix some grammar mistakes.
+
 ## 0.12.2 (Sep 1, 2019)
+
 - Fix #25: encode url in markdown
 
 ## 0.12.0 (Feb 8, 2019)
