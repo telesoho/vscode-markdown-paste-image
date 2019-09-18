@@ -14,8 +14,8 @@ enum ClipboardType {
 
 /**
  * Run command and get stdout
- * @param shell 
- * @param options 
+ * @param shell
+ * @param options
  */
 function runCommand(shell, options: string[]): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -99,7 +99,7 @@ class Paster {
             break;
             }
         });
-    }    
+    }
     /**
      * Ruby tag
      */
@@ -146,7 +146,7 @@ class Paster {
         // User may be input a path with backward slashes (\), so need to replace all '\' to '/'.
         return str.replace(/\\/g, '/');
     }
-    
+
 
     protected static saveImage(inputVal) {
         if (!inputVal) return;
@@ -187,7 +187,7 @@ class Paster {
         this.saveClipboardImageToFileAndGetPath(imgPath, imagePath => {
             if (!imagePath) return;
             if (imagePath === 'no image') {
-                vscode.window.showInformationMessage('There is not a image in clipboard.');
+                vscode.window.showInformationMessage('There is not an image in the clipboard.');
                 return;
             }
 
@@ -219,7 +219,7 @@ class Paster {
         }
 
         try {
-            // if copied content is exist file path that under folder of workspace root path 
+            // if copied content is exist file path that under folder of workspace root path
             // then add a relative link into markdown.
             if(existsSync(content)) {
                 let editor = vscode.window.activeTextEditor;
@@ -267,7 +267,7 @@ class Paster {
     }
 
     /**
-     * 
+     *
      * @param image_url url of image
      */
     private static pasteImageURL(image_url) {
@@ -278,7 +278,7 @@ class Paster {
         let fileUri = editor.document.uri;
         if (!fileUri) return;
         if (fileUri.scheme === 'untitled') {
-            vscode.window.showInformationMessage('Before paste image, you need to save current edit file first.');
+            vscode.window.showInformationMessage('Before pasting an image, you need to save the current edited file first.');
             return;
         }
 
@@ -310,9 +310,9 @@ class Paster {
             Paster.downloadFile(image_url, imagePath);
         } else {
             let ext = path.extname(imagePath);
-            
+
             let options: vscode.InputBoxOptions = {
-                prompt: "You can change the filename, exist file will be overwrite!.",
+                prompt: "You can change the filename. The existing file will be overwritten!",
                 value: imagePath,
                 placeHolder: "(e.g:../test/myimage.png)",
                 valueSelection: [imagePath.length - path.basename(imagePath).length, imagePath.length - ext.length],
@@ -363,7 +363,7 @@ class Paster {
         .then((imagePath : string) => {
             if (!imagePath) return;
             if (imagePath === 'no image') {
-                vscode.window.showInformationMessage('There is not a image in clipboard.');
+                vscode.window.showInformationMessage('There is not an image in the clipboard.');
                 return;
             }
 
@@ -391,7 +391,7 @@ class Paster {
         let fileUri = editor.document.uri;
         if (!fileUri) return;
         if (fileUri.scheme === 'untitled') {
-            vscode.window.showInformationMessage('Before paste image, you need to save current edit file first.');
+            vscode.window.showInformationMessage('Before pasting an image, you need to save the current edited file first.');
             return;
         }
 
@@ -423,7 +423,7 @@ class Paster {
             Paster.saveImage(imagePath);
         } else {
             let options: vscode.InputBoxOptions = {
-                prompt: "You can change the filename, exist file will be overwrite!.",
+                prompt: "You can change the filename. The existing file will be overwritten!.",
                 value: imagePath,
                 placeHolder: "(e.g:../test/myimage.png)",
                 valueSelection: [imagePath.length - 4 - fileNameLength, imagePath.length - 4],
@@ -514,10 +514,10 @@ class Paster {
     }
 
     /**
-     * 
-     * @param script 
-     * @param parameters 
-     * @param callback 
+     *
+     * @param script
+     * @param parameters
+     * @param callback
      */
     private static runScript(script, parameters = [], callback = (data) => {} ) {
         let platform = process.platform;
