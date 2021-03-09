@@ -107,6 +107,15 @@
         "title": "Insert latex math symbol"
       }
     ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "telesoho.MarkdownPaste",
+          "when": "editorLangId == markdown",
+          "group": "markdown"
+        }
+      ]
+    },
     "keybindings": [
       {
         "command": "telesoho.MarkdownDownload",
