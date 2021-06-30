@@ -587,7 +587,15 @@ class Paster {
      */
     public static renderFilePath(languageId: string, docPath: string, imageFilePath: string, width, height): string {
         // relative will be add backslash characters so need to replace '\' to '/' here.
-        imageFilePath = encodeURI(path.relative(path.dirname(docPath), imageFilePath).replace(/\\/g, '/'));
+        imageFilePath = path.relative(path.dirname(docPath), imageFilePath).replace(/\\/g, '/');
+
+        var encodePathConfig = vscode.workspace.getConfiguration('MarkdownPaste')['encodePath'];
+
+        if (encodePathConfig == "encodeURI") {
+            imageFilePath = encodeURI(imageFilePath)
+        } else if (encodePathConfig == "encodeSpaceOnly") {
+            imageFilePath = imageFilePath.replace(/ /g, "%20");
+        }
 
         if (languageId === 'markdown') {
             if(typeof width !== "undefined" ) {

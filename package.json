@@ -86,7 +86,17 @@
             }
           ],
           "description": "Rules for markdown paste."
-        }
+        },
+        "MarkdownPaste.encodePath": {
+          "type": "string",
+          "enum": [
+            "none",
+            "encodeURI",
+            "encodeSpaceOnly"
+          ],
+          "default": "encodeSpaceOnly",
+          "description": "How to encode image path before insert to editor. Support options: none, encodeURI, encodeSpaceOnly"
+        }        
       }
     },
     "commands": [
