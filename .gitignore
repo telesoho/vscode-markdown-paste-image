@@ -1,6 +1,7 @@
-out
-node_modules
+out/
+node_modules/
 npm-debug.log*
 *.vsix
 .vscode-test/
 out_test/
+.vscode/

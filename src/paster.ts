@@ -205,6 +205,19 @@ class Paster {
         });
     }
 
+    private static encodePath(filePath) {
+        filePath = filePath.replace(/\\/g, '/');
+
+        var encodePathConfig = vscode.workspace.getConfiguration('MarkdownPaste')['encodePath'];
+
+        if (encodePathConfig == "encodeURI") {
+            filePath = encodeURI(filePath)
+        } else if (encodePathConfig == "encodeSpaceOnly") {
+            filePath = filePath.replace(/ /g, "%20");
+        }
+        return filePath;
+    }
+
     private static parse(content) {
 
         let rules = vscode.workspace.getConfiguration('MarkdownPaste').rules;
@@ -225,10 +238,11 @@ class Paster {
                 let editor = vscode.window.activeTextEditor;
                 let fileUri = editor.document.uri;
                 let current_file_path = fileUri.fsPath;
-                let workspace_dir = vscode.workspace.rootPath;
+                let workspace_root_dir = vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders[0];
 
-                if(content.startsWith(workspace_dir)) {
-                    let relative_path = encodeURI(path.relative(path.dirname(current_file_path), content).replace(/\\/g, '/'));
+                if(content.startsWith(workspace_root_dir.uri.path)) {
+                    let relative_path = this.encodePath(path.relative(path.dirname(current_file_path), content));
+
                     return `![](${relative_path})`;
                 }
             }
@@ -587,15 +601,7 @@ class Paster {
      */
     public static renderFilePath(languageId: string, docPath: string, imageFilePath: string, width, height): string {
         // relative will be add backslash characters so need to replace '\' to '/' here.
-        imageFilePath = path.relative(path.dirname(docPath), imageFilePath).replace(/\\/g, '/');
-
-        var encodePathConfig = vscode.workspace.getConfiguration('MarkdownPaste')['encodePath'];
-
-        if (encodePathConfig == "encodeURI") {
-            imageFilePath = encodeURI(imageFilePath)
-        } else if (encodePathConfig == "encodeSpaceOnly") {
-            imageFilePath = imageFilePath.replace(/ /g, "%20");
-        }
+        imageFilePath = this.encodePath(path.relative(path.dirname(docPath), imageFilePath));
 
         if (languageId === 'markdown') {
             if(typeof width !== "undefined" ) {
