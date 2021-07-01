@@ -30,7 +30,7 @@
     "paste url"
   ],
   "engines": {
-    "vscode": "^1.12.0"
+    "vscode": "^1.57.0"
   },
   "categories": [
     "Other"
@@ -44,12 +44,12 @@
   "main": "./out/extension",
   "scripts": {
     "publish": "vsce publish",
-    "clear": "tsc scripts/clear.ts & node scripts/clear.js",
-    "vscode:prepublish": "npm run clear & tsc -p ./",
-    "compile": "npm run clear & tsc -p ./",
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
-    "postinstall": "node ./node_modules/vscode/bin/install",
-    "ctest": "tsc -p ts-test.json"
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js"
   },
   "contributes": {
     "configuration": {
@@ -96,7 +96,7 @@
           ],
           "default": "encodeSpaceOnly",
           "description": "How to encode image path before insert to editor. Support options: none, encodeURI, encodeSpaceOnly"
-        }        
+        }
       }
     },
     "commands": [
@@ -160,16 +160,22 @@
     ]
   },
   "dependencies": {
-    "clipboardy": "^1.1.4",
+    "clipboardy": "1.1.4",
     "moment": "^2.22.1",
     "shelljs": "^0.7.7",
     "to-markdown": "^3.1.1"
   },
   "devDependencies": {
-    "@types/mocha": "^2.2.48",
-    "@types/node": "^6.0.106",
-    "mocha": "^5.2.0",
-    "typescript": "^2.8.3",
-    "vscode": "^1.1.36"
+    "@types/vscode": "^1.57.0",
+    "@types/glob": "^7.1.3",
+    "@types/mocha": "^8.2.2",
+    "@types/node": "14.x",
+    "eslint": "^7.27.0",
+    "@typescript-eslint/eslint-plugin": "^4.26.0",
+    "@typescript-eslint/parser": "^4.26.0",
+    "glob": "^7.1.7",
+    "mocha": "^8.4.0",
+    "typescript": "^4.3.2",
+    "vscode-test": "^1.5.2"
   }
 }

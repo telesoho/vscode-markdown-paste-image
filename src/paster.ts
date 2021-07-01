@@ -5,11 +5,23 @@ import {spawn, ChildProcess} from 'child_process';
 import * as moment from 'moment';
 import * as vscode from 'vscode';
 import {toMarkdown} from './toMarkdown';
-import {prepareDirForFile, fetchAndSaveFile} from './utils';
-import {existsSync} from 'fs';
+import {prepareDirForFile, fetchAndSaveFile, newTemporaryFilename, base64Encode} from './utils';
+import {existsSync, rmSync, RmOptions} from 'fs';
+import internal = require('stream');
+import { assert } from 'console';
 
 enum ClipboardType {
     Unkown = -1, Html = 0, Text, Image
+}
+
+class PasteImageContext {
+    targetFile?:vscode.Uri;
+    convertToBase64: boolean;
+    removeTargetFileAfterConvert: boolean;
+    imgTag ?: {
+        width: string,
+        height: string
+    } | null;
 }
 
 /**
@@ -125,7 +137,7 @@ class Paster {
 
     private static replacePredefinedVars(str) {
         let replaceMap = {
-            "${workspaceRoot}": vscode.workspace.rootPath,
+            "${workspaceRoot}": vscode.workspace.workspaceFolders&&vscode.workspace.workspaceFolders[0]||'',
         };
 
         let editor = vscode.window.activeTextEditor;
@@ -147,37 +159,54 @@ class Paster {
         return str.replace(/\\/g, '/');
     }
 
-
-    protected static saveImage(inputVal) {
-        if (!inputVal) return;
-
-        let editor = vscode.window.activeTextEditor;
-        if (!editor) return;
-
-        let fileUri = editor.document.uri;
-        if (!fileUri) return;
-
-        let filePath = fileUri.fsPath;
+    protected static parsePasteImageContext(inputVal:string): PasteImageContext {
+        if (!inputVal) return ;
 
         inputVal = this.replacePredefinedVars(inputVal);
 
+        //TODO: why to do this??
         if (inputVal && (inputVal.length !== inputVal.trim().length)) {
             vscode.window.showErrorMessage('The specified path is invalid: "' + inputVal + '"');
             return;
         }
 
-        let width;
-        let height;
-        let enableImgTag = vscode.workspace.getConfiguration('MarkdownPaste').enableImgTag;
-        if(enableImgTag) {
-            // parse `<filepath>[,width,height]`. for example. /abc/abc.png,200,100
-            let ar = inputVal.split(',');
-            inputVal = ar[0];
-            width = ar[1];
-            height = ar[2];
+
+        let pasteImgContext = new PasteImageContext;
+
+        let inputUri = vscode.Uri.parse(inputVal);
+
+        if(inputUri.fsPath.slice(inputUri.fsPath.length - 1) == '/') {
+            // While filename empty,  Paste clipboard to a temporay file, then convert it to base64 code insert to markdown file. 
+            pasteImgContext.targetFile = newTemporaryFilename();
+            pasteImgContext.convertToBase64 = true;
+            pasteImgContext.removeTargetFileAfterConvert = true;
+        } else {
+            let enableImgTag = vscode.workspace.getConfiguration('MarkdownPaste').enableImgTag;
+            if(enableImgTag && inputUri.query) {
+                // parse `<filepath>[?width,height]`. for example. /abc/abc.png?200,100
+                let ar = inputUri.query.split(',');
+                if (ar) {
+                    pasteImgContext.imgTag = {
+                        width : ar[0],
+                        height : ar[1]
+                    }
+                }
+            }
+            pasteImgContext.targetFile = inputUri;
+            pasteImgContext.convertToBase64 = false;
+            pasteImgContext.removeTargetFileAfterConvert = false;
         }
 
-        let imgPath = inputVal.replace(/\\/g, "/");
+        return pasteImgContext;
+    }
+
+
+    protected static saveImage(pasteImgContext: PasteImageContext) {
+
+        if (!pasteImgContext || !pasteImgContext.targetFile) return;
+
+        let imgPath = pasteImgContext.targetFile.fsPath;
+
         if(!prepareDirForFile(imgPath)) {
             vscode.window.showErrorMessage('Make folder failed:' + imgPath);
             return;
@@ -191,18 +220,76 @@ class Paster {
                 return;
             }
 
-            imagePath = this.renderFilePath(editor.document.languageId, filePath, imagePath, width, height);
+            this.renderMarkdown(pasteImgContext);
+        });
+    }
 
+
+    private static renderMdFilePath(pasteImgContext:PasteImageContext) : string {
+        let editor = vscode.window.activeTextEditor;
+        if (!editor) return;
+
+        let fileUri = editor.document.uri;
+        if (!fileUri) return;
+
+        let languageId = editor.document.languageId;
+
+        let docPath = fileUri.fsPath;
+
+        // relative will be add backslash characters so need to replace '\' to '/' here.
+        let imageFilePath = this.encodePath(path.relative(path.dirname(docPath), pasteImgContext.targetFile.fsPath));
+
+        if (languageId === 'markdown') {
+            let imgTag = pasteImgContext.imgTag;
+            if( imgTag ) {
+                return `<img src='${imageFilePath}' width='${imgTag.width}' height='${imgTag.height}'/>`;
+            }
+            return `![](${imageFilePath})`;
+        } else {
+            return imageFilePath;
+        }
+    }
+
+    private static renderMdImageBase64(pasteImgContext:PasteImageContext): string {
+        if(!pasteImgContext.targetFile.fsPath || !existsSync(pasteImgContext.targetFile.fsPath)) {
+            return ;
+        }
+
+        let renderText = "![](data:image/png;base64," + base64Encode(pasteImgContext.targetFile.fsPath) + ")";
+        
+        const rmOptions: RmOptions = {
+            recursive: true,
+            force: true
+        };
+
+        if(pasteImgContext.removeTargetFileAfterConvert) {
+            rmSync(pasteImgContext.targetFile.fsPath, rmOptions);
+        }
+        
+        return renderText;
+    }
+
+    public static renderMarkdown(pasteImgContext: PasteImageContext) {
+        let editor = vscode.window.activeTextEditor;
+        if (!editor) return;
+
+        let renderText : string;
+        if(pasteImgContext.convertToBase64) {
+            renderText = this.renderMdImageBase64(pasteImgContext);
+        } else {
+            renderText = this.renderMdFilePath(pasteImgContext);
+        }
+
+        if (renderText) {
             editor.edit(edit => {
                 let current = editor.selection;
-
                 if (current.isEmpty) {
-                    edit.insert(current.start, imagePath);
+                    edit.insert(current.start, renderText);
                 } else {
-                    edit.replace(current, imagePath);
+                    edit.replace(current, renderText);
                 }
             });
-        });
+        }
     }
 
     private static encodePath(filePath) {
@@ -328,7 +415,7 @@ class Paster {
             let options: vscode.InputBoxOptions = {
                 prompt: "You can change the filename. The existing file will be overwritten!",
                 value: imagePath,
-                placeHolder: "(e.g:../test/myimage.png)",
+                placeHolder: "(e.g:../test/myimg.png)",
                 valueSelection: [imagePath.length - path.basename(imagePath).length, imagePath.length - ext.length],
             }
             vscode.window.showInputBox(options).then(inputVal => {
@@ -433,17 +520,21 @@ class Paster {
         let fileNameLength = selectText ? selectText.length : 19; // yyyy-mm-dd-hh-mm-ss
 
         let silence = vscode.workspace.getConfiguration('MarkdownPaste').silence;
+        let pasteImgContext = new PasteImageContext;
+
         if (silence) {
-            Paster.saveImage(imagePath);
+            pasteImgContext = this.parsePasteImageContext(imagePath);
+            Paster.saveImage(pasteImgContext);
         } else {
             let options: vscode.InputBoxOptions = {
                 prompt: "You can change the filename. The existing file will be overwritten!.",
                 value: imagePath,
-                placeHolder: "(e.g:../test/myimage.png)",
+                placeHolder: "(e.g:../test/myimage.png?100,60)",
                 valueSelection: [imagePath.length - 4 - fileNameLength, imagePath.length - 4],
             }
             vscode.window.showInputBox(options).then(inputVal => {
-                Paster.saveImage(inputVal);
+                pasteImgContext = this.parsePasteImageContext(inputVal);
+                Paster.saveImage(pasteImgContext);
             });
         }
     }
@@ -599,7 +690,7 @@ class Paster {
      * render the image file path dependen on file type
      * e.g. in markdown image file path will render to ![](path)
      */
-    public static renderFilePath(languageId: string, docPath: string, imageFilePath: string, width, height): string {
+    private static renderFilePath(languageId: string, docPath: string, imageFilePath: string, width, height): string {
         // relative will be add backslash characters so need to replace '\' to '/' here.
         imageFilePath = this.encodePath(path.relative(path.dirname(docPath), imageFilePath));
 
@@ -613,6 +704,7 @@ class Paster {
             return imageFilePath;
         }
     }
+
 }
 
 export {Paster}
