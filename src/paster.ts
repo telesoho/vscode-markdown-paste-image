@@ -135,6 +135,11 @@ class Paster {
         });
     }
 
+    /**
+     * Replace all predefined variable.
+     * @param str path
+     * @returns 
+     */
     private static replacePredefinedVars(str) {
         let replaceMap = {
             "${workspaceRoot}": vscode.workspace.workspaceFolders&&vscode.workspace.workspaceFolders[0]||'',
@@ -159,6 +164,17 @@ class Paster {
         return str.replace(/\\/g, '/');
     }
 
+    /**
+     * Generate different Markdown content based on the value entered.
+     * for example:
+     * ./assets/test.png        => ![](./assets/test.png)
+     * ./assets/test.png?200,10 => <img src="./assets/test.png" width="200" height="10"/> 
+     * ./assets/                => ![](![](data:image/png;base64,...)
+     * ./assets/?200,10         => <img src="data:image/png;base64,..." width="200" height="10"/>
+     * 
+     * @param inputVal 
+     * @returns 
+     */
     protected static parsePasteImageContext(inputVal:string): PasteImageContext {
         if (!inputVal) return ;
 
@@ -176,25 +192,26 @@ class Paster {
         let inputUri = vscode.Uri.parse(inputVal);
 
         if(inputUri.fsPath.slice(inputUri.fsPath.length - 1) == '/') {
-            // While filename empty,  Paste clipboard to a temporay file, then convert it to base64 code insert to markdown file. 
+            // While filename is empty(ex: /abc/?200,20),  paste clipboard to a temporay file, then convert it to base64 image to markdown. 
             pasteImgContext.targetFile = newTemporaryFilename();
             pasteImgContext.convertToBase64 = true;
             pasteImgContext.removeTargetFileAfterConvert = true;
         } else {
-            let enableImgTag = vscode.workspace.getConfiguration('MarkdownPaste').enableImgTag;
-            if(enableImgTag && inputUri.query) {
-                // parse `<filepath>[?width,height]`. for example. /abc/abc.png?200,100
-                let ar = inputUri.query.split(',');
-                if (ar) {
-                    pasteImgContext.imgTag = {
-                        width : ar[0],
-                        height : ar[1]
-                    }
-                }
-            }
             pasteImgContext.targetFile = inputUri;
             pasteImgContext.convertToBase64 = false;
-            pasteImgContext.removeTargetFileAfterConvert = false;
+            pasteImgContext.removeTargetFileAfterConvert = false;    
+        }
+
+        let enableImgTagConfig = vscode.workspace.getConfiguration('MarkdownPaste').enableImgTag;
+        if(enableImgTagConfig && inputUri.query) {
+            // parse `<filepath>[?width,height]`. for example. /abc/abc.png?200,100
+            let ar = inputUri.query.split(',');
+            if (ar) {
+                pasteImgContext.imgTag = {
+                    width : ar[0],
+                    height : ar[1]
+                }
+            }
         }
 
         return pasteImgContext;
@@ -255,7 +272,13 @@ class Paster {
             return ;
         }
 
-        let renderText = "![](data:image/png;base64," + base64Encode(pasteImgContext.targetFile.fsPath) + ")";
+        let renderText = base64Encode(pasteImgContext.targetFile.fsPath);
+        let imgTag = pasteImgContext.imgTag;
+        if(imgTag) {
+            renderText = `<img src='data:image/png;base64,${renderText}' width='${imgTag.width}' height='${imgTag.height}'/>`;
+        } else {
+            renderText = `![](data:image/png;base64,${renderText})`;
+        }
         
         const rmOptions: RmOptions = {
             recursive: true,
@@ -265,7 +288,7 @@ class Paster {
         if(pasteImgContext.removeTargetFileAfterConvert) {
             rmSync(pasteImgContext.targetFile.fsPath, rmOptions);
         }
-        
+
         return renderText;
     }
 
@@ -425,6 +448,7 @@ class Paster {
     }
 
     private static downloadFile(image_url, inputVal) {
+        
         if (!inputVal) return;
 
         let editor = vscode.window.activeTextEditor;
@@ -619,7 +643,7 @@ class Paster {
     }
 
     /**
-     *
+     * Run script of os.
      * @param script
      * @param parameters
      * @param callback
