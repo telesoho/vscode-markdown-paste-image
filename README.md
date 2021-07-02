@@ -52,12 +52,6 @@ Smartly paste for Markdown.
 
     While you paste image or download image, you can force the extention to insert embed base64 image to markdown by empty filename.
 
-    for example:
-    ```
-     ./assets/                => [](data:image/png;base64,...)
-     ./assets/?200,10         => <img src="data:image/png;base64,..." width="200" height="10"/>
-    ```
-
     ![](res/insert_embed_base64_image.gif)
 
 ## Config

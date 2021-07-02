@@ -2,6 +2,7 @@
 typings/**
 out/test/**
 out/src/**
+node_modules/**
 test/**
 src/**
 .vscode-test/**
