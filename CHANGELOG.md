@@ -1,5 +1,10 @@
 # Change Log
 
+## 0.13.0 (July 2, 2021)
+
+- Feature: Embed base64 image supported.
+- Add MarkdownPaste.encodePath configuration.
+
 ## 0.12.3 (Sep 19, 2019)
 
 - Fix some grammar mistakes.

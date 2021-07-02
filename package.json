@@ -2,7 +2,7 @@
   "name": "vscode-markdown-paste-image",
   "displayName": "Markdown Paste",
   "description": "A smartly paste for markdown.",
-  "version": "0.12.3",
+  "version": "0.13.0",
   "publisher": "telesoho",
   "author": {
     "name": "telesoho",
@@ -95,7 +95,7 @@
             "encodeSpaceOnly"
           ],
           "default": "encodeSpaceOnly",
-          "description": "How to encode image path before insert to editor. Support options: none, encodeURI, encodeSpaceOnly"
+          "description": "Encode path to URL-encode format. Options: none, encodeURI, encodeSpaceOnly"
         }
       }
     },

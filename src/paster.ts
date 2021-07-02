@@ -218,8 +218,8 @@ class Paster {
     }
 
 
-    protected static saveImage(pasteImgContext: PasteImageContext) {
-
+    protected static saveImage(targetPath:string) {
+        let pasteImgContext = this.parsePasteImageContext(targetPath);
         if (!pasteImgContext || !pasteImgContext.targetFile) return;
 
         let imgPath = pasteImgContext.targetFile.fsPath;
@@ -237,7 +237,7 @@ class Paster {
                 return;
             }
 
-            this.renderMarkdown(pasteImgContext);
+            this.renderMarkdownLink(pasteImgContext);
         });
     }
 
@@ -292,7 +292,7 @@ class Paster {
         return renderText;
     }
 
-    public static renderMarkdown(pasteImgContext: PasteImageContext) {
+    public static renderMarkdownLink(pasteImgContext: PasteImageContext) {
         let editor = vscode.window.activeTextEditor;
         if (!editor) return;
 
@@ -315,7 +315,15 @@ class Paster {
         }
     }
 
-    private static encodePath(filePath) {
+    /**
+     * Encode path string.
+     * encodeURI        : encode all characters to URL encode format
+     * encodeSpaceOnly  : encode all space character to %20
+     * none             : do nothing
+     * @param filePath 
+     * @returns 
+     */
+    private static encodePath(filePath:string) {
         filePath = filePath.replace(/\\/g, '/');
 
         var encodePathConfig = vscode.workspace.getConfiguration('MarkdownPaste')['encodePath'];
@@ -391,54 +399,24 @@ class Paster {
     }
 
     /**
-     *
-     * @param image_url url of image
+     * Download image to local and render markdown link for it.
+     * @param image_url
      */
     private static pasteImageURL(image_url) {
-        // get current edit file path
-        let editor = vscode.window.activeTextEditor;
-        if (!editor) return;
-
-        let fileUri = editor.document.uri;
-        if (!fileUri) return;
-        if (fileUri.scheme === 'untitled') {
-            vscode.window.showInformationMessage('Before pasting an image, you need to save the current edited file first.');
-            return;
-        }
-
-        // get selection as image file name, need check
-        var selection = editor.selection;
-        var selectText = editor.document.getText(selection);
-
-        if (selectText && !/^[^\\/:\*\?""<>|]{1,120}$/.test(selectText)) {
-            vscode.window.showInformationMessage('Your selection is not a valid file name!');
-            return;
-        }
-
-        // get image destination path
-        let folderPathFromConfig = vscode.workspace.getConfiguration('MarkdownPaste').path;
-
-        folderPathFromConfig = this.replacePredefinedVars(folderPathFromConfig);
-
-        if (folderPathFromConfig && (folderPathFromConfig.length !== folderPathFromConfig.trim().length)) {
-            vscode.window.showErrorMessage('The specified path is invalid: "' + folderPathFromConfig + '"');
-            return;
-        }
 
         let filename = image_url.split('/').pop().split('?')[0];
-        let imagePath = this.getImagePath(
-            fileUri.fsPath, selectText, folderPathFromConfig, path.extname(filename));
+        let ext = path.extname(filename);
+        let imagePath = this.genTargetImagePath(ext);
+        if(!imagePath) return;
 
         let silence = vscode.workspace.getConfiguration('MarkdownPaste').silence;
         if (silence) {
             Paster.downloadFile(image_url, imagePath);
         } else {
-            let ext = path.extname(imagePath);
-
             let options: vscode.InputBoxOptions = {
                 prompt: "You can change the filename. The existing file will be overwritten!",
                 value: imagePath,
-                placeHolder: "(e.g:../test/myimg.png)",
+                placeHolder: "(e.g:../test/myimg.png?100,60)",
                 valueSelection: [imagePath.length - path.basename(imagePath).length, imagePath.length - ext.length],
             }
             vscode.window.showInputBox(options).then(inputVal => {
@@ -447,37 +425,13 @@ class Paster {
         }
     }
 
-    private static downloadFile(image_url, inputVal) {
+    private static downloadFile(image_url: string, target: string) {
         
-        if (!inputVal) return;
+        let pasteImgContext = this.parsePasteImageContext(target);
 
-        let editor = vscode.window.activeTextEditor;
-        if (!editor) return;
+        if (!pasteImgContext || !pasteImgContext.targetFile) return;
 
-        let fileUri = editor.document.uri;
-        if (!fileUri) return;
-
-        let filePath = fileUri.fsPath;
-
-        inputVal = this.replacePredefinedVars(inputVal);
-
-        if (inputVal && (inputVal.length !== inputVal.trim().length)) {
-            vscode.window.showErrorMessage('The specified path is invalid: "' + inputVal + '"');
-            return;
-        }
-
-        let width;
-        let height;
-        let enableImgTag = vscode.workspace.getConfiguration('MarkdownPaste').enableImgTag;
-        if(enableImgTag) {
-            // parse `<filepath>[,width,height]`. for example. /abc/abc.png,200,100
-            let ar = inputVal.split(',');
-            inputVal = ar[0];
-            width = ar[1];
-            height = ar[2];
-        }
-
-        let imgPath = inputVal.replace(/\\/g, "/");
+        let imgPath = pasteImgContext.targetFile.fsPath;
         if(!prepareDirForFile(imgPath)) {
             vscode.window.showErrorMessage('Make folder failed:' + imgPath);
             return;
@@ -491,24 +445,45 @@ class Paster {
                 vscode.window.showInformationMessage('There is not an image in the clipboard.');
                 return;
             }
+            this.renderMarkdownLink(pasteImgContext);
 
-            imagePath = this.renderFilePath(editor.document.languageId, filePath, imagePath, width, height);
-
-            editor.edit(edit => {
-                let current = editor.selection;
-
-                if (current.isEmpty) {
-                    edit.insert(current.start, imagePath);
-                } else {
-                    edit.replace(current, imagePath);
-                }
-            });
         }).catch(err => {
             vscode.window.showErrorMessage('Download failed:' + err);
         });
     }
 
+    /**
+     * Paste clipboard of image to file and render Markdown link for it.
+     * @returns 
+     */
     private static pasteImage() {
+        let ext = '.png'
+        let imagePath = this.genTargetImagePath(ext);
+        if(!imagePath) return;
+
+        let silence = vscode.workspace.getConfiguration('MarkdownPaste').silence;
+
+        if (silence) {            
+            Paster.saveImage(imagePath);
+        } else {
+            let options: vscode.InputBoxOptions = {
+                prompt: "You can change the filename. The existing file will be overwritten!.",
+                value: imagePath,
+                placeHolder: "(e.g:../test/myimage.png?100,60)",
+                valueSelection: [imagePath.length - path.basename(imagePath).length, imagePath.length - ext.length],
+            }
+            vscode.window.showInputBox(options).then(inputVal => {
+                Paster.saveImage(inputVal);
+            });
+        }
+    }
+
+    /**
+     * Generate an path for target image. 
+     * @param extension extension of target image file.
+     * @returns 
+     */
+    private static genTargetImagePath(extension: string = '.png'): string {
         // get current edit file path
         let editor = vscode.window.activeTextEditor;
         if (!editor) return;
@@ -520,6 +495,7 @@ class Paster {
             return;
         }
 
+        let filePath = fileUri.fsPath;
         // get selection as image file name, need check
         var selection = editor.selection;
         var selectText = editor.document.getText(selection);
@@ -538,32 +514,7 @@ class Paster {
             vscode.window.showErrorMessage('The specified path is invalid: "' + folderPathFromConfig + '"');
             return;
         }
-
-        let imagePath = this.getImagePath(
-            fileUri.fsPath, selectText, folderPathFromConfig);
-        let fileNameLength = selectText ? selectText.length : 19; // yyyy-mm-dd-hh-mm-ss
-
-        let silence = vscode.workspace.getConfiguration('MarkdownPaste').silence;
-        let pasteImgContext = new PasteImageContext;
-
-        if (silence) {
-            pasteImgContext = this.parsePasteImageContext(imagePath);
-            Paster.saveImage(pasteImgContext);
-        } else {
-            let options: vscode.InputBoxOptions = {
-                prompt: "You can change the filename. The existing file will be overwritten!.",
-                value: imagePath,
-                placeHolder: "(e.g:../test/myimage.png?100,60)",
-                valueSelection: [imagePath.length - 4 - fileNameLength, imagePath.length - 4],
-            }
-            vscode.window.showInputBox(options).then(inputVal => {
-                pasteImgContext = this.parsePasteImageContext(inputVal);
-                Paster.saveImage(pasteImgContext);
-            });
-        }
-    }
-
-    private static getImagePath(filePath: string, selectText: string, folderPathFromConfig: string, extension: string = '.png'): string {
+        
         // image file name
         let imageFileName = "";
         if (!selectText) {
@@ -643,7 +594,7 @@ class Paster {
     }
 
     /**
-     * Run script of os.
+     * Run shell script.
      * @param script
      * @param parameters
      * @param callback
@@ -709,26 +660,6 @@ class Paster {
 
         return ret;
     }
-
-    /**
-     * render the image file path dependen on file type
-     * e.g. in markdown image file path will render to ![](path)
-     */
-    private static renderFilePath(languageId: string, docPath: string, imageFilePath: string, width, height): string {
-        // relative will be add backslash characters so need to replace '\' to '/' here.
-        imageFilePath = this.encodePath(path.relative(path.dirname(docPath), imageFilePath));
-
-        if (languageId === 'markdown') {
-            if(typeof width !== "undefined" ) {
-                height = height || '';
-                return `<img src='${imageFilePath}' width='${width}' height='${height}'/>`;
-            }
-            return `![](${imageFilePath})`;
-        } else {
-            return imageFilePath;
-        }
-    }
-
 }
 
 export {Paster}
