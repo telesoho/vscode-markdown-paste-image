@@ -54,11 +54,11 @@ Smartly paste for Markdown.
 
     for example:
     ```
-     ./assets/                => ![](![](data:image/png;base64,...)
+     ./assets/                => ![](data:image/png;base64,...)
      ./assets/?200,10         => <img src="data:image/png;base64,..." width="200" height="10"/>
     ```
 
-    ![](res/insert_embed_base65_image.gif)
+    ![](res/insert_embed_base64_image.gif)
 
 ## Config
 
