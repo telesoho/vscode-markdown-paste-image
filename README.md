@@ -48,6 +48,17 @@ Smartly paste for Markdown.
 
     ![](res/insert-math-symbol-2018-08-12-18-15-12.png)
 
+- Embed base64 image
+
+    While you paste image or download image, you can force the extention to insert embed base64 image to markdown by empty filename.
+
+    for example:
+    ```
+     ./assets/                => ![](![](data:image/png;base64,...)
+     ./assets/?200,10         => <img src="data:image/png;base64,..." width="200" height="10"/>
+    ```
+
+    ![](res/insert_embed_base65_image.gif)
 
 ## Config
 
@@ -72,9 +83,18 @@ Smartly paste for Markdown.
 
 - `MarkdownPaste.enableImgTag`
 
-    enable/disable using HTML img tag with width and height for pasting image. If this option be enabled, you can input width and height by using `<filepath>[,width,height]` in filename confirm input box. for example input `\abc\filename.png,200,100`, then `<img src='\abc\filename.png' width='200' height='100' />` will be inserted. Note that if `MarkdownPaste.silence` be enabled, this option will be not work.
+    enable/disable using HTML img tag with width and height for pasting image. If this option be enabled, you can input width and height by using `<filepath>[?width,height]` in filename confirm input box. for example input `\abc\filename.png?200,100`, then `<img src='\abc\filename.png' width='200' height='100' />` will be inserted. 
 
     Default value is `true`
+
+- `MarkdownPaste.encodePath`
+
+    Encode path link to URL-encode format.
+
+    - encodeURI Encode all characters to URL-encode format. 
+    - encodeSpaceOnly Encode ' '(space) to '%20' only. 
+    - none Encode nothing.
+
 
 - `MarkdownPaste.rules`
 
