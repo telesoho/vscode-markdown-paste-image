@@ -137,7 +137,7 @@
         "command": "telesoho.MarkdownPaste",
         "key": "ctrl+alt+v",
         "mac": "cmd+alt+v",
-        "when": "editorTextFocus"
+        "when": "editorTextFocus && resourceLangId == markdown"
       },
       {
         "command": "telesoho.MarkdownRuby",
