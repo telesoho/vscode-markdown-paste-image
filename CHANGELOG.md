@@ -1,6 +1,11 @@
 # Change Log
 
-## 0.13.4 (Aug 2, 2021)
+
+## 0.13.7 (August 2, 2021)
+
+- Fix #45: command 'telesoho.MarkdownPaste' not found
+
+## 0.13.4 (August 2, 2021)
 
 - Fix #42: files being saved to incorrect location
 - Fix #38: MarkdownPaste shotcut only work on markdown mode
