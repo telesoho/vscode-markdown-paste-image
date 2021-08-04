@@ -1,5 +1,10 @@
 # Change Log
 
+## 0.13.4 (Aug 2, 2021)
+
+- Fix #42: files being saved to incorrect location
+- Fix #38: MarkdownPaste shotcut only work on markdown mode
+
 ## 0.13.3 (July 2, 2021)
 
 - Feature: Embed base64 image supported.
