@@ -180,12 +180,22 @@ class Paster {
 
         inputVal = this.replacePredefinedVars(inputVal);
 
-        //TODO: why to do this??
+        //leading and trailling white space are invalidate 
         if (inputVal && (inputVal.length !== inputVal.trim().length)) {
             vscode.window.showErrorMessage('The specified path is invalid: "' + inputVal + '"');
             return;
         }
 
+        // ! Maybe it is a bug in vscode.Uri.parse():
+        // > vscode.Uri.parse("f:/test/images").fsPath 
+        // '/test/images'
+        // > vscode.Uri.parse("file:///f:/test/images").fsPath 
+        // 'f:/test/image'                
+        // 
+        // So we have to add file:/// scheme. while input value contain a driver character 
+        if (inputVal.substr(1,1) === ':') {
+            inputVal = 'file:///' + inputVal;
+        }
 
         let pasteImgContext = new PasteImageContext;
 
