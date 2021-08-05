@@ -142,7 +142,7 @@ class Paster {
      */
     private static replacePredefinedVars(str) {
         let replaceMap = {
-            "${workspaceRoot}": vscode.workspace.workspaceFolders&&vscode.workspace.workspaceFolders[0]||'',
+            "${workspaceRoot}": vscode.workspace.workspaceFolders&&vscode.workspace.workspaceFolders[0].uri.fsPath||'',
         };
 
         let editor = vscode.window.activeTextEditor;
@@ -366,9 +366,9 @@ class Paster {
                 let editor = vscode.window.activeTextEditor;
                 let fileUri = editor.document.uri;
                 let current_file_path = fileUri.fsPath;
-                let workspace_root_dir = vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders[0];
+                let workspace_root_dir = vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders[0].uri.path;
 
-                if(content.startsWith(workspace_root_dir.uri.path)) {
+                if(content.startsWith(workspace_root_dir)) {
                     let relative_path = this.encodePath(path.relative(path.dirname(current_file_path), content));
 
                     return `![](${relative_path})`;

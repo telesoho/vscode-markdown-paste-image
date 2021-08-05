@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.13.8 (August 5, 2021)
+
+- Fix #46: Variable "${workspaceRoot}" looks resolved incorrectly 
+
 
 ## 0.13.7 (August 2, 2021)
 

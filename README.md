@@ -89,11 +89,13 @@ Smartly paste for Markdown.
     - encodeSpaceOnly Encode ' '(space) to '%20' only. 
     - none Encode nothing.
 
+    Default value is 'encodeSpaceOnly'
+
 
 - `MarkdownPaste.rules`
 
     If you want to define your own regex to parse and replace content for pasting text. You can fill the following JSON, and set it to this option.
-    ```JSON
+    ```json
     [{
         // rule 1
         "regex": "(https?:\/\/.*)", // your javascript style regex
@@ -114,7 +116,7 @@ Smartly paste for Markdown.
 
     Default value is
 
-    ```JSON
+    ```json
     [{
         "regex": "^(?:https?:\/\/)?(?:(?:(?:www\\.?)?youtube\\.com(?:\/(?:(?:watch\\?.*?v=([^&\\s]+).*)|))?))",
         "options": "g",
