@@ -265,6 +265,8 @@ class Paster {
 
         // relative will be add backslash characters so need to replace '\' to '/' here.
         let imageFilePath = this.encodePath(path.relative(path.dirname(docPath), pasteImgContext.targetFile.fsPath));
+        // Some markdown renderers (like the one used by VuePress) do not display images when the relative path does not include './'
+        imageFilePath = `./${imageFilePath}`;
 
         if (languageId === 'markdown') {
             let imgTag = pasteImgContext.imgTag;
