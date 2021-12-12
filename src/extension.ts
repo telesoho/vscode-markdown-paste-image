@@ -57,6 +57,10 @@ export function activate(context: vscode.ExtensionContext) {
         'telesoho.MarkdownRuby', () => {
             Paster.Ruby();
         }));
+    context.subscriptions.push(vscode.commands.registerCommand(
+        'telesoho.MarkdownPasteCode', () => {
+            Paster.pasteCode();
+        }));
 }
 
 export function deactivate() {

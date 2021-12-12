@@ -8,6 +8,9 @@ import * as fs from "fs";
 import * as moment from 'moment';
 import { Uri} from "vscode";
 import * as os from 'os';
+import isWsl = require('is-wsl');
+
+export type Platform = 'darwin' | 'win32' | 'win10' | 'linux' | 'wsl'
 
 /**
  * prepare directory for specified file.
@@ -98,6 +101,23 @@ function base64Encode(file) {
   return Buffer.from(bitmap).toString('base64');
 }
 
+const getCurrentPlatform = (): Platform => {
+  const platform = process.platform
+  if (isWsl) {
+    return 'wsl'
+  }
+  if (platform === 'win32') {
+    const currentOS = os.release().split('.')[0]
+    if (currentOS === '10') {
+      return 'win10'
+    } else {
+      return 'win32'
+    }
+  } else if (platform === 'darwin') {
+    return 'darwin'
+  } else {
+    return 'linux'
+  }
+}
 
-
-export { prepareDirForFile, fetchAndSaveFile, base64Encode, newTemporaryFilename};
+export { prepareDirForFile, fetchAndSaveFile, base64Encode, newTemporaryFilename, getCurrentPlatform};

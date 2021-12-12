@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.14.0 (Dec 12, 2021)
+
+- Feature: Support for pasting code with auto detecting language #50
+
 ## 0.13.8 (August 5, 2021)
 
 - Fix #46: Variable "${workspaceRoot}" looks resolved incorrectly 

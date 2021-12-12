@@ -16,7 +16,7 @@ Smartly paste for Markdown.
 
 - Paste smart
 
-    Smartly paste in markdown by pressing 'Ctrl+Alt+V' ('Cmd+Alt+V' on Mac)
+    Smartly paste in markdown by pressing 'Ctrl+Alt+V' ('Cmd+Alt+V' on Mac) or `Markdown Paste` command. 
 
     - If you paste an image, the extension will create an new file for the image and insert link code to Markdown.
     - If you paste a text, it will test the text with customize regex, and replace matched content by regex.
@@ -29,6 +29,9 @@ Smartly paste for Markdown.
     Use `Markdown Download` command (Linux or Windows:`Ctrl+Alt+D`, Mac:`Cmd+Alt+D`) to download file and insert link code into Markdown.
     ![](./res/markdown-paste-download-gif-demo.gif)
 
+- Paste code
+
+    Use `Markdown Paste Code` command (Linux or Window:`Ctrl+Alt+C`, Mac:`Cmd+Alt+C`) to paste code with auto detecting language.
 
 - Ruby tag
 

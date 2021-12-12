@@ -2,7 +2,7 @@
   "name": "vscode-markdown-paste-image",
   "displayName": "Markdown Paste",
   "description": "A smartly paste for markdown.",
-  "version": "0.13.8",
+  "version": "0.14.0",
   "publisher": "telesoho",
   "author": {
     "name": "telesoho",
@@ -39,7 +39,8 @@
     "onCommand:telesoho.MarkdownDownload",
     "onCommand:telesoho.MarkdownPaste",
     "onCommand:telesoho.MarkdownRuby",
-    "onCommand:telesoho.insertMathSymbol"
+    "onCommand:telesoho.insertMathSymbol",
+    "onCommand:telesoho.MarkdownPasteCode"
   ],
   "main": "./out/extension",
   "scripts": {
@@ -115,12 +116,21 @@
       {
         "command": "telesoho.insertMathSymbol",
         "title": "Insert latex math symbol"
+      },
+      {
+        "command": "telesoho.MarkdownPasteCode",
+        "title": "Markdown Paste Code"
       }
     ],
     "menus": {
       "editor/context": [
         {
           "command": "telesoho.MarkdownPaste",
+          "when": "editorLangId == markdown",
+          "group": "markdown"
+        },
+        {
+          "command": "telesoho.MarkdownPasteCode",
           "when": "editorLangId == markdown",
           "group": "markdown"
         }
@@ -137,6 +147,12 @@
         "command": "telesoho.MarkdownPaste",
         "key": "ctrl+alt+v",
         "mac": "cmd+alt+v",
+        "when": "editorTextFocus && resourceLangId == markdown"
+      },
+      {
+        "command": "telesoho.MarkdownPasteCode",
+        "key": "ctrl+alt+c",
+        "mac": "cmd+alt+c",
         "when": "editorTextFocus && resourceLangId == markdown"
       },
       {
@@ -160,7 +176,9 @@
     ]
   },
   "dependencies": {
+    "@vscode/vscode-languagedetection": "^1.0.21",
     "clipboardy": "1.1.4",
+    "is-wsl": "^2.2.0",
     "moment": "^2.22.1",
     "shelljs": "^0.7.7",
     "to-markdown": "^3.1.1"

@@ -5,10 +5,11 @@ import {spawn, ChildProcess} from 'child_process';
 import * as moment from 'moment';
 import * as vscode from 'vscode';
 import {toMarkdown} from './toMarkdown';
-import {prepareDirForFile, fetchAndSaveFile, newTemporaryFilename, base64Encode} from './utils';
+import {prepareDirForFile, fetchAndSaveFile, newTemporaryFilename, base64Encode, getCurrentPlatform} from './utils';
 import {existsSync, rmSync, RmOptions} from 'fs';
 import internal = require('stream');
 import { assert } from 'console';
+import {LanguageDetection} from './language_detection';
 
 enum ClipboardType {
     Unkown = -1, Html = 0, Text, Image
@@ -51,6 +52,15 @@ function runCommand(shell, options: string[]): Promise<string> {
 }
 
 class Paster {
+
+    public static async pasteCode() {
+        var content = clipboard.readSync();
+        if (content) {
+            let ld = new LanguageDetection();
+            let lang = await ld.detectLanguage(content);
+            Paster.writeToEditor(`\`\`\`${lang}\n${content}\n\`\`\``);
+        }
+    }
 
     /**
      * Paste text
