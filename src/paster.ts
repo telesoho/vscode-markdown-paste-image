@@ -441,7 +441,7 @@ class Paster {
       win32: "win32_get_clipboard_text_plain.ps1",
       linux: "linux_get_clipboard_text_plain.sh",
       darwin: null,
-      wsl: null,
+      wsl: "win32_get_clipboard_text_plain.ps1",
       win10: "win32_get_clipboard_text_plain.ps1",
     };
     var ret = this.runScript(script, [], (data) => {
@@ -455,7 +455,7 @@ class Paster {
       win32: "win32_get_clipboard_text_html.ps1",
       linux: "linux_get_clipboard_text_html.sh",
       darwin: null,
-      wsl: null,
+      wsl: "win32_get_clipboard_text_html.ps1",
       win10: "win32_get_clipboard_text_html.ps1",
     };
     var ret = this.runScript(script, [], (data) => {
@@ -674,7 +674,7 @@ class Paster {
       linux: "linux_get_clipboard_content_type.sh",
       win32: "win32_get_clipboard_content_type.ps1",
       darwin: null,
-      wsl: null,
+      wsl: "win32_get_clipboard_text_plain.ps1",
       win10: "win32_get_clipboard_text_plain.ps1",
     };
 
@@ -775,7 +775,7 @@ class Paster {
       win32: "win32_save_clipboard_png.ps1",
       darwin: "mac.applescript",
       linux: "linux_save_clipboard_png.sh",
-      wsl: null,
+      wsl: "win32_save_clipboard_png.ps1",
       win10: "win32_save_clipboard_png.ps1",
     };
 
