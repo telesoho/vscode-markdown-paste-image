@@ -103,7 +103,6 @@ function base64Encode(file) {
 }
 
 const getCurrentPlatform = (): Platform => {
-  return "win32";
   const platform = process.platform;
   if (isWsl) {
     return "wsl";
