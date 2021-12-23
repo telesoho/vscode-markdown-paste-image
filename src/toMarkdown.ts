@@ -1,10 +1,10 @@
-'use strict';
+"use strict";
 
 function genBorder(content, node) {
   var colspan = parseInt(node.getAttribute("colspan") || "0");
   var suffix = " " + content + " |";
-  if(colspan) {
-    suffix = suffix.repeat(colspan)
+  if (colspan) {
+    suffix = suffix.repeat(colspan);
   }
 
   var index = Array.prototype.indexOf.call(node.parentNode.childNodes, node);
@@ -17,9 +17,9 @@ function genBorder(content, node) {
 
 function cell(content, node) {
   var colspan = parseInt(node.getAttribute("colspan") || "0");
-  var suffix = "|"
-  if(colspan) {
-    suffix = suffix.repeat(colspan)
+  var suffix = "|";
+  if (colspan) {
+    suffix = suffix.repeat(colspan);
   }
 
   var index = Array.prototype.indexOf.call(node.parentNode.childNodes, node);
@@ -27,7 +27,7 @@ function cell(content, node) {
   if (index === 0) {
     prefix = "| ";
   }
-  return prefix + content + ' ' + suffix;
+  return prefix + content + " " + suffix;
 }
 
 function toMarkdown(content) {
@@ -35,57 +35,57 @@ function toMarkdown(content) {
   var pandoc = [
     {
       filter: "h1",
-      replacement: function(content, node) {
+      replacement: function (content, node) {
         var underline = Array(content.length + 1).join("=");
         return "\n\n" + content + "\n" + underline + "\n\n";
-      }
+      },
     },
 
     {
       filter: "h2",
-      replacement: function(content, node) {
+      replacement: function (content, node) {
         var underline = Array(content.length + 1).join("-");
         return "\n\n" + content + "\n" + underline + "\n\n";
-      }
+      },
     },
 
     {
       filter: "sup",
-      replacement: function(content) {
+      replacement: function (content) {
         return "^" + content + "^";
-      }
+      },
     },
 
     {
       filter: "sub",
-      replacement: function(content) {
+      replacement: function (content) {
         return "~" + content + "~";
-      }
+      },
     },
 
     {
       filter: "br",
-      replacement: function() {
+      replacement: function () {
         return "\n";
-      }
+      },
     },
 
     {
       filter: "hr",
-      replacement: function() {
+      replacement: function () {
         return "\n\n* * * * *\n\n";
-      }
+      },
     },
 
     {
       filter: ["em", "i", "cite", "var"],
-      replacement: function(content) {
+      replacement: function (content) {
         return "*" + content + "*";
-      }
+      },
     },
 
     {
-      filter: function(node) {
+      filter: function (node) {
         var hasSiblings = node.previousSibling || node.nextSibling;
         var isCodeBlock = node.parentNode.nodeName === "PRE" && !hasSiblings;
         var isCodeElem =
@@ -96,16 +96,16 @@ function toMarkdown(content) {
 
         return isCodeElem && !isCodeBlock;
       },
-      replacement: function(content) {
+      replacement: function (content) {
         return "`" + content + "`";
-      }
+      },
     },
 
     {
-      filter: function(node) {
+      filter: function (node) {
         return node.nodeName === "A" && node.getAttribute("href");
       },
-      replacement: function(content, node) {
+      replacement: function (content, node) {
         var url = node.getAttribute("href");
         var titlePart = node.title ? ' "' + node.title + '"' : "";
         if (content === url) {
@@ -115,12 +115,12 @@ function toMarkdown(content) {
         } else {
           return "[" + content + "](" + url + titlePart + ")";
         }
-      }
+      },
     },
 
     {
       filter: "li",
-      replacement: function(content, node) {
+      replacement: function (content, node) {
         content = content.replace(/^\s+/, "").replace(/\n/gm, "\n    ");
         var prefix = "-   ";
         var parent = node.parentNode;
@@ -134,38 +134,38 @@ function toMarkdown(content) {
         }
 
         return prefix + content;
-      }
+      },
     },
     {
       filter: ["font", "span", "div"],
-      replacement: function(content) {
+      replacement: function (content) {
         return content;
-      }
+      },
     },
     {
       filter: ["pre"],
-      replacement: function(content) {
+      replacement: function (content) {
         return `\n\`\`\`\n${content}\n\`\`\`\n`;
-      }
+      },
     },
     // {
     //     filter: 'table',
     //     replacement: function (content, node) {
-    //         console.log('process table');
+    //         Logger.log('process table');
     //         return `\n\n<${node.nodeName}>${content}\n</${node.nodeName}>\n\n`
     //     }
     // },
     // {
     //     filter: ['thead', 'tbody', 'tfoot', 'th', 'tr'],
     //     replacement: function (content, node) {
-    //         console.log(`process ${node.nodeName}`);
+    //         Logger.log(`process ${node.nodeName}`);
     //         return `\n<${node.nodeName}>${content}\n</${node.nodeName}>`
     //     }
     // },
     // {
     //     filter: ['td'],
     //     replacement: function (content, node) {
-    //         console.log(`process ${node.nodeName}`);
+    //         Logger.log(`process ${node.nodeName}`);
     //         var colspan = node.getAttribute('colspan')
     //         var rowspan = node.getAttribute('rowspan')
     //         colspan = colspan? ' colspan=' + colspan: ""
@@ -177,26 +177,29 @@ function toMarkdown(content) {
     // table
     {
       filter: ["colgroup"],
-      replacement: function(content) {
+      replacement: function (content) {
         return "";
-      }
+      },
     },
     {
       filter: ["th", "td"],
-      replacement: function(content, node) {
+      replacement: function (content, node) {
         return cell(content.replace(/\n/gm, ""), node);
-      }
+      },
     },
     {
       filter: "tr",
-      replacement: function(content, node) {
+      replacement: function (content, node) {
         var borderCells = "";
         var alignMap = { left: ":--", right: "--:", center: ":-:" };
 
         if (
           node.parentNode.nodeName === "THEAD" ||
-          (node.parentNode.nodeName === "TBODY" && node.parentNode.previousSibling === null && node.previousSibling === null) ||
-          (node.previousSibling === null || node.previousSibling.nodeName === 'COLGROUP')
+          (node.parentNode.nodeName === "TBODY" &&
+            node.parentNode.previousSibling === null &&
+            node.previousSibling === null) ||
+          node.previousSibling === null ||
+          node.previousSibling.nodeName === "COLGROUP"
         ) {
           for (var i = 0; i < node.childNodes.length; i++) {
             var align = node.childNodes[i].attributes.align;
@@ -208,24 +211,24 @@ function toMarkdown(content) {
           }
         }
         return "\n" + content + (borderCells ? "\n" + borderCells : "");
-      }
+      },
     },
     {
       filter: "table",
-      replacement: function(content) {
+      replacement: function (content) {
         return "\n\n" + content + "\n\n";
-      }
+      },
     },
     {
       filter: ["thead", "tbody", "tfoot"],
-      replacement: function(content) {
+      replacement: function (content) {
         return content;
-      }
-    }
+      },
+    },
   ];
 
   // http://pandoc.org/README.html#smart-punctuation
-  var escape = function(str) {
+  var escape = function (str) {
     return str
       .replace(/[\u2018\u2019\u00b4]/g, "'")
       .replace(/[\u201c\u201d\u2033]/g, '"')
