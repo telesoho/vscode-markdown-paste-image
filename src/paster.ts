@@ -586,7 +586,9 @@ class Paster {
                 if(type == "PNG" || type=="Bitmap") {
                     content_type = ClipboardType.Image;
                     break;
-                } else if(type == "UnicodeText" || type == "Text" || type=="HTML Format") {
+                } else if(type=="HTML Format") {
+                    content_type = ClipboardType.Html;
+                } else if(type == "UnicodeText" || type == "Text") {
                     content_type = ClipboardType.Text;
                     break;
                 }
