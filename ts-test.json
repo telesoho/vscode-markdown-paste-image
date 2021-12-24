@@ -1,18 +1,11 @@
 {
-    "compilerOptions": {
-        "module": "commonjs",
-        "target": "es6",
-        "outDir": "out_test",
-        "lib": [
-            "es6"
-        ],
-        "sourceMap": true
-    },
-    "include": [
-        "test/**/*"
-    ],
-    "exclude": [
-        "node_modules",
-        "scripts"
-    ]
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es6",
+    "outDir": "out_test",
+    "lib": ["es6"],
+    "sourceMap": true
+  },
+  "include": ["test/**/*"],
+  "exclude": ["node_modules", "scripts"]
 }
