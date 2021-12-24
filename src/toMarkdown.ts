@@ -1,5 +1,3 @@
-"use strict";
-
 function genBorder(content, node) {
   var colspan = parseInt(node.getAttribute("colspan") || "0");
   var suffix = " " + content + " |";

@@ -1,4 +1,3 @@
-"use strict";
 import * as path from "path";
 import * as clipboard from "clipboardy";
 import { exec } from "child_process";

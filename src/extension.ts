@@ -1,4 +1,3 @@
-"use strict";
 import * as vscode from "vscode";
 import { latexSymbols } from "./latex";
 import Logger from "./Logger";
