@@ -1,3 +1,4 @@
+.vscode/**
 typings/**
 out/test/**
 out/src/**
