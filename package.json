@@ -44,7 +44,7 @@
   ],
   "main": "./out/extension",
   "scripts": {
-    "publish": "vsce publish",
+    "publish": "npx vsce publish",
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",

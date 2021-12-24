@@ -4,13 +4,13 @@
 name: Prettier
 on:
   pull_request:
-    branches: [ master ]
+    branches: [master]
 
 jobs:
   prettier:
     runs-on: ubuntu-latest
     steps:
-    - name: Check out repo
-      uses: actions/checkout@v2
-    - name: Run prettier
-      run: npx prettier --check .
+      - name: Check out repo
+        uses: actions/checkout@v2
+      - name: Run prettier
+        run: npx prettier --check .
