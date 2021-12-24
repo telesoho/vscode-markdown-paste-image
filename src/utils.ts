@@ -64,7 +64,7 @@ function fetchAndSaveFile(fileURL, filepath) {
 
         if (response.statusCode === 200) {
           if (prepareDirForFile(targetPath)) {
-            var file = fs.createWriteStream(targetPath);
+            const file = fs.createWriteStream(targetPath);
             response.pipe(file);
           } else {
             reject("Make folder failed:" + dest);
@@ -97,7 +97,7 @@ function newTemporaryFilename(prefix = "markdown_paste"): Uri {
  * @returns base64 code string
  */
 function base64Encode(file) {
-  var bitmap = fs.readFileSync(file);
+  const bitmap = fs.readFileSync(file);
   return Buffer.from(bitmap).toString("base64");
 }
 

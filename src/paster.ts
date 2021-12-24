@@ -71,7 +71,7 @@ function runCommand(
 
 class Paster {
   public static async pasteCode() {
-    var content = clipboard.readSync();
+    const content = clipboard.readSync();
     if (content) {
       let ld = new LanguageDetection();
       let lang = await ld.detectLanguage(content);
@@ -83,13 +83,13 @@ class Paster {
    * Paste text
    */
   public static async pasteText() {
-    var ret = await this.getClipboardContentType((ctx_type) => {
+    const ret = await this.getClipboardContentType((ctx_type) => {
       Logger.log("Clipboard Type:", ctx_type);
       switch (ctx_type) {
         case ClipboardType.Html:
           this.pasteTextHtml((html) => {
             Logger.log(html);
-            var markdown = toMarkdown(html);
+            const markdown = toMarkdown(html);
             Paster.writeToEditor(markdown);
           });
           break;
@@ -109,7 +109,7 @@ class Paster {
 
     // If cannot get content type then try to read clipboard once
     if (false == ret) {
-      var content = clipboard.readSync();
+      const content = clipboard.readSync();
       if (content) {
         let newContent = Paster.parse(content);
         Paster.writeToEditor(newContent);
@@ -123,7 +123,7 @@ class Paster {
    * Download url content in clipboard
    */
   public static pasteDownload() {
-    var ret = this.getClipboardContentType((ctx_type) => {
+    const ret = this.getClipboardContentType((ctx_type) => {
       Logger.log("Clipboard Type:", ctx_type);
       switch (ctx_type) {
         case ClipboardType.Html:
@@ -157,7 +157,7 @@ class Paster {
 
   private static writeToEditor(content): Thenable<boolean> {
     let startLine = vscode.window.activeTextEditor.selection.start.line;
-    var selection = vscode.window.activeTextEditor.selection;
+    const selection = vscode.window.activeTextEditor.selection;
     let position = new vscode.Position(startLine, selection.start.character);
     return vscode.window.activeTextEditor.edit((editBuilder) => {
       editBuilder.insert(position, content);
@@ -191,7 +191,7 @@ class Paster {
       replaceMap["${fileDirname}"] = path.dirname(filePath);
     }
 
-    for (var search in replaceMap) {
+    for (const search in replaceMap) {
       str = str.replace(search, replaceMap[search]);
     }
 
@@ -381,7 +381,7 @@ class Paster {
   private static encodePath(filePath: string) {
     filePath = filePath.replace(/\\/g, "/");
 
-    var encodePathConfig =
+    const encodePathConfig =
       vscode.workspace.getConfiguration("MarkdownPaste")["encodePath"];
 
     if (encodePathConfig == "encodeURI") {
@@ -394,12 +394,11 @@ class Paster {
 
   private static parse(content) {
     let rules = vscode.workspace.getConfiguration("MarkdownPaste").rules;
-    for (var i = 0; i < rules.length; i++) {
-      let rule = rules[i];
-      var re = new RegExp(rule.regex, rule.options);
-      var reps = rule.replace;
+    for (const rule of rules) {
+      const re = new RegExp(rule.regex, rule.options);
+      const reps = rule.replace;
       if (re.test(content)) {
-        var newstr = content.replace(re, reps);
+        const newstr = content.replace(re, reps);
         return newstr;
       }
     }
@@ -436,28 +435,28 @@ class Paster {
   }
 
   private static pasteTextPlain(callback: (data) => void) {
-    var script = {
+    const script = {
       win32: "win32_get_clipboard_text_plain.ps1",
       linux: "linux_get_clipboard_text_plain.sh",
       darwin: null,
       wsl: "win32_get_clipboard_text_plain.ps1",
       win10: "win32_get_clipboard_text_plain.ps1",
     };
-    var ret = this.runScript(script, [], (data) => {
+    const ret = this.runScript(script, [], (data) => {
       callback(data);
     });
     return ret;
   }
 
   private static pasteTextHtml(callback: (data) => void) {
-    var script = {
+    const script = {
       win32: "win32_get_clipboard_text_html.ps1",
       linux: "linux_get_clipboard_text_html.sh",
       darwin: null,
       wsl: "win32_get_clipboard_text_html.ps1",
       win10: "win32_get_clipboard_text_html.ps1",
     };
-    var ret = this.runScript(script, [], (data) => {
+    const ret = this.runScript(script, [], (data) => {
       callback(data);
     });
     return ret;
@@ -572,8 +571,8 @@ class Paster {
 
     let filePath = fileUri.fsPath;
     // get selection as image file name, need check
-    var selection = editor.selection;
-    var selectText = editor.document.getText(selection);
+    const selection = editor.selection;
+    const selectText = editor.document.getText(selection);
 
     if (selectText && !/^[^\\/:\*\?""<>|]{1,120}$/.test(selectText)) {
       vscode.window.showInformationMessage(
@@ -626,8 +625,8 @@ class Paster {
     return imagePath;
   }
 
-  private static getClipboardType(type_array) {
-    if (!type_array) {
+  private static getClipboardType(types) {
+    if (!types) {
       return ClipboardType.Unknown;
     }
 
@@ -635,8 +634,7 @@ class Paster {
     Logger.log("platform", platform);
     switch (platform) {
       case "linux":
-        for (var i = 0; i < type_array.length; i++) {
-          var type = type_array[i];
+        for (const type of types) {
           switch (type) {
             case "image/png":
               return ClipboardType.Image;
@@ -650,8 +648,7 @@ class Paster {
       case "win32":
       case "win10":
       case "wsl":
-        for (var i = 0; i < type_array.length; i++) {
-          var type = type_array[i];
+        for (const type of types) {
           switch (type) {
             case "PNG":
             case "Bitmap":
@@ -670,7 +667,7 @@ class Paster {
   }
 
   private static getClipboardContentType(cb: (targets) => void) {
-    var script = {
+    const script = {
       linux: "linux_get_clipboard_content_type.sh",
       win32: "win32_get_clipboard_content_type.ps1",
       darwin: null,
@@ -686,8 +683,8 @@ class Paster {
         );
         return;
       }
-      let type_array = data.split(/\r\n|\n|\r/);
-      cb(this.getClipboardType(type_array));
+      let types = data.split(/\r\n|\n|\r/);
+      cb(this.getClipboardType(types));
     });
     return ret;
   }

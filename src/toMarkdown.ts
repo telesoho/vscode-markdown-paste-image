@@ -1,12 +1,12 @@
 function genBorder(content, node) {
-  var colspan = parseInt(node.getAttribute("colspan") || "0");
-  var suffix = " " + content + " |";
+  const colspan = parseInt(node.getAttribute("colspan") || "0");
+  let suffix = " " + content + " |";
   if (colspan) {
     suffix = suffix.repeat(colspan);
   }
 
-  var index = Array.prototype.indexOf.call(node.parentNode.childNodes, node);
-  var prefix = " ";
+  const index = Array.prototype.indexOf.call(node.parentNode.childNodes, node);
+  let prefix = " ";
   if (index === 0) {
     prefix = "|";
   }
@@ -14,14 +14,14 @@ function genBorder(content, node) {
 }
 
 function cell(content, node) {
-  var colspan = parseInt(node.getAttribute("colspan") || "0");
-  var suffix = "|";
+  const colspan = parseInt(node.getAttribute("colspan") || "0");
+  let suffix = "|";
   if (colspan) {
     suffix = suffix.repeat(colspan);
   }
 
-  var index = Array.prototype.indexOf.call(node.parentNode.childNodes, node);
-  var prefix = " ";
+  const index = Array.prototype.indexOf.call(node.parentNode.childNodes, node);
+  let prefix = " ";
   if (index === 0) {
     prefix = "| ";
   }
@@ -30,11 +30,11 @@ function cell(content, node) {
 
 function toMarkdown(content) {
   // http://pandoc.org/README.html#pandocs-markdown
-  var pandoc = [
+  const pandoc = [
     {
       filter: "h1",
       replacement: function (content, node) {
-        var underline = Array(content.length + 1).join("=");
+        const underline = Array(content.length + 1).join("=");
         return "\n\n" + content + "\n" + underline + "\n\n";
       },
     },
@@ -42,7 +42,7 @@ function toMarkdown(content) {
     {
       filter: "h2",
       replacement: function (content, node) {
-        var underline = Array(content.length + 1).join("-");
+        const underline = Array(content.length + 1).join("-");
         return "\n\n" + content + "\n" + underline + "\n\n";
       },
     },
@@ -84,9 +84,9 @@ function toMarkdown(content) {
 
     {
       filter: function (node) {
-        var hasSiblings = node.previousSibling || node.nextSibling;
-        var isCodeBlock = node.parentNode.nodeName === "PRE" && !hasSiblings;
-        var isCodeElem =
+        const hasSiblings = node.previousSibling || node.nextSibling;
+        const isCodeBlock = node.parentNode.nodeName === "PRE" && !hasSiblings;
+        const isCodeElem =
           node.nodeName === "CODE" ||
           node.nodeName === "KBD" ||
           node.nodeName === "SAMP" ||
@@ -104,8 +104,8 @@ function toMarkdown(content) {
         return node.nodeName === "A" && node.getAttribute("href");
       },
       replacement: function (content, node) {
-        var url = node.getAttribute("href");
-        var titlePart = node.title ? ' "' + node.title + '"' : "";
+        const url = node.getAttribute("href");
+        const titlePart = node.title ? ' "' + node.title + '"' : "";
         if (content === url) {
           return "<" + url + ">";
         } else if (url === "mailto:" + content) {
@@ -120,11 +120,11 @@ function toMarkdown(content) {
       filter: "li",
       replacement: function (content, node) {
         content = content.replace(/^\s+/, "").replace(/\n/gm, "\n    ");
-        var prefix = "-   ";
-        var parent = node.parentNode;
+        let prefix = "-   ";
+        const parent = node.parentNode;
 
         if (/ol/i.test(parent.nodeName)) {
-          var index = Array.prototype.indexOf.call(parent.children, node) + 1;
+          const index = Array.prototype.indexOf.call(parent.children, node) + 1;
           prefix = index + ". ";
           while (prefix.length < 4) {
             prefix += " ";
@@ -164,8 +164,8 @@ function toMarkdown(content) {
     //     filter: ['td'],
     //     replacement: function (content, node) {
     //         Logger.log(`process ${node.nodeName}`);
-    //         var colspan = node.getAttribute('colspan')
-    //         var rowspan = node.getAttribute('rowspan')
+    //         const colspan = node.getAttribute('colspan')
+    //         const rowspan = node.getAttribute('rowspan')
     //         colspan = colspan? ' colspan=' + colspan: ""
     //         rowspan = rowspan? ' rowspan=' + rowspan: ""
     //         return `\n<${node.nodeName}${colspan}${rowspan}>${content.replace(/\n/gm, '')}</${node.nodeName}>`
@@ -188,8 +188,8 @@ function toMarkdown(content) {
     {
       filter: "tr",
       replacement: function (content, node) {
-        var borderCells = "";
-        var alignMap = { left: ":--", right: "--:", center: ":-:" };
+        let borderCells = "";
+        const alignMap = { left: ":--", right: "--:", center: ":-:" };
 
         if (
           node.parentNode.nodeName === "THEAD" ||
@@ -199,13 +199,13 @@ function toMarkdown(content) {
           node.previousSibling === null ||
           node.previousSibling.nodeName === "COLGROUP"
         ) {
-          for (var i = 0; i < node.childNodes.length; i++) {
-            var align = node.childNodes[i].attributes.align;
-            var border = "---";
+          for (const childNode of node.childNodes) {
+            const align = childNode.attributes.align;
+            let border = "---";
 
             if (align) border = alignMap[align.value] || border;
 
-            borderCells += genBorder(border, node.childNodes[i]);
+            borderCells += genBorder(border, childNode);
           }
         }
         return "\n" + content + (borderCells ? "\n" + borderCells : "");
@@ -226,7 +226,7 @@ function toMarkdown(content) {
   ];
 
   // http://pandoc.org/README.html#smart-punctuation
-  var escape = function (str) {
+  const escape = function (str) {
     return str
       .replace(/[\u2018\u2019\u00b4]/g, "'")
       .replace(/[\u201c\u201d\u2033]/g, '"')
@@ -245,7 +245,7 @@ function toMarkdown(content) {
       .replace(/^\s+|[\s\\]+$/g, "");
   };
 
-  var to_Markdown = require("to-markdown");
+  const to_Markdown = require("to-markdown");
   return escape(to_Markdown(content, { converters: pandoc }));
 }
 
