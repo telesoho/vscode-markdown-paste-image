@@ -1,13 +1,16 @@
 # Change Log
 
+## 0.15.0 (Dec 24, 2021)
+
+- Feature: Support WSL
+
 ## 0.14.0 (Dec 12, 2021)
 
 - Feature: Support for pasting code with auto detecting language #50
 
 ## 0.13.8 (August 5, 2021)
 
-- Fix #46: Variable "${workspaceRoot}" looks resolved incorrectly 
-
+- Fix #46: Variable "${workspaceRoot}" looks resolved incorrectly
 
 ## 0.13.7 (August 2, 2021)
 
@@ -37,20 +40,20 @@
 
 ## 0.11.1 (Dec 21, 2018)
 
-- Fixed: Paste text doesn't work on some Linux. 
+- Fixed: Paste text doesn't work on some Linux.
 
 ## 0.11.0 (Dec 3, 2018)
 
 - Change setting name from `pasteImage` to `MarkdownPaste`
-- Feature: Download url file 
+- Feature: Download url file
 
 ## 0.10.1 (Nov 12, 2018)
 
--  Feature: emoji supported
+- Feature: emoji supported
 
 ## 0.10.0 (Nov 5, 2018)
 
-- Feature #20: Paste image in HTML format. 
+- Feature #20: Paste image in HTML format.
 
 ## 0.9.5 (Oct 25, 2018)
 

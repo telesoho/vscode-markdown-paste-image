@@ -1,1 +1,0 @@
-powershell -noprofile -noninteractive -nologo -sta -executionpolicy unrestricted -windowstyle hidden -file %1
