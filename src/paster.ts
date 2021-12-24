@@ -650,6 +650,7 @@ class Paster {
         break;
       case "win32":
       case "win10":
+      case "wsl":
         for (var i = 0; i < type_array.length; i++) {
           var type = type_array[i];
           switch (type) {
@@ -674,8 +675,8 @@ class Paster {
       linux: "linux_get_clipboard_content_type.sh",
       win32: "win32_get_clipboard_content_type.ps1",
       darwin: null,
-      wsl: "win32_get_clipboard_text_plain.ps1",
-      win10: "win32_get_clipboard_text_plain.ps1",
+      wsl: "win32_get_clipboard_content_type.ps1",
+      win10: "win32_get_clipboard_content_type.ps1",
     };
 
     let ret = this.runScript(script, [], (data) => {
