@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.15.0 (Dec 24, 2021)
+
+- Feature: Support WSL
+
 ## 0.14.0 (Dec 12, 2021)
 
 - Feature: Support for pasting code with auto detecting language #50
