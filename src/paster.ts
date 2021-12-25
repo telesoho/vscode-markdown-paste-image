@@ -630,6 +630,7 @@ class Paster {
       return ClipboardType.Unknown;
     }
 
+    const detectedTypes = new Set();
     let platform = getCurrentPlatform();
     Logger.log("platform", platform);
     switch (platform) {
@@ -637,11 +638,11 @@ class Paster {
         for (const type of types) {
           switch (type) {
             case "image/png":
-              return ClipboardType.Image;
+              detectedTypes.add(ClipboardType.Image);
             case "text/html":
-              return ClipboardType.Html;
+              detectedTypes.add(ClipboardType.Html);
             default:
-              return ClipboardType.Text;
+              detectedTypes.add(ClipboardType.Text);
           }
         }
         break;
@@ -653,16 +654,26 @@ class Paster {
             case "PNG":
             case "Bitmap":
             case "DeviceIndependentBitmap":
-              return ClipboardType.Image;
+              detectedTypes.add(ClipboardType.Image);
             case "HTML Format":
-              return ClipboardType.Html;
+              detectedTypes.add(ClipboardType.Html);
             case "Text":
             case "UnicodeText":
-              return ClipboardType.Text;
+              detectedTypes.add(ClipboardType.Text);
           }
         }
         break;
     }
+
+    // Set priority based on which to return type
+    const priorityOrdering = [
+      ClipboardType.Image,
+      ClipboardType.Html,
+      ClipboardType.Text,
+    ];
+    for (const type of priorityOrdering)
+      if (detectedTypes.has(type)) return type;
+    // No known types detected
     return ClipboardType.Unknown;
   }
 
