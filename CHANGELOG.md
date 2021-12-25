@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.15.1 (Dec 24, 2021)
+
+- Prioritize Image pastes over HTML pastes over text pastes
+
 ## 0.15.0 (Dec 24, 2021)
 
 - Feature: Support WSL
