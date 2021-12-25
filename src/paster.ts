@@ -83,61 +83,46 @@ class Paster {
    * Paste text
    */
   public static async pasteText() {
-    const ret = await this.getClipboardContentType((ctx_type) => {
-      Logger.log("Clipboard Type:", ctx_type);
-      switch (ctx_type) {
-        case ClipboardType.Html:
-          this.pasteTextHtml((html) => {
-            Logger.log(html);
-            const markdown = toMarkdown(html);
-            Paster.writeToEditor(markdown);
-          });
-          break;
-        case ClipboardType.Text:
-          this.pasteTextPlain((text) => {
-            if (text) {
-              let newContent = Paster.parse(text);
-              Paster.writeToEditor(newContent);
-            }
-          });
-          break;
-        case ClipboardType.Image:
-          Paster.pasteImage();
-          break;
-      }
-    });
+    const ctx_type = await this.getClipboardContentType();
 
-    // If cannot get content type then try to read clipboard once
-    if (false == ret) {
-      const content = clipboard.readSync();
-      if (content) {
-        let newContent = Paster.parse(content);
-        Paster.writeToEditor(newContent);
-      } else {
+    Logger.log("Clipboard Type:", ctx_type);
+    switch (ctx_type) {
+      case ClipboardType.Html:
+        const html = await this.pasteTextHtml();
+        Logger.log(html);
+        const markdown = toMarkdown(html);
+        Paster.writeToEditor(markdown);
+        break;
+      case ClipboardType.Text:
+        const text = await this.pasteTextPlain();
+        if (text) {
+          let newContent = Paster.parse(text);
+          Paster.writeToEditor(newContent);
+        }
+        break;
+      case ClipboardType.Image:
         Paster.pasteImage();
-      }
+        break;
     }
   }
 
   /**
    * Download url content in clipboard
    */
-  public static pasteDownload() {
-    const ret = this.getClipboardContentType((ctx_type) => {
-      Logger.log("Clipboard Type:", ctx_type);
-      switch (ctx_type) {
-        case ClipboardType.Html:
-        case ClipboardType.Text:
-          this.pasteTextPlain((text) => {
-            if (text) {
-              if (/^(http[s]:)+\/\/(.*)/i.test(text)) {
-                Paster.pasteImageURL(text);
-              }
-            }
-          });
-          break;
-      }
-    });
+  public static async pasteDownload() {
+    const ctx_type = await this.getClipboardContentType();
+    Logger.log("Clipboard Type:", ctx_type);
+    switch (ctx_type) {
+      case ClipboardType.Html:
+      case ClipboardType.Text:
+        const text = await this.pasteTextPlain();
+        if (text) {
+          if (/^(http[s]:)+\/\/(.*)/i.test(text)) {
+            Paster.pasteImageURL(text);
+          }
+        }
+        break;
+    }
   }
   /**
    * Ruby tag
@@ -265,7 +250,7 @@ class Paster {
     return pasteImgContext;
   }
 
-  protected static saveImage(targetPath: string) {
+  protected static async saveImage(targetPath: string) {
     let pasteImgContext = this.parsePasteImageContext(targetPath);
     if (!pasteImgContext || !pasteImgContext.targetFile) return;
 
@@ -277,17 +262,16 @@ class Paster {
     }
 
     // save image and insert to current edit file
-    this.saveClipboardImageToFileAndGetPath(imgPath, (imagePath) => {
-      if (!imagePath) return;
-      if (imagePath === "no image") {
-        vscode.window.showInformationMessage(
-          "There is not an image in the clipboard."
-        );
-        return;
-      }
+    const imagePath = await this.saveClipboardImageToFileAndGetPath(imgPath);
+    if (!imagePath) return;
+    if (imagePath === "no image") {
+      vscode.window.showInformationMessage(
+        "There is not an image in the clipboard."
+      );
+      return;
+    }
 
-      this.renderMarkdownLink(pasteImgContext);
-    });
+    this.renderMarkdownLink(pasteImgContext);
   }
 
   private static renderMdFilePath(pasteImgContext: PasteImageContext): string {
@@ -434,7 +418,7 @@ class Paster {
     return content;
   }
 
-  private static pasteTextPlain(callback: (data) => void) {
+  private static async pasteTextPlain() {
     const script = {
       win32: "win32_get_clipboard_text_plain.ps1",
       linux: "linux_get_clipboard_text_plain.sh",
@@ -442,13 +426,11 @@ class Paster {
       wsl: "win32_get_clipboard_text_plain.ps1",
       win10: "win32_get_clipboard_text_plain.ps1",
     };
-    const ret = this.runScript(script, [], (data) => {
-      callback(data);
-    });
-    return ret;
+
+    return this.runScript(script, []);
   }
 
-  private static pasteTextHtml(callback: (data) => void) {
+  private static async pasteTextHtml() {
     const script = {
       win32: "win32_get_clipboard_text_html.ps1",
       linux: "linux_get_clipboard_text_html.sh",
@@ -456,10 +438,7 @@ class Paster {
       wsl: "win32_get_clipboard_text_html.ps1",
       win10: "win32_get_clipboard_text_html.ps1",
     };
-    const ret = this.runScript(script, [], (data) => {
-      callback(data);
-    });
-    return ret;
+    return this.runScript(script, []);
   }
 
   /**
@@ -677,7 +656,7 @@ class Paster {
     return ClipboardType.Unknown;
   }
 
-  private static getClipboardContentType(cb: (targets) => void) {
+  private static async getClipboardContentType() {
     const script = {
       linux: "linux_get_clipboard_content_type.sh",
       win32: "win32_get_clipboard_content_type.ps1",
@@ -686,18 +665,17 @@ class Paster {
       win10: "win32_get_clipboard_content_type.ps1",
     };
 
-    let ret = this.runScript(script, [], (data) => {
-      Logger.log("getClipboardContentType", data);
-      if (data == "no xclip") {
-        vscode.window.showInformationMessage(
-          "You need to install xclip command first."
-        );
-        return;
-      }
-      let types = data.split(/\r\n|\n|\r/);
-      cb(this.getClipboardType(types));
-    });
-    return ret;
+    let data = await this.runScript(script, []);
+    Logger.log("getClipboardContentType", data);
+    if (data == "no xclip") {
+      vscode.window.showInformationMessage(
+        "You need to install xclip command first."
+      );
+      return;
+    }
+    let types = data.split(/\r\n|\n|\r/);
+
+    return this.getClipboardType(types);
   }
 
   /**
@@ -708,15 +686,12 @@ class Paster {
    */
   private static async runScript(
     script: Record<Platform, string | null>,
-    parameters = [],
-    callback = (data) => {
-      Logger.log(data);
-    }
+    parameters = []
   ) {
     let platform = getCurrentPlatform();
     if (script[platform] == null) {
       Logger.log(`Cannot found script for ${platform}`);
-      return false;
+      return null;
     }
     const scriptPath = path.join(__dirname, "../res/" + script[platform]);
     let shell = "";
@@ -755,28 +730,14 @@ class Paster {
     }
 
     const runer = runCommand(shell, command);
-    runer.then(
-      (stdout) => {
-        if (callback) {
-          callback(stdout.toString().trim());
-        }
-        // return stdout                 // return the command value
-      },
-      (err) => {
-        Logger.log(err);
-        // throw err                     // throw again the error
-      }
-    );
-    return true;
+
+    return runer.then((stdout) => stdout.trim());
   }
 
   /**
    * use applescript to save image from clipboard and get file path
    */
-  private static async saveClipboardImageToFileAndGetPath(
-    imagePath,
-    cb: (imagePath: string) => void
-  ) {
+  private static async saveClipboardImageToFileAndGetPath(imagePath) {
     if (!imagePath) return;
 
     const script = {
@@ -787,11 +748,7 @@ class Paster {
       win10: "win32_save_clipboard_png.ps1",
     };
 
-    let ret = this.runScript(script, [await wslSafe(imagePath)], (data) => {
-      cb(data);
-    });
-
-    return ret;
+    return this.runScript(script, [await wslSafe(imagePath)]);
   }
 }
 
