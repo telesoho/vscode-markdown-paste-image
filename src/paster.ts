@@ -286,10 +286,13 @@ class Paster {
     let docPath = fileUri.fsPath;
 
     // relative will be add backslash characters so need to replace '\' to '/' here.
-    let imageFilePath = this.encodePath(
-      path.relative(path.dirname(docPath), pasteImgContext.targetFile.fsPath)
+    let imageFilePath = this.parse(
+      this.encodePath(
+        path.relative(path.dirname(docPath), pasteImgContext.targetFile.fsPath)
+      )
     );
 
+    //"../../static/images/vscode-paste/cover.png".replace(new RegExp("(.*/static/)(.*)", ""), "/$2")
     if (languageId === "markdown") {
       let imgTag = pasteImgContext.imgTag;
       if (imgTag) {
