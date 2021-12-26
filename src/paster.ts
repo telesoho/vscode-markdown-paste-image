@@ -113,6 +113,7 @@ class Paster {
           // No text in clipboard, attempt to paste image
           Paster.pasteImage();
         }
+        break;
     }
   }
 
@@ -631,10 +632,13 @@ class Paster {
           switch (type) {
             case "image/png":
               detectedTypes.add(ClipboardType.Image);
+              break;
             case "text/html":
               detectedTypes.add(ClipboardType.Html);
+              break;
             default:
               detectedTypes.add(ClipboardType.Text);
+              break;
           }
         }
         break;
@@ -647,11 +651,14 @@ class Paster {
             case "Bitmap":
             case "DeviceIndependentBitmap":
               detectedTypes.add(ClipboardType.Image);
+              break;
             case "HTML Format":
               detectedTypes.add(ClipboardType.Html);
+              break;
             case "Text":
             case "UnicodeText":
               detectedTypes.add(ClipboardType.Text);
+              break;
           }
         }
         break;
@@ -740,10 +747,12 @@ class Paster {
         // Mac
         shell = "osascript";
         command = [scriptPath].concat(parameters);
+        break;
       case "linux":
         // Linux
         shell = "sh";
         command = [scriptPath].concat(parameters);
+        break;
     }
 
     const runer = runCommand(shell, command);
