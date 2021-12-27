@@ -103,6 +103,17 @@ class Paster {
       case ClipboardType.Image:
         Paster.pasteImage();
         break;
+      case ClipboardType.Unknown:
+        // Probably missing script to support type detection
+        const textContent = clipboard.readSync();
+        // If clipboard has text, paste it
+        if (textContent) {
+          Paster.writeToEditor(textContent);
+        } else {
+          // No text in clipboard, attempt to paste image
+          Paster.pasteImage();
+        }
+        break;
     }
   }
 
@@ -621,10 +632,13 @@ class Paster {
           switch (type) {
             case "image/png":
               detectedTypes.add(ClipboardType.Image);
+              break;
             case "text/html":
               detectedTypes.add(ClipboardType.Html);
+              break;
             default:
               detectedTypes.add(ClipboardType.Text);
+              break;
           }
         }
         break;
@@ -637,11 +651,14 @@ class Paster {
             case "Bitmap":
             case "DeviceIndependentBitmap":
               detectedTypes.add(ClipboardType.Image);
+              break;
             case "HTML Format":
               detectedTypes.add(ClipboardType.Html);
+              break;
             case "Text":
             case "UnicodeText":
               detectedTypes.add(ClipboardType.Text);
+              break;
           }
         }
         break;
@@ -668,17 +685,21 @@ class Paster {
       win10: "win32_get_clipboard_content_type.ps1",
     };
 
-    let data = await this.runScript(script, []);
-    Logger.log("getClipboardContentType", data);
-    if (data == "no xclip") {
-      vscode.window.showInformationMessage(
-        "You need to install xclip command first."
-      );
-      return;
-    }
-    let types = data.split(/\r\n|\n|\r/);
+    try {
+      let data = await this.runScript(script, []);
+      Logger.log("getClipboardContentType", data);
+      if (data == "no xclip") {
+        vscode.window.showInformationMessage(
+          "You need to install xclip command first."
+        );
+        return;
+      }
+      let types = data.split(/\r\n|\n|\r/);
 
-    return this.getClipboardType(types);
+      return this.getClipboardType(types);
+    } catch (e) {
+      return ClipboardType.Unknown;
+    }
   }
 
   /**
@@ -693,8 +714,8 @@ class Paster {
   ) {
     let platform = getCurrentPlatform();
     if (script[platform] == null) {
-      Logger.log(`Cannot found script for ${platform}`);
-      return null;
+      Logger.log(`No scipt exists for ${platform}`);
+      throw new Error(`No scipt exists for ${platform}`);
     }
     const scriptPath = path.join(__dirname, "../res/" + script[platform]);
     let shell = "";
@@ -726,10 +747,12 @@ class Paster {
         // Mac
         shell = "osascript";
         command = [scriptPath].concat(parameters);
+        break;
       case "linux":
         // Linux
         shell = "sh";
         command = [scriptPath].concat(parameters);
+        break;
     }
 
     const runer = runCommand(shell, command);
