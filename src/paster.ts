@@ -39,6 +39,9 @@ async function wslSafe(path: string) {
   return runCommand("wslpath", ["-m", path]);
 }
 
+function shellSafeArgument(arg: string) {
+  return arg.replace(/(["\s'$`\\])/g, "\\$1");
+}
 /**
  * Run command and get stdout
  * @param shell
@@ -49,10 +52,11 @@ function runCommand(
   options: string[],
   timeout = 10000
 ): Promise<string> {
+  const args = options.map(shellSafeArgument).join(" ");
   return new Promise((resolve, reject) => {
     const killTimer = setTimeout(() => process.kill(), timeout);
     let process = exec(
-      `${shell} ${options.map((option) => `"${option}"`).join(" ")}`,
+      `${shellSafeArgument(shell)} ${args}`,
       (error, stdout, stderr) => {
         clearTimeout(killTimer);
         if (error) {
