@@ -1,6 +1,6 @@
 import * as path from "path";
 import * as clipboard from "clipboardy";
-import { exec } from "child_process";
+import { spawn } from "child_process";
 import * as moment from "moment";
 import * as vscode from "vscode";
 import { toMarkdown } from "./toMarkdown";
@@ -50,22 +50,39 @@ function runCommand(
   timeout = 10000
 ): Promise<string> {
   return new Promise((resolve, reject) => {
-    const killTimer = setTimeout(() => process.kill(), timeout);
-    let process = exec(
-      `${shell} ${options.join(" ")}`,
-      (error, stdout, stderr) => {
-        clearTimeout(killTimer);
-        if (error) {
-          if (error.killed) {
-            Logger.log("Process took too long and was killed");
-          }
-          Logger.log(stderr.trim());
-          reject(stderr.trim());
+    let errorTriggered = false;
+    let output = "";
+    let errorMessage = "";
+    let process = spawn(shell, options, { timeout });
+
+    process.stdout.on("data", (chunk) => {
+      Logger.log(chunk);
+      output += `${chunk}`;
+    });
+
+    process.stderr.on("data", (chunk) => {
+      Logger.log(chunk);
+      errorMessage += `${chunk}`;
+    });
+
+    process.on("exit", (code, signal) => {
+      if (process.killed) {
+        Logger.log("Process took too long and was killed");
+      }
+
+      if (!errorTriggered) {
+        if (code === 0) {
+          resolve(output);
         } else {
-          resolve(stdout.trim());
+          reject(errorMessage);
         }
       }
-    );
+    });
+
+    process.on("error", (error) => {
+      errorTriggered = true;
+      reject(error);
+    });
   });
 }
 
