@@ -52,7 +52,7 @@ function runCommand(
   return new Promise((resolve, reject) => {
     const killTimer = setTimeout(() => process.kill(), timeout);
     let process = exec(
-      `${shell} ${options.join(" ")}`,
+      `${shell} ${options.map((option) => `"${option}"`).join(" ")}`,
       (error, stdout, stderr) => {
         clearTimeout(killTimer);
         if (error) {
