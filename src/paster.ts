@@ -55,42 +55,34 @@ function runCommand(
     let errorMessage = "";
     let process = spawn(shell, options, { timeout });
 
-    process.stdout.on(
-      "data",
-      (chunk) => {
-        Logger.log(chunk);
-        output += `${chunk}`;
-      });
+    process.stdout.on("data", (chunk) => {
+      Logger.log(chunk);
+      output += `${chunk}`;
+    });
 
-    process.stderr.on(
-      "data",
-      (chunk) => {
-        Logger.log(chunk);
-        errorMessage += `${chunk}`;
-      });
+    process.stderr.on("data", (chunk) => {
+      Logger.log(chunk);
+      errorMessage += `${chunk}`;
+    });
 
-    process.on(
-      "exit",
-      (code, signal) => {
-        if (process.killed) {
-          Logger.log("Process took too long and was killed");
+    process.on("exit", (code, signal) => {
+      if (process.killed) {
+        Logger.log("Process took too long and was killed");
+      }
+
+      if (!errorTriggered) {
+        if (code === 0) {
+          resolve(output);
+        } else {
+          reject(errorMessage);
         }
+      }
+    });
 
-        if (!errorTriggered) {
-          if (code === 0) {
-            resolve(output);
-          } else {
-            reject(errorMessage);
-          }
-        }
-      });
-
-    process.on(
-      "error",
-      (error) => {
-        errorTriggered = true;
-        reject(error);
-      });
+    process.on("error", (error) => {
+      errorTriggered = true;
+      reject(error);
+    });
   });
 }
 
