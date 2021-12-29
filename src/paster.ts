@@ -72,7 +72,6 @@ function runCommand(
     process.on(
       "exit",
       (code, signal) => {
-        Logger.log(`Process exited w/ code ${code}`);
         if (process.killed) {
           Logger.log("Process took too long and was killed");
         }
