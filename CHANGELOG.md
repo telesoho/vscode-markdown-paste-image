@@ -2,7 +2,7 @@
 
 ## 0.15.3 (Dec 29, 2021)
 
-  - Fix #60: Can't Paste Images to Paths Containing Whitespaces
+- Fix #60: Can't Paste Images to Paths Containing Whitespaces
 
 ## 0.15.1 (Dec 24, 2021)
 
