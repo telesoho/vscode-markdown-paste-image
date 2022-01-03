@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.16.0 (January 4, 2022)
+
+- Feature: Support Multi-root Workspaces Folder Settings #64
+
 ## 0.15.3 (Dec 29, 2021)
 
 - Fix #60: Can't Paste Images to Paths Containing Whitespaces

@@ -212,6 +212,16 @@ class Paster {
     return str.replace(/\\/g, "/");
   }
 
+  protected static getConfig() {
+    let editor = vscode.window.activeTextEditor;
+    if (!editor) return vscode.workspace.getConfiguration("MarkdownPaste");
+
+    let fileUri = editor.document.uri;
+    if (!fileUri) return vscode.workspace.getConfiguration("MarkdownPaste");
+
+    return vscode.workspace.getConfiguration("MarkdownPaste", fileUri);
+  }
+
   /**
    * Generate different Markdown content based on the value entered.
    * for example:
@@ -263,7 +273,7 @@ class Paster {
     }
 
     let enableImgTagConfig =
-      vscode.workspace.getConfiguration("MarkdownPaste").enableImgTag;
+      this.getConfig().enableImgTag;
     if (enableImgTagConfig && inputUri.query) {
       // parse `<filepath>[?width,height]`. for example. /abc/abc.png?200,100
       let ar = inputUri.query.split(",");
@@ -396,8 +406,7 @@ class Paster {
   private static encodePath(filePath: string) {
     filePath = filePath.replace(/\\/g, "/");
 
-    const encodePathConfig =
-      vscode.workspace.getConfiguration("MarkdownPaste")["encodePath"];
+    const encodePathConfig = this.getConfig().encodePath;
 
     if (encodePathConfig == "encodeURI") {
       filePath = encodeURI(filePath);
@@ -408,7 +417,7 @@ class Paster {
   }
 
   private static parse(content) {
-    let rules = vscode.workspace.getConfiguration("MarkdownPaste").rules;
+    let rules = this.getConfig().rules;
     for (const rule of rules) {
       const re = new RegExp(rule.regex, rule.options);
       const reps = rule.replace;
@@ -482,7 +491,7 @@ class Paster {
     let imagePath = this.genTargetImagePath(ext);
     if (!imagePath) return;
 
-    let silence = vscode.workspace.getConfiguration("MarkdownPaste").silence;
+    let silence = this.getConfig().silence;
     if (silence) {
       Paster.downloadFile(image_url, imagePath);
     } else {
@@ -539,7 +548,7 @@ class Paster {
     let imagePath = this.genTargetImagePath(ext);
     if (!imagePath) return;
 
-    let silence = vscode.workspace.getConfiguration("MarkdownPaste").silence;
+    let silence = this.getConfig().silence;
 
     if (silence) {
       Paster.saveImage(imagePath);
@@ -592,8 +601,7 @@ class Paster {
     }
 
     // get image destination path
-    let folderPathFromConfig =
-      vscode.workspace.getConfiguration("MarkdownPaste").path;
+    let folderPathFromConfig = this.getConfig().path;
 
     folderPathFromConfig = this.replacePredefinedVars(folderPathFromConfig);
 
