@@ -36,7 +36,9 @@ class PasteImageContext {
 async function wslSafe(path: string) {
   if (getCurrentPlatform() != "wsl") return path;
   await runCommand("touch", [path]);
-  return runCommand("wslpath", ["-m", path]);
+  const wslPath = await runCommand("wslpath", ["-m", path])
+  // Sometimes the result from wslpath contains newlines, and creates havok in powershell later
+  return wslPath.trim();
 }
 
 /**
