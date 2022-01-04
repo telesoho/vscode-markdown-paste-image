@@ -36,7 +36,7 @@ class PasteImageContext {
 async function wslSafe(path: string) {
   if (getCurrentPlatform() != "wsl") return path;
   await runCommand("touch", [path]);
-  const wslPath = await runCommand("wslpath", ["-m", path])
+  const wslPath = await runCommand("wslpath", ["-m", path]);
   // Sometimes the result from wslpath contains newlines, and creates havok in powershell later
   return wslPath.trim();
 }
@@ -274,8 +274,7 @@ class Paster {
       pasteImgContext.removeTargetFileAfterConvert = false;
     }
 
-    let enableImgTagConfig =
-      this.getConfig().enableImgTag;
+    let enableImgTagConfig = this.getConfig().enableImgTag;
     if (enableImgTagConfig && inputUri.query) {
       // parse `<filepath>[?width,height]`. for example. /abc/abc.png?200,100
       let ar = inputUri.query.split(",");

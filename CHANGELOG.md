@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.16.1 (January 4, 2022)
+
+- Fix #65: Newlines in path for WSL causing image saving failures
+
 ## 0.16.0 (January 4, 2022)
 
 - Feature: Support Multi-root Workspaces Folder Settings #64
