@@ -320,14 +320,21 @@ class Paster {
 
     let languageId = editor.document.languageId;
 
-    let docPath = fileUri.fsPath;
+    let _config = this.getConfig();
+    let prefix = _config.prefix;
+    let suffix = _config.suffix;
+    let basePath = this.replacePredefinedVars(_config.basePath);
+    // convert relative base path to absloute path
+    if (!path.isAbsolute(basePath)) basePath = path.join(path.dirname(fileUri.fsPath), basePath);
 
     // relative will be add backslash characters so need to replace '\' to '/' here.
     let imageFilePath = this.parse(
       this.encodePath(
-        path.relative(path.dirname(docPath), pasteImgContext.targetFile.fsPath)
+        path.relative(basePath, pasteImgContext.targetFile.fsPath)
       )
     );
+    // add prefix/suffix after applying custom rule
+    imageFilePath = `${prefix}${imageFilePath}${suffix}`;
 
     //"../../static/images/vscode-paste/cover.png".replace(new RegExp("(.*/static/)(.*)", ""), "/$2")
     if (languageId === "markdown") {
@@ -616,8 +623,10 @@ class Paster {
 
     // image file name
     let imageFileName = "";
+    let namePrefix = this.replacePredefinedVars(this.getConfig().namePrefix);
+    let nameSuffix = this.replacePredefinedVars(this.getConfig().nameSuffix);
     if (!selectText) {
-      imageFileName = moment().format("Y-MM-DD-HH-mm-ss") + extension;
+      imageFileName = namePrefix + moment().format("Y-MM-DD-HH-mm-ss") + nameSuffix + extension;
     } else {
       imageFileName = selectText + extension;
     }

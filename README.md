@@ -63,13 +63,37 @@ Smartly paste for Markdown.
 
   The folder path that image will be saved. Support absolute path and relative path and the following predefined variables
 
-  - ${workspaceRoot} - the path of the folder opened in VS Code
-  - ${fileBasename} - the current opened file's basename
-  - ${fileBasenameNoExtension} - the current opened file's basename with no file extension
-  - ${fileExtname} - the current opened file's extension
-  - ${fileDirname} - the current opened file's dirname
+  - `${workspaceRoot}` - the path of the folder opened in VS Code
+  - `${fileBasename}` - the current opened file's basename
+  - `${fileBasenameNoExtension}` - the current opened file's basename with no file extension
+  - `${fileExtname}` - the current opened file's extension
+  - `${fileDirname}` - the current opened file's dirname
 
-  Default value is `./`, mean save image in the folder contains current file.
+  Default value is `${fileDirname}`, mean save image in the folder contains current file.
+
+- `MarkdownPaste.basePath`
+
+  Base path for saving image. Support absolute path and relative path and the following predefined variables
+
+  - `${workspaceRoot}` - the path of the folder opened in VS Code
+  - `${fileBasename}` - the current opened file's basename
+  - `${fileBasenameNoExtension}` - the current opened file's basename with no file extension
+  - `${fileExtname}` - the current opened file's extension
+  - `${fileDirname}` - the current opened file's dirname
+
+  Default value is `${fileDirname}`.
+
+- `MarkdownPaste.prefix`, `MarkdownPaste.suffix`
+  
+  The string prepend/append to the resolved image path before paste. It works after applying `MarkdownPaste.rules`.
+
+  Default value is `""`.
+
+- `MarkdownPaste.namePrefix`, `MarkdownPaste.nameSuffix`
+  
+  The string prepend/append to the default image file name.
+
+  Default value is `""`.
 
 - `MarkdownPaste.silence`
 
