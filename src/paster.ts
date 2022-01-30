@@ -325,7 +325,8 @@ class Paster {
     let suffix = _config.suffix;
     let basePath = this.replacePredefinedVars(_config.basePath);
     // convert relative base path to absloute path
-    if (!path.isAbsolute(basePath)) basePath = path.join(path.dirname(fileUri.fsPath), basePath);
+    if (!path.isAbsolute(basePath))
+      basePath = path.join(path.dirname(fileUri.fsPath), basePath);
 
     // relative will be add backslash characters so need to replace '\' to '/' here.
     let imageFilePath = this.parse(
@@ -626,7 +627,11 @@ class Paster {
     let namePrefix = this.replacePredefinedVars(this.getConfig().namePrefix);
     let nameSuffix = this.replacePredefinedVars(this.getConfig().nameSuffix);
     if (!selectText) {
-      imageFileName = namePrefix + moment().format("Y-MM-DD-HH-mm-ss") + nameSuffix + extension;
+      imageFileName =
+        namePrefix +
+        moment().format("Y-MM-DD-HH-mm-ss") +
+        nameSuffix +
+        extension;
     } else {
       imageFileName = selectText + extension;
     }

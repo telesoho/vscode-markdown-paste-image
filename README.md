@@ -84,13 +84,13 @@ Smartly paste for Markdown.
   Default value is `${fileDirname}`.
 
 - `MarkdownPaste.prefix`, `MarkdownPaste.suffix`
-  
+
   The string prepend/append to the resolved image path before paste. It works after applying `MarkdownPaste.rules`.
 
   Default value is `""`.
 
 - `MarkdownPaste.namePrefix`, `MarkdownPaste.nameSuffix`
-  
+
   The string prepend/append to the default image file name.
 
   Default value is `""`.
