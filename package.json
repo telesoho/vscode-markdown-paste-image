@@ -81,6 +81,18 @@
           "default": "",
           "description": "The string append to the resolved image path before paste."
         },
+        "MarkdownPaste.namePrefix": {
+          "type": "string",
+          "scope": "resource",
+          "default": "",
+          "description": "The string prepend to the default image file name."
+        },
+        "MarkdownPaste.nameSuffix": {
+          "type": "string",
+          "scope": "resource",
+          "default": "",
+          "description": "The string append to the default image file name."
+        },
         "MarkdownPaste.silence": {
           "type": "boolean",
           "scope": "resource",

@@ -89,6 +89,12 @@ Smartly paste for Markdown.
 
   Default value is `""`.
 
+- `MarkdownPaste.namePrefix`, `MarkdownPaste.nameSuffix`
+  
+  The string prepend/append to the default image file name.
+
+  Default value is `""`.
+
 - `MarkdownPaste.silence`
 
   enable/disable showing confirm box while paste image. Set this config option to `true`, filename confirm box will not be shown while paste image.

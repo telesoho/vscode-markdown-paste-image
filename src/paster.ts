@@ -623,8 +623,10 @@ class Paster {
 
     // image file name
     let imageFileName = "";
+    let namePrefix = this.replacePredefinedVars(this.getConfig().namePrefix);
+    let nameSuffix = this.replacePredefinedVars(this.getConfig().nameSuffix);
     if (!selectText) {
-      imageFileName = moment().format("Y-MM-DD-HH-mm-ss") + extension;
+      imageFileName = namePrefix + moment().format("Y-MM-DD-HH-mm-ss") + nameSuffix + extension;
     } else {
       imageFileName = selectText + extension;
     }
