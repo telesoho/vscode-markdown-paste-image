@@ -72,13 +72,13 @@ Smartly paste for Markdown.
 
   Default value is `${fileDirname}`, mean save image in the folder contains current file.
 
-- `MarkdownPaste.namePrefix`, `MarkdownPaste.namePrefix`
+- `MarkdownPaste.namePrefix`
 
   The string prepend to the default image file name.
 
   Default value is `""`.
 
-- `MarkdownPaste.nameSuffix`, `MarkdownPaste.nameSuffix`
+- `MarkdownPaste.nameSuffix`
 
   The string append to the default image file name.
 
@@ -127,7 +127,7 @@ Smartly paste for Markdown.
   ]
   ```
 
-  The extension will try to test text content by regex defined in this option, if matched it whill replace content by using the TypeScript function string.replace().
+  The extension will try to test text content by regex defined in this option, if matched it will replace content by using the TypeScript function string.replace().
 
   Default value is
 
@@ -143,6 +143,48 @@ Smartly paste for Markdown.
       "options": "ig",
       "replace": "[]($1)"
     }
+  ]
+  ```
+
+- `MarkdownPaste.lang_rules`
+
+  As `MarkdownPaste.rules`, you can define rules for other language (for example:assiidoc). 
+
+  ```json
+  [
+    [ 
+      {"asciidoc": [
+        {
+          "regex": "^(?:https?://)?(?:(?:(?:www\\.?)?youtube\\.com(?:/(?:(?:watch\\?.*?v=([^&\\s]+).*)|))?))",
+          "options": "g",
+          "replace": "image::https://img.youtube.com/vi/$1/0.jpg[link=\"https://www.youtube.com/watch?v=$1\"]"
+        },
+        {
+          "regex": "^(https?://.*)",
+          "options": "ig",
+          "replace": "image::$1[linktext,300]"
+        },
+        {
+          "regex": "(.*/media/)(.*)",
+          "options": "",
+          "replace": "image::$2[linktext,300]"
+        }]
+      },
+      {
+        "markdownx": [
+        {
+          "regex": "^(?:https?://)?(?:(?:(?:www\\.?)?youtube\\.com(?:/(?:(?:watch\\?.*?v=([^&\\s]+).*)|))?))",
+          "options": "g",
+          "replace": "[![](https://img.youtube.com/vi/$1/0.jpg)](https://www.youtube.com/watch?v=$1)"
+        },
+        {
+          "regex": "^(https?://.*)",
+          "options": "ig",
+          "replace": "[]($1)"
+        }
+        ]
+      }
+    ]
   ]
   ```
 

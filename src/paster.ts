@@ -313,22 +313,24 @@ class Paster {
 
     this.renderMarkdownLink(pasteImgContext);
   }
-
+  
   private static renderMdFilePath(pasteImgContext: PasteImageContext): string {
     let editor = vscode.window.activeTextEditor;
     if (!editor) return;
 
     let fileUri = editor.document.uri;
     if (!fileUri) return;
-
     let basePath = path.dirname(fileUri.fsPath)    
 
     // relative will be add backslash characters so need to replace '\' to '/' here.
-    let imageFilePath = this.parse(
-      this.encodePath(
+    let imageFilePath = this.encodePath(
         path.relative(basePath, pasteImgContext.targetFile.fsPath)
       )
-    );
+
+    let parseFilePath = this.parse_rules(imageFilePath);
+    if (parseFilePath !== null) {
+      imageFilePath = parseFilePath
+    }
 
     //"../../static/images/vscode-paste/cover.png".replace(new RegExp("(.*/static/)(.*)", ""), "/$2")
     let imgTag = pasteImgContext.imgTag;
@@ -412,8 +414,28 @@ class Paster {
     return filePath;
   }
 
-  private static parse(content) {
-    let rules = this.getConfig().rules;
+  private static get_rules(languageId) {
+    let lang_rules = this.getConfig().lang_rules
+
+    if (languageId === "markdown") {
+      return this.getConfig().rules;
+    }
+    
+    // find lang rules 
+    for(const lang_rule of lang_rules) {
+      if (lang_rule.hasOwnProperty(languageId)) {
+        return lang_rule[languageId]
+      }
+    }
+
+    // if not found then return empty
+    return []
+  }
+
+  private static parse_rules(content): string | null {
+    let editor = vscode.window.activeTextEditor;
+    let languageId = editor.document.languageId;
+    let rules = this.get_rules(languageId);
     for (const rule of rules) {
       const re = new RegExp(rule.regex, rule.options);
       const reps = rule.replace;
@@ -422,13 +444,22 @@ class Paster {
         return newstr;
       }
     }
+    return null;
+  }
+
+  private static parse(content) {
+    let editor = vscode.window.activeTextEditor;
+    let fileUri = editor.document.uri;
+
+    let ret = Paster.parse_rules(content);
+    if (typeof ret === 'string') {
+      return ret
+    }
 
     try {
       // if copied content is exist file path that under folder of workspace root path
       // then add a relative link into markdown.
       if (existsSync(content)) {
-        let editor = vscode.window.activeTextEditor;
-        let fileUri = editor.document.uri;
         let current_file_path = fileUri.fsPath;
         let workspace_root_dir =
           vscode.workspace.workspaceFolders &&

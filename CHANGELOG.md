@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.18.0 (February 12, 2022)
+
+- Feature: Allow pasting of images in documents of other languages than markdown (like asciidoc) #56
+
 ## 0.17.2 (February 11, 2022)
 
 - Fix #70 markdown img syntax isn't used in mdx files

@@ -2,7 +2,7 @@
   "name": "vscode-markdown-paste-image",
   "displayName": "Markdown Paste",
   "description": "A smartly paste for markdown.",
-  "version": "0.17.2",
+  "version": "0.18.0",
   "publisher": "telesoho",
   "author": {
     "name": "telesoho",
@@ -27,7 +27,8 @@
     "image",
     "markdown",
     "paste image",
-    "paste url"
+    "paste url",
+    "paste code"
   ],
   "engines": {
     "vscode": "^1.58.0"
@@ -52,6 +53,14 @@
     "lint": "eslint src --ext ts",
     "test": "node ./out/test/runTest.js"
   },
+  "languages": [{
+    "id": "asciidoc",
+    "extensions": [ ".txt", ".asciidoc" ]
+  },
+  {
+    "id": "markdownx",
+    "extensions": [ ".mdx", ".markdownx" ]
+  }],  
   "contributes": {
     "configuration": {
       "id": "MarkdownPaste",
@@ -90,6 +99,24 @@
         "MarkdownPaste.rules": {
           "type": "array",
           "scope": "resource",
+          "items": {
+            "type": "object",
+            "title": "inner objects",
+            "properties": {
+                "regex": {
+                    "type": "string",
+                    "description": "regex string."
+                },
+                "options": {
+                    "type": "string",
+                    "description": "Regex options."
+                },
+                "replace": {
+                  "type": "string",
+                  "description": "Replace exp."
+              }
+            }
+          },          
           "default": [
             {
               "regex": "^(?:https?://)?(?:(?:(?:www\\.?)?youtube\\.com(?:/(?:(?:watch\\?.*?v=([^&\\s]+).*)|))?))",
@@ -114,6 +141,34 @@
           ],
           "default": "encodeSpaceOnly",
           "description": "Encode path to URL-encode format. Options: none, encodeURI, encodeSpaceOnly"
+        },
+        "MarkdownPaste.lang_rules": {
+          "type": "array",
+          "scope": "resource",
+          "items": {
+            "type": "object",
+            "title": "lang rules"
+          },
+          "description": "Rules for lang paste.",
+          "default":[ 
+            {"asciidoc": [
+              {
+                "regex": "^(?:https?://)?(?:(?:(?:www\\.?)?youtube\\.com(?:/(?:(?:watch\\?.*?v=([^&\\s]+).*)|))?))",
+                "options": "g",
+                "replace": "image::https://img.youtube.com/vi/$1/0.jpg[link=\"https://www.youtube.com/watch?v=$1\"]"
+              },
+              {
+                "regex": "^(https?://.*)",
+                "options": "ig",
+                "replace": "image::$1[linktext,300]"
+              },
+              {
+                "regex": "(.*/media/)(.*)",
+                "options": "",
+                "replace": "image::$2[linktext,300]"
+              }]
+            }
+          ]
         }
       }
     },
@@ -212,6 +267,8 @@
     "mocha": "^8.4.0",
     "prettier": "2.5.1",
     "typescript": "^4.3.2",
-    "vscode-test": "^1.5.2"
+    "vscode-test": "^1.5.2",
+    "eslint-config-prettier":"^8.3.0",
+    "eslint-plugin-prettier":"^4.0.0"    
   }
 }
