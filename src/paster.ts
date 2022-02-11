@@ -321,8 +321,6 @@ class Paster {
     let fileUri = editor.document.uri;
     if (!fileUri) return;
 
-    let languageId = editor.document.languageId;
-
     let basePath = path.dirname(fileUri.fsPath)    
 
     // relative will be add backslash characters so need to replace '\' to '/' here.
@@ -333,15 +331,11 @@ class Paster {
     );
 
     //"../../static/images/vscode-paste/cover.png".replace(new RegExp("(.*/static/)(.*)", ""), "/$2")
-    if (languageId === "markdown") {
-      let imgTag = pasteImgContext.imgTag;
-      if (imgTag) {
-        return `<img src='${imageFilePath}' width='${imgTag.width}' height='${imgTag.height}'/>`;
-      }
-      return `![](${imageFilePath})`;
-    } else {
-      return imageFilePath;
+    let imgTag = pasteImgContext.imgTag;
+    if (imgTag) {
+      return `<img src='${imageFilePath}' width='${imgTag.width}' height='${imgTag.height}'/>`;
     }
+    return `![](${imageFilePath})`;
   }
 
   private static renderMdImageBase64(
