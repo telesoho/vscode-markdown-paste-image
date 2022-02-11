@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.17.2 (February 11, 2022)
+
+- Fix #70 markdown img syntax isn't used in mdx files
+
 ## 0.17.1 (February 11, 2022)
 
 - Add the option to use ${fileWorkspaceFolder} #71
