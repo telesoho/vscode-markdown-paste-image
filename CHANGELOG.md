@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.17.1 (February 11, 2022)
+
+- Add the option to use ${fileWorkspaceFolder} #71
+
 ## 0.16.1 (January 4, 2022)
 
 - Fix #65: Newlines in path for WSL causing image saving failures
