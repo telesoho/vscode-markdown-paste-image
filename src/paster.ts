@@ -193,6 +193,9 @@ class Paster {
     let editor = vscode.window.activeTextEditor;
     let fileUri = editor && editor.document.uri;
     let filePath = fileUri && fileUri.fsPath;
+    let fileWorkspaceFolderUri = vscode.workspace.getWorkspaceFolder(fileUri)
+    let fileWorkspaceFolder = fileWorkspaceFolderUri && fileWorkspaceFolderUri.uri.fsPath || ""
+    replaceMap["${fileWorkspaceFolder}"] = fileWorkspaceFolder
 
     if (filePath) {
       replaceMap["${fileExtname}"] = path.extname(filePath);
@@ -320,13 +323,7 @@ class Paster {
 
     let languageId = editor.document.languageId;
 
-    let _config = this.getConfig();
-    let prefix = _config.prefix;
-    let suffix = _config.suffix;
-    let basePath = this.replacePredefinedVars(_config.basePath);
-    // convert relative base path to absloute path
-    if (!path.isAbsolute(basePath))
-      basePath = path.join(path.dirname(fileUri.fsPath), basePath);
+    let basePath = path.dirname(fileUri.fsPath)    
 
     // relative will be add backslash characters so need to replace '\' to '/' here.
     let imageFilePath = this.parse(
@@ -334,8 +331,6 @@ class Paster {
         path.relative(basePath, pasteImgContext.targetFile.fsPath)
       )
     );
-    // add prefix/suffix after applying custom rule
-    imageFilePath = `${prefix}${imageFilePath}${suffix}`;
 
     //"../../static/images/vscode-paste/cover.png".replace(new RegExp("(.*/static/)(.*)", ""), "/$2")
     if (languageId === "markdown") {

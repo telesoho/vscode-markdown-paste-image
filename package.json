@@ -63,24 +63,6 @@
           "default": "${fileDirname}",
           "description": "The destination to save image file."
         },
-        "MarkdownPaste.basePath": {
-          "type": "string",
-          "scope": "resource",
-          "default": "${fileDirname}",
-          "description": "The base path of image url."
-        },
-        "MarkdownPaste.prefix": {
-          "type": "string",
-          "scope": "resource",
-          "default": "",
-          "description": "The string prepend to the resolved image path before paste."
-        },
-        "MarkdownPaste.suffix": {
-          "type": "string",
-          "scope": "resource",
-          "default": "",
-          "description": "The string append to the resolved image path before paste."
-        },
         "MarkdownPaste.namePrefix": {
           "type": "string",
           "scope": "resource",
