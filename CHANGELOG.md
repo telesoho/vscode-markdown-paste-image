@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.18.1 (February 12, 2022)
+
+- Fix: Markdown Download command render incorrect path for download image. 
+
 ## 0.18.0 (February 12, 2022)
 
 - Feature: Allow pasting of images in documents of other languages than markdown (like asciidoc) #56

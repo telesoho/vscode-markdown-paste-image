@@ -193,9 +193,10 @@ class Paster {
     let editor = vscode.window.activeTextEditor;
     let fileUri = editor && editor.document.uri;
     let filePath = fileUri && fileUri.fsPath;
-    let fileWorkspaceFolderUri = vscode.workspace.getWorkspaceFolder(fileUri)
-    let fileWorkspaceFolder = fileWorkspaceFolderUri && fileWorkspaceFolderUri.uri.fsPath || ""
-    replaceMap["${fileWorkspaceFolder}"] = fileWorkspaceFolder
+    let fileWorkspaceFolderUri = vscode.workspace.getWorkspaceFolder(fileUri);
+    let fileWorkspaceFolder =
+      (fileWorkspaceFolderUri && fileWorkspaceFolderUri.uri.fsPath) || "";
+    replaceMap["${fileWorkspaceFolder}"] = fileWorkspaceFolder;
 
     if (filePath) {
       replaceMap["${fileExtname}"] = path.extname(filePath);
@@ -236,7 +237,9 @@ class Paster {
    * @param inputVal
    * @returns
    */
-  protected static parsePasteImageContext(inputVal: string): PasteImageContext {
+  protected static parsePasteImageContext(
+    inputVal: string
+  ): PasteImageContext | null {
     if (!inputVal) return;
 
     inputVal = this.replacePredefinedVars(inputVal);
@@ -313,23 +316,23 @@ class Paster {
 
     this.renderMarkdownLink(pasteImgContext);
   }
-  
+
   private static renderMdFilePath(pasteImgContext: PasteImageContext): string {
     let editor = vscode.window.activeTextEditor;
     if (!editor) return;
 
     let fileUri = editor.document.uri;
     if (!fileUri) return;
-    let basePath = path.dirname(fileUri.fsPath)    
+    let basePath = path.dirname(fileUri.fsPath);
 
     // relative will be add backslash characters so need to replace '\' to '/' here.
     let imageFilePath = this.encodePath(
-        path.relative(basePath, pasteImgContext.targetFile.fsPath)
-      )
+      path.relative(basePath, pasteImgContext.targetFile.fsPath)
+    );
 
     let parseFilePath = this.parse_rules(imageFilePath);
     if (parseFilePath !== null) {
-      imageFilePath = parseFilePath
+      imageFilePath = parseFilePath;
     }
 
     //"../../static/images/vscode-paste/cover.png".replace(new RegExp("(.*/static/)(.*)", ""), "/$2")
@@ -415,21 +418,21 @@ class Paster {
   }
 
   private static get_rules(languageId) {
-    let lang_rules = this.getConfig().lang_rules
+    let lang_rules = this.getConfig().lang_rules;
 
     if (languageId === "markdown") {
       return this.getConfig().rules;
     }
-    
-    // find lang rules 
-    for(const lang_rule of lang_rules) {
+
+    // find lang rules
+    for (const lang_rule of lang_rules) {
       if (lang_rule.hasOwnProperty(languageId)) {
-        return lang_rule[languageId]
+        return lang_rule[languageId];
       }
     }
 
     // if not found then return empty
-    return []
+    return [];
   }
 
   private static parse_rules(content): string | null {
@@ -452,8 +455,8 @@ class Paster {
     let fileUri = editor.document.uri;
 
     let ret = Paster.parse_rules(content);
-    if (typeof ret === 'string') {
-      return ret
+    if (typeof ret === "string") {
+      return ret;
     }
 
     try {
@@ -559,6 +562,7 @@ class Paster {
           );
           return;
         }
+        pasteImgContext.targetFile = vscode.Uri.parse(imagePath);
         this.renderMarkdownLink(pasteImgContext);
       })
       .catch((err) => {

@@ -34,9 +34,10 @@ function prepareDirForFile(filePath: string) {
 function fetchAndSaveFile(fileURL, filepath) {
   let dest = path.dirname(filepath);
   let basename = path.basename(filepath);
+
   return new Promise((resolve, reject) => {
     const timeout = 10000;
-    const urlParsed = url.parse(fileURL);
+    const urlParsed = new url.URL(fileURL);
     const uri = urlParsed.pathname.split("/");
 
     let req;
