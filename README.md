@@ -59,9 +59,7 @@ Smartly paste for Markdown.
 
 ## Config
 
-- `MarkdownPaste.path`
-
-  The folder path that image will be saved. Support absolute path and relative path and the following predefined variables
+- Predefined variables
 
   - `${workspaceRoot}` - the path of the folder opened in VS Code
   - `${fileWorkspaceFolder}` - - the current opened file's workspace folder
@@ -69,30 +67,41 @@ Smartly paste for Markdown.
   - `${fileBasenameNoExtension}` - the current opened file's basename with no file extension
   - `${fileExtname}` - the current opened file's extension
   - `${fileDirname}` - the current opened file's dirname
+  - `${datetime}` - the current date & time formatted by `"Y-MM-DD-HH-mm-ss"` 
+
+- `MarkdownPaste.path`
+
+  The folder path that image will be saved. Support absolute path and relative path and predefined variables.
 
   Default value is `${fileDirname}`, mean save image in the folder contains current file.
 
+- `MarkdownPaste.nameBase`
+
+  The string as the default image file name. Support predefined variables.
+
+  Default value is `${datetime}`.
+
 - `MarkdownPaste.namePrefix`
 
-  The string prepend to the default image file name.
+  The string prepend to the default image file name. Support predefined variables.
 
   Default value is `""`.
 
 - `MarkdownPaste.nameSuffix`
 
-  The string append to the default image file name.
+  The string append to the default image file name. Support predefined variables.
 
   Default value is `""`.
 
 - `MarkdownPaste.silence`
 
-  enable/disable showing confirm box while paste image. Set this config option to `true`, filename confirm box will not be shown while paste image.
+  Enable/disable showing confirm box while paste image. Set this config option to `true`, filename confirm box will not be shown while paste image.
 
   Default value is `false`
 
 - `MarkdownPaste.enableImgTag`
 
-  enable/disable using HTML img tag with width and height for pasting image. If this option be enabled, you can input width and height by using `<filepath>[?width,height]` in filename confirm input box. for example input `\abc\filename.png?200,100`, then `<img src='\abc\filename.png' width='200' height='100' />` will be inserted.
+  Enable/disable using HTML img tag with width and height for pasting image. If this option be enabled, you can input width and height by using `<filepath>[?width,height]` in filename confirm input box. for example input `\abc\filename.png?200,100`, then `<img src='\abc\filename.png' width='200' height='100' />` will be inserted.
 
   Default value is `true`
 
@@ -100,11 +109,11 @@ Smartly paste for Markdown.
 
   Encode path link to URL-encode format.
 
-  - encodeURI Encode all characters to URL-encode format.
-  - encodeSpaceOnly Encode ' '(space) to '%20' only.
-  - none Encode nothing.
+  - `encodeURI` Encode all characters to URL-encode format.
+  - `encodeSpaceOnly` Encode `' '`(space) to `'%20'` only.
+  - `none` Encode nothing.
 
-  Default value is 'encodeSpaceOnly'
+  Default value is `encodeSpaceOnly`
 
 - `MarkdownPaste.rules`
 

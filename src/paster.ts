@@ -196,6 +196,8 @@ class Paster {
     let fileWorkspaceFolderUri = vscode.workspace.getWorkspaceFolder(fileUri);
     let fileWorkspaceFolder =
       (fileWorkspaceFolderUri && fileWorkspaceFolderUri.uri.fsPath) || "";
+
+    replaceMap["${datetime}"] = moment().format("Y-MM-DD-HH-mm-ss");
     replaceMap["${fileWorkspaceFolder}"] = fileWorkspaceFolder;
 
     if (filePath) {
@@ -259,7 +261,7 @@ class Paster {
     // 'f:/test/image'
     //
     // So we have to add file:/// scheme. while input value contain a driver character
-    if (inputVal.substr(1, 1) === ":") {
+    if (inputVal.substring(1, 1) === ":") {
       inputVal = "file:///" + inputVal;
     }
 
@@ -648,14 +650,12 @@ class Paster {
 
     // image file name
     let imageFileName = "";
-    let namePrefix = this.replacePredefinedVars(this.getConfig().namePrefix);
-    let nameSuffix = this.replacePredefinedVars(this.getConfig().nameSuffix);
+    let namePrefix = this.getConfig().namePrefix;
+    let nameBase = this.getConfig().nameBase;
+    let nameSuffix = this.getConfig().nameSuffix;
     if (!selectText) {
-      imageFileName =
-        namePrefix +
-        moment().format("Y-MM-DD-HH-mm-ss") +
-        nameSuffix +
-        extension;
+      imageFileName = namePrefix + nameBase + nameSuffix + extension;
+      imageFileName = this.replacePredefinedVars(imageFileName);
     } else {
       imageFileName = selectText + extension;
     }

@@ -65,6 +65,12 @@
           "default": "${fileDirname}",
           "description": "The destination to save image file."
         },
+        "MarkdownPaste.nameBase": {
+          "type": "string",
+          "scope": "resource",
+          "default": "${datetime}",
+          "description": "The string of default image file name."
+        },
         "MarkdownPaste.namePrefix": {
           "type": "string",
           "scope": "resource",
