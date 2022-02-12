@@ -47,20 +47,13 @@
   "scripts": {
     "publish": "npx vsce publish",
     "vscode:prepublish": "npm run compile",
+    "prettier": "npx prettier src",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src --ext ts",
     "test": "node ./out/test/runTest.js"
-  },
-  "languages": [{
-    "id": "asciidoc",
-    "extensions": [ ".txt", ".asciidoc" ]
-  },
-  {
-    "id": "markdownx",
-    "extensions": [ ".mdx", ".markdownx" ]
-  }],  
+  }, 
   "contributes": {
     "configuration": {
       "id": "MarkdownPaste",
@@ -101,7 +94,7 @@
           "scope": "resource",
           "items": {
             "type": "object",
-            "title": "inner objects",
+            "title": "Regex rule",
             "properties": {
                 "regex": {
                     "type": "string",

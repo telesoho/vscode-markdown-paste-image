@@ -10,7 +10,6 @@ export default class Logger {
       for (let m of message) {
         let logmsg = `[${time}] ${m}`
         this.channel.appendLine(logmsg);
-        console.log(logmsg)
       }
     }
   }

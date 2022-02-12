@@ -4,4 +4,3 @@ npm-debug.log*
 *.vsix
 .vscode-test/
 out_test/
-.vscode/
