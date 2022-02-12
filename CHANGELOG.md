@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.18.2 (February 12, 2022)
+
+- Add nameBase option and predefined variable ${datetime}.
+
 ## 0.18.1 (February 12, 2022)
 
 - Fix: Markdown Download command render incorrect path for download image. 
