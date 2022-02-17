@@ -261,7 +261,7 @@ class Paster {
     // 'f:/test/image'
     //
     // So we have to add file:/// scheme. while input value contain a driver character
-    if (inputVal.substring(1, 1) === ":") {
+    if (inputVal.substring(1, 2) === ":") {
       inputVal = "file:///" + inputVal;
     }
 
