@@ -6,9 +6,9 @@ export default class Logger {
 
   static log(...message: any[]) {
     if (this.channel) {
-      let time = moment().format("MM-DD HH:mm:ss");
-      for (let m of message) {
-        let logmsg = `[${time}] ${m}`
+      const time = moment().format("MM-DD HH:mm:ss");
+      for (const m of message) {
+        const logmsg = `[${time}] ${m}`;
         this.channel.appendLine(logmsg);
       }
     }

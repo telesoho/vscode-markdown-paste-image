@@ -10,8 +10,8 @@ import * as assert from "assert";
 // as well as import your extension to test it
 import * as fs from "fs";
 import * as vscode from "vscode";
-import * as myExtension from "../src/extension";
-import * as utils from "../src/utils";
+import * as myExtension from "../../src/extension";
+import * as utils from "../../src/utils";
 
 // Defines a Mocha test suite to group tests of similar kind together
 suite("Extension Tests", () => {
@@ -23,15 +23,15 @@ suite("Extension Tests", () => {
     }
     utils
       .fetchAndSaveFile(
-        "https://www.google.co.jp/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png",
+        "https://avatars.githubusercontent.com/u/10979091?v=4",
         target_file
       )
       .then((msg) => {
-        Logger.log(msg);
+        console.log(msg);
         assert.equal(fs.existsSync(target_file), true);
       })
       .catch((err) => {
-        Logger.log(err);
+        console.log(err);
       });
   });
 });

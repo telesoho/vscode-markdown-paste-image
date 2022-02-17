@@ -48,12 +48,12 @@
     "publish": "npx vsce publish",
     "vscode:prepublish": "npm run compile",
     "prettier": "npx prettier src",
-    "compile": "tsc -p ./",
+    "compile": "npm run lint && tsc -p ./",
     "watch": "tsc -watch -p ./",
-    "pretest": "npm run compile && npm run lint",
-    "lint": "eslint src --ext ts",
-    "test": "node ./out/test/runTest.js"
-  }, 
+    "pretest": "npm run lint && tsc --project ./ts-test.json",
+    "lint": "eslint --fix src --ext ts",
+    "test": "node ./out_test/test/runTest.js"
+  },
   "contributes": {
     "configuration": {
       "id": "MarkdownPaste",
@@ -102,20 +102,20 @@
             "type": "object",
             "title": "Regex rule",
             "properties": {
-                "regex": {
-                    "type": "string",
-                    "description": "regex string."
-                },
-                "options": {
-                    "type": "string",
-                    "description": "Regex options."
-                },
-                "replace": {
-                  "type": "string",
-                  "description": "Replace exp."
+              "regex": {
+                "type": "string",
+                "description": "regex string."
+              },
+              "options": {
+                "type": "string",
+                "description": "Regex options."
+              },
+              "replace": {
+                "type": "string",
+                "description": "Replace exp."
               }
             }
-          },          
+          },
           "default": [
             {
               "regex": "^(?:https?://)?(?:(?:(?:www\\.?)?youtube\\.com(?:/(?:(?:watch\\?.*?v=([^&\\s]+).*)|))?))",
@@ -149,23 +149,25 @@
             "title": "lang rules"
           },
           "description": "Rules for lang paste.",
-          "default":[ 
-            {"asciidoc": [
-              {
-                "regex": "^(?:https?://)?(?:(?:(?:www\\.?)?youtube\\.com(?:/(?:(?:watch\\?.*?v=([^&\\s]+).*)|))?))",
-                "options": "g",
-                "replace": "image::https://img.youtube.com/vi/$1/0.jpg[link=\"https://www.youtube.com/watch?v=$1\"]"
-              },
-              {
-                "regex": "^(https?://.*)",
-                "options": "ig",
-                "replace": "image::$1[linktext,300]"
-              },
-              {
-                "regex": "(.*/media/)(.*)",
-                "options": "",
-                "replace": "image::$2[linktext,300]"
-              }]
+          "default": [
+            {
+              "asciidoc": [
+                {
+                  "regex": "^(?:https?://)?(?:(?:(?:www\\.?)?youtube\\.com(?:/(?:(?:watch\\?.*?v=([^&\\s]+).*)|))?))",
+                  "options": "g",
+                  "replace": "image::https://img.youtube.com/vi/$1/0.jpg[link=\"https://www.youtube.com/watch?v=$1\"]"
+                },
+                {
+                  "regex": "^(https?://.*)",
+                  "options": "ig",
+                  "replace": "image::$1[linktext,300]"
+                },
+                {
+                  "regex": "(.*/media/)(.*)",
+                  "options": "",
+                  "replace": "image::$2[linktext,300]"
+                }
+              ]
             }
           ]
         }
@@ -262,12 +264,13 @@
     "@typescript-eslint/eslint-plugin": "^4.26.0",
     "@typescript-eslint/parser": "^4.26.0",
     "eslint": "^7.27.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-prettier": "^4.0.0",
     "glob": "^7.1.7",
     "mocha": "^8.4.0",
     "prettier": "2.5.1",
     "typescript": "^4.3.2",
     "vscode-test": "^1.5.2",
-    "eslint-config-prettier":"^8.3.0",
-    "eslint-plugin-prettier":"^4.0.0"    
+    "@vscode/test-electron": "^1.6.1"
   }
 }
