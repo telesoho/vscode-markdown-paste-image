@@ -7,6 +7,18 @@
       "request": "launch",
       "type": "pwa-extensionHost",
       "preLaunchTask": "npm: compile"
-    }
+    },
+    {
+      "name": "Extension Tests",
+      "type": "extensionHost",
+      "request": "launch",
+      "runtimeExecutable": "${execPath}",
+      "args": [
+        "--extensionDevelopmentPath=${workspaceFolder}",
+        "--extensionTestsPath=${workspaceFolder}/out_test/test/suite/index"
+      ],
+      "outFiles": ["${workspaceFolder}/out_test/test/**/*.js"],
+      "preLaunchTask": "npm: pretest"
+    }    
   ]
 }
