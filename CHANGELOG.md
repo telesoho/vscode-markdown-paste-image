@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.18.3 (February 12, 2022)
+
+- Fix: #72 Windows: Images are always saved to C:
+
 ## 0.18.2 (February 12, 2022)
 
 - Add nameBase option and predefined variable ${datetime}.
