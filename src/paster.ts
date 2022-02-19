@@ -332,9 +332,10 @@ class Paster {
       path.relative(basePath, pasteImgContext.targetFile.fsPath)
     );
 
-    let parseFilePath = this.parse_rules(imageFilePath);
-    if (parseFilePath !== null) {
-      imageFilePath = parseFilePath;
+    // parse imageFilePath by rule again for appling lang_rule to image path
+    let parse_result = this.parse_rules(imageFilePath);
+    if (typeof parse_result === "string") {
+      return parse_result;
     }
 
     //"../../static/images/vscode-paste/cover.png".replace(new RegExp("(.*/static/)(.*)", ""), "/$2")
@@ -437,6 +438,13 @@ class Paster {
     return [];
   }
 
+  /**
+   * Parse content by rules
+   * @param content content will be parse
+   * @returns
+   *  string: if content match rule, will return replaced string
+   *  null: dismatch any rule
+   */
   private static parse_rules(content): string | null {
     let editor = vscode.window.activeTextEditor;
     let languageId = editor.document.languageId;
@@ -456,13 +464,14 @@ class Paster {
     let editor = vscode.window.activeTextEditor;
     let fileUri = editor.document.uri;
 
+    // parse content by rule, if match return replaced string
     let ret = Paster.parse_rules(content);
     if (typeof ret === "string") {
       return ret;
     }
 
     try {
-      // if copied content is exist file path that under folder of workspace root path
+      // if copied content is an exist file path that under folder of workspace root path
       // then add a relative link into markdown.
       if (existsSync(content)) {
         let current_file_path = fileUri.fsPath;

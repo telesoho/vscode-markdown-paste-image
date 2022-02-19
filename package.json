@@ -2,7 +2,7 @@
   "name": "vscode-markdown-paste-image",
   "displayName": "Markdown Paste",
   "description": "A smartly paste for markdown.",
-  "version": "0.18.3",
+  "version": "0.18.4",
   "publisher": "telesoho",
   "author": {
     "name": "telesoho",
@@ -51,7 +51,7 @@
     "compile": "npm run lint && tsc -p ./",
     "watch": "tsc -watch -p ./",
     "pretest": "npm run lint && tsc --project ./ts-test.json",
-    "lint": "eslint --fix src --ext ts",
+    "lint": "eslint src --ext ts",
     "test": "node ./out_test/test/runTest.js"
   },
   "contributes": {

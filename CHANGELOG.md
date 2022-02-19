@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.18.4 (February 19, 2022)
+
+- Fix: parse lang_rules output not correct 
+
 ## 0.18.3 (February 12, 2022)
 
 - Fix: #72 Windows: Images are always saved to C:
