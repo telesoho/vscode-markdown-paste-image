@@ -5,7 +5,8 @@ name: Publish extension
 
 on:
   push:
-    branches: [master]
+    tags:
+      - v*.*.*
 
 jobs:
   publish:
