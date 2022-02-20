@@ -4,7 +4,7 @@ Smartly paste for Markdown.
 
 **Support Mac/Windows/Linux!**.
 
-![markdown paste demo](./res/markdown_paste_demo_min.gif)
+![Markdown paste demo](./res/markdown_paste_demo_min.gif)
 
 ## Requirements
 
@@ -16,7 +16,7 @@ Smartly paste for Markdown.
 
 - Paste smart
 
-  Smartly paste in markdown by pressing 'Ctrl+Alt+V' ('Cmd+Alt+V' on Mac) or `Markdown Paste` command.
+  Smartly paste in Markdown by pressing 'Ctrl+Alt+V' ('Cmd+Alt+V' on Mac) or `Markdown Paste` command.
 
   - If you paste an image, the extension will create an new file for the image and insert link code to Markdown.
   - If you paste a text, it will test the text with customize regex, and replace matched content by regex.
@@ -31,11 +31,11 @@ Smartly paste for Markdown.
 
 - Paste code
 
-  Use `Markdown Paste Code` command (Linux or Window:`Ctrl+Alt+C`, Mac:`Cmd+Alt+C`) to paste code with auto detecting language.
+  Use `Markdown Paste Code` command (Linux or Window:`Ctrl+Alt+C`, Mac:`Cmd+Alt+C`) to paste code with auto-detecting language.
 
 - Ruby tag
 
-  Also if you want to write article for learning asian language like Chinese or Japanese, ruby tag(for example:<ruby>聪明<rp>(</rp><rt>Cōngmíng</rt><rp>)</rp></ruby>) may be useful. Now a ruby tag snippet are prepare for you, select some text and press 'Ctrl+Alt+T'.
+  Also, if you want to write article for learning Asia language like Chinese or Japanese, ruby tag(for example:<ruby>聪明<rp>(</rp><rt>Cōngmíng</rt><rp>)</rp></ruby>) may be useful. Now a ruby tag snippet are prepare for you, select some text and press 'Ctrl+Alt+T'.
 
   ```HTML
   <ruby>聪明<rp>(</rp><rt>pronunciation</rt><rp>)</rp></ruby>
@@ -47,13 +47,13 @@ Smartly paste for Markdown.
 
   You can insert latex math symbol and emoji to any text file, such as Julia source file.
 
-  press 'Ctrl+Alt+\\' or input "Insert latex math symbol" in vscode command panel, then input latex symbol name and choose symbol you want.
+  Press 'Ctrl+Alt+\\' or input "Insert latex math symbol" in vscode command panel, then input latex symbol name and choose symbol you want.
 
   ![](res/insert-math-symbol-2018-08-12-18-15-12.png)
 
 - Embed base64 image
 
-  While you paste image or download image, you can force the extention to insert embed base64 image to markdown by empty filename.
+  While you paste image or download image, you can force the extension to insert embed base64 image to markdown by empty filename.
 
   ![](res/insert_embed_base64_image.gif)
 
@@ -63,10 +63,10 @@ Smartly paste for Markdown.
 
   - `${workspaceRoot}` - the path of the folder opened in VS Code
   - `${fileWorkspaceFolder}` - - the current opened file's workspace folder
-  - `${fileBasename}` - the current opened file's basename
-  - `${fileBasenameNoExtension}` - the current opened file's basename with no file extension
+  - `${fileBasename}` - the current opened file's base name
+  - `${fileBasenameNoExtension}` - the current opened file's base name with no file extension
   - `${fileExtname}` - the current opened file's extension
-  - `${fileDirname}` - the current opened file's dirname
+  - `${fileDirname}` - the current opened file's directory name
   - `${datetime}` - the current date & time formatted by `"Y-MM-DD-HH-mm-ss"` 
 
 - `MarkdownPaste.path`
@@ -117,7 +117,7 @@ Smartly paste for Markdown.
 
 - `MarkdownPaste.rules`
 
-  If you want to define your own regex to parse and replace content for pasting text. You can fill the following JSON, and set it to this option.
+  If you want to define your own regex to parse and replace content for pasting text. You can fill the following JSON, and set it to this option. 
 
   ```json
   [{
@@ -138,7 +138,7 @@ Smartly paste for Markdown.
 
   The extension will try to test text content by regex defined in this option, if matched it will replace content by using the TypeScript function string.replace().
 
-  Default value is
+  Default value is:
 
   ```json
   [
@@ -155,9 +155,11 @@ Smartly paste for Markdown.
   ]
   ```
 
+  **NOTE** While pasting image, this option also apply to render image path link.
+
 - `MarkdownPaste.lang_rules`
 
-  As `MarkdownPaste.rules`, you can define rules for other language (for example:assiidoc). 
+  As `MarkdownPaste.rules`, you can define rules for other language (for example: asciidoc). 
 
   ```json
   [
@@ -196,21 +198,11 @@ Smartly paste for Markdown.
     ]
   ]
   ```
-
-## Format
-
-### File name format
-
-If you selected some text in editor, then extension will use it as the image file name.
-If not the image will be saved in this format: "Y-MM-DD-HH-mm-ss.png".
-
-### File link format
-
-When you editing a markdown, it will pasted as markdown image link format `![](imagePath)`, the imagePath will be resolve to relative path of current markdown file. In other file, it just paste the image's path.
+  **NOTE** If any language rule been matched, it will not apply `MarkdownPaste.rules` anymore. 
 
 ## FAQ
 
-1. Extension not working on windows os.
+1. Extension not working on Windows.
 
    https://github.com/telesoho/vscode-markdown-paste-image/issues/6
 
