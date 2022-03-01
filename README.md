@@ -205,7 +205,7 @@ Smartly paste for Markdown.
 
 ## FAQ
 
-1. Extension not working on Windows.
+1. Extension not working on Windows, nor on Mac.
 
    https://github.com/telesoho/vscode-markdown-paste-image/issues/6
 
