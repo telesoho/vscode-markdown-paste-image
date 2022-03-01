@@ -47,7 +47,7 @@
   "scripts": {
     "publish": "npx vsce publish",
     "vscode:prepublish": "npm run compile",
-    "prettier": "npx prettier src",
+    "prettier": "npx prettier .",
     "compile": "npm run lint && tsc -p ./",
     "watch": "tsc -watch -p ./",
     "pretest": "npm run lint && tsc --project ./ts-test.json",

@@ -67,7 +67,7 @@ Smartly paste for Markdown.
   - `${fileBasenameNoExtension}` - the current opened file's base name with no file extension
   - `${fileExtname}` - the current opened file's extension
   - `${fileDirname}` - the current opened file's directory name
-  - `${datetime}` - the current date & time formatted by `"Y-MM-DD-HH-mm-ss"` 
+  - `${datetime}` - the current date & time formatted by `"Y-MM-DD-HH-mm-ss"`
 
 - `MarkdownPaste.path`
 
@@ -117,7 +117,7 @@ Smartly paste for Markdown.
 
 - `MarkdownPaste.rules`
 
-  If you want to define your own regex to parse and replace content for pasting text. You can fill the following JSON, and set it to this option. 
+  If you want to define your own regex to parse and replace content for pasting text. You can fill the following JSON, and set it to this option.
 
   ```json
   [{
@@ -159,46 +159,49 @@ Smartly paste for Markdown.
 
 - `MarkdownPaste.lang_rules`
 
-  As `MarkdownPaste.rules`, you can define rules for other language (for example: asciidoc). 
+  As `MarkdownPaste.rules`, you can define rules for other language (for example: asciidoc).
 
   ```json
   [
-    [ 
-      {"asciidoc": [
-        {
-          "regex": "^(?:https?://)?(?:(?:(?:www\\.?)?youtube\\.com(?:/(?:(?:watch\\?.*?v=([^&\\s]+).*)|))?))",
-          "options": "g",
-          "replace": "image::https://img.youtube.com/vi/$1/0.jpg[link=\"https://www.youtube.com/watch?v=$1\"]"
-        },
-        {
-          "regex": "^(https?://.*)",
-          "options": "ig",
-          "replace": "image::$1[linktext,300]"
-        },
-        {
-          "regex": "(.*/media/)(.*)",
-          "options": "",
-          "replace": "image::$2[linktext,300]"
-        }]
+    [
+      {
+        "asciidoc": [
+          {
+            "regex": "^(?:https?://)?(?:(?:(?:www\\.?)?youtube\\.com(?:/(?:(?:watch\\?.*?v=([^&\\s]+).*)|))?))",
+            "options": "g",
+            "replace": "image::https://img.youtube.com/vi/$1/0.jpg[link=\"https://www.youtube.com/watch?v=$1\"]"
+          },
+          {
+            "regex": "^(https?://.*)",
+            "options": "ig",
+            "replace": "image::$1[linktext,300]"
+          },
+          {
+            "regex": "(.*/media/)(.*)",
+            "options": "",
+            "replace": "image::$2[linktext,300]"
+          }
+        ]
       },
       {
         "markdownx": [
-        {
-          "regex": "^(?:https?://)?(?:(?:(?:www\\.?)?youtube\\.com(?:/(?:(?:watch\\?.*?v=([^&\\s]+).*)|))?))",
-          "options": "g",
-          "replace": "[![](https://img.youtube.com/vi/$1/0.jpg)](https://www.youtube.com/watch?v=$1)"
-        },
-        {
-          "regex": "^(https?://.*)",
-          "options": "ig",
-          "replace": "[]($1)"
-        }
+          {
+            "regex": "^(?:https?://)?(?:(?:(?:www\\.?)?youtube\\.com(?:/(?:(?:watch\\?.*?v=([^&\\s]+).*)|))?))",
+            "options": "g",
+            "replace": "[![](https://img.youtube.com/vi/$1/0.jpg)](https://www.youtube.com/watch?v=$1)"
+          },
+          {
+            "regex": "^(https?://.*)",
+            "options": "ig",
+            "replace": "[]($1)"
+          }
         ]
       }
     ]
   ]
   ```
-  **NOTE** If any language rule been matched, it will not apply `MarkdownPaste.rules` anymore. 
+
+  **NOTE** If any language rule been matched, it will not apply `MarkdownPaste.rules` anymore.
 
 ## FAQ
 

@@ -2,7 +2,7 @@
 
 ## 0.18.4 (February 19, 2022)
 
-- Fix: parse lang_rules output not correct 
+- Fix: parse lang_rules output not correct
 
 ## 0.18.3 (February 12, 2022)
 
@@ -14,7 +14,7 @@
 
 ## 0.18.1 (February 12, 2022)
 
-- Fix: Markdown Download command render incorrect path for download image. 
+- Fix: Markdown Download command render incorrect path for download image.
 
 ## 0.18.0 (February 12, 2022)
 
