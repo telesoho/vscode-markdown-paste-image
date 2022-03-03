@@ -4,7 +4,7 @@ Smartly paste for Markdown.
 
 **Support Mac/Windows/Linux!**.
 
-![Markdown paste demo](./res/markdown_paste_demo_min.gif)
+![Markdown paste demo](./res/images/markdown_paste_demo_min.gif)
 
 ## Requirements
 
@@ -22,12 +22,12 @@ Smartly paste for Markdown.
   - If you paste a text, it will test the text with customize regex, and replace matched content by regex.
   - If you paste a text contain HTML tag, it will try to convert the HTML content to Markdown.
   - If you paste a rich text, it will try to convert the rich text to Markdown.(Linux only)
-    ![](./res/markdown-paste-rich-text-html-table.gif)
+    ![](./res/images/markdown-paste-rich-text-html-table.gif)
 
 - Download file
 
   Use `Markdown Download` command (Linux or Windows:`Ctrl+Alt+D`, Mac:`Cmd+Alt+D`) to download file and insert link code into Markdown.
-  ![](./res/markdown-paste-download-gif-demo.gif)
+  ![](./res/images/markdown-paste-download-gif-demo.gif)
 
 - Paste code
 
@@ -49,13 +49,13 @@ Smartly paste for Markdown.
 
   Press 'Ctrl+Alt+\\' or input "Insert latex math symbol" in vscode command panel, then input latex symbol name and choose symbol you want.
 
-  ![](res/insert-math-symbol-2018-08-12-18-15-12.png)
+  ![](res/images/insert-math-symbol-2018-08-12-18-15-12.png)
 
 - Embed base64 image
 
   While you paste image or download image, you can force the extension to insert embed base64 image to markdown by empty filename.
 
-  ![](res/insert_embed_base64_image.gif)
+  ![](res/images/insert_embed_base64_image.gif)
 
 ## Config
 
@@ -73,7 +73,7 @@ Smartly paste for Markdown.
 
   The folder path that image will be saved. Support absolute path and relative path and predefined variables.
 
-  Default value is `${fileDirname}`, mean save image in the folder contains current file.
+  Default value is `${fileDirname}`.
 
 - `MarkdownPaste.nameBase`
 
@@ -97,13 +97,13 @@ Smartly paste for Markdown.
 
   Enable/disable showing confirm box while paste image. Set this config option to `true`, filename confirm box will not be shown while paste image.
 
-  Default value is `false`
+  Default value is `false`.
 
 - `MarkdownPaste.enableImgTag`
 
   Enable/disable using HTML img tag with width and height for pasting image. If this option be enabled, you can input width and height by using `<filepath>[?width,height]` in filename confirm input box. for example input `\abc\filename.png?200,100`, then `<img src='\abc\filename.png' width='200' height='100' />` will be inserted.
 
-  Default value is `true`
+  Default value is `true`.
 
 - `MarkdownPaste.encodePath`
 

@@ -17,7 +17,7 @@
   "bugs": {
     "url": "https://github.com/telesoho/vscode-markdown-paste-image/issues"
   },
-  "icon": "res/icon.png",
+  "icon": "res/images/icon.png",
   "galleryBanner": {
     "color": "#252526",
     "theme": "dark"

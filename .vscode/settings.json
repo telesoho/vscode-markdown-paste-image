@@ -9,5 +9,9 @@
     "editor.formatOnSave": true
   },
   "editor.formatOnSave": false,
+  "MarkdownPaste.nameBase": "image",
+  "MarkdownPaste.nameSuffix": "_${datetime}",
+  "MarkdownPaste.path": "${fileWorkspaceFolder}/res/images",
+  "MarkdownPaste.namePrefix": "${fileBasename}_"
 }  
 
