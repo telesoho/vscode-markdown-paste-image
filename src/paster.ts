@@ -788,7 +788,10 @@ class Paster {
       Logger.log(`No scipt exists for ${platform}`);
       throw new Error(`No scipt exists for ${platform}`);
     }
-    const scriptPath = path.join(__dirname, "../res/" + script[platform]);
+    const scriptPath = path.join(
+      __dirname,
+      "../res/scripts/" + script[platform]
+    );
     let shell = "";
     let command = [];
 
