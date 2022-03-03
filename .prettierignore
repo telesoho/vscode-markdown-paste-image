@@ -2,3 +2,4 @@ out
 out_test
 node_modules
 .vscode
+.vscode-test
