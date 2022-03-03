@@ -42,7 +42,7 @@ class LatexSymbol {
 }
 
 export function activate(context: vscode.ExtensionContext) {
-  Logger.channel = vscode.window.createOutputChannel("PasteImage");
+  Logger.channel = vscode.window.createOutputChannel("Markdown Paste");
   Logger.log('"vscode-markdown-paste" is now active!');
   let LatexMathSymbol = new LatexSymbol();
   LatexMathSymbol.load(latexSymbols);
