@@ -2,7 +2,7 @@
 
 # Raising Issues
 
-If you've found an issue or have a suggestion for Dart Code, please do [open an issue](https://github.com/telesoho/vscode-markdown-paste-image/issues/new). For bugs, it is beneficial to attach a log file recorded while reproducing the issue. You can copy log from VS Code `Markdown Paste` Output Channel (View → Output).
+If you've found an issue or have a suggestion, please do [open an issue](https://github.com/telesoho/vscode-markdown-paste-image/issues/new). For bugs, it is beneficial to attach a log file recorded while reproducing the issue. You can copy log from VS Code `Markdown Paste` Output Channel (View → Output).
 
 # Contributing Code
 

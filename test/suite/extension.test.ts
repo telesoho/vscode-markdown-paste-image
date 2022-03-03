@@ -39,5 +39,14 @@ suite("Extension Tests", () => {
     );
     assert.notStrictEqual(ret, null);
     assert.strictEqual("d:/abc/efg/images/test.png", ret.targetFile.fsPath);
+
+    ret = paster.Paster.parsePasteImageContext(
+      "w:/Source Markdown/Build Ours Blog/images/test.gif"
+    );
+    assert.notStrictEqual(ret, null);
+    assert.strictEqual(
+      "w:/Source Markdown/Build Ours Blog/images/test.gif",
+      ret.targetFile.fsPath
+    );
   });
 });
