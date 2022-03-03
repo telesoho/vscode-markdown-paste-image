@@ -209,9 +209,9 @@ Smartly paste for Markdown.
 
    https://github.com/telesoho/vscode-markdown-paste-image/issues/6
 
-## Contact
+## Contributing
 
-If you have some any question or advice, Welcome to [issue](https://github.com/telesoho/vscode-markdown-paste-image/issues)
+See [the contribution guidelines](./CONTRIBUTING.md) for ideas and guidance on how to improve the extension. Thank you!
 
 ## License
 
