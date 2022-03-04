@@ -10,7 +10,7 @@ For general details on developing VS Code extensions see the [VS Code API docs](
 
 ## Project Structure
 
-There's a lot of configuration for how Code interacts with Dart Code in `package.json` though the main entry point is the `activate` method in `src/extension.ts`. Functionality is split into classes that provide small pieces of functionality via the Code APIs ([which are documented here](https://code.visualstudio.com/docs/extensionAPI/vscode-api)).
+There's a lot of configuration for how Code interacts in `package.json` though the main entry point is the `activate` method in `src/extension.ts`. Functionality is split into classes that provide small pieces of functionality via the Code APIs ([which are documented here](https://code.visualstudio.com/docs/extensionAPI/vscode-api)).
 
 Source code is split into several top level folders:
 
