@@ -573,7 +573,12 @@ class Paster {
           );
           return;
         }
+
+        if (imagePath.substring(1, 2) === ":") {
+          imagePath = "file:///" + imagePath;
+        }
         pasteImgContext.targetFile = vscode.Uri.parse(imagePath);
+
         this.renderMarkdownLink(pasteImgContext);
       })
       .catch((err) => {

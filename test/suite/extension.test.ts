@@ -5,7 +5,7 @@
 
 // The module 'assert' provides assertion methods from node
 import * as assert from "assert";
-
+import * as vscode from "vscode";
 import * as fs from "fs";
 import * as utils from "../../src/utils";
 
@@ -47,6 +47,16 @@ suite("Extension Tests", () => {
     assert.strictEqual(
       "w:/Source Markdown/Build Ours Blog/images/test.gif",
       ret.targetFile.fsPath
+    );
+
+    let imagePath = "w:/Source Markdown/Build Ours Blog/images/test.gif";
+    if (imagePath.substring(1, 2) === ":") {
+      imagePath = "file:///" + imagePath;
+    }
+    let targetFile = vscode.Uri.parse(imagePath);
+    assert.strictEqual(
+      targetFile.fsPath,
+      "w:/Source Markdown/Build Ours Blog/images/test.gif"
     );
   });
 });
