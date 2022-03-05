@@ -193,7 +193,8 @@ class Paster {
     let editor = vscode.window.activeTextEditor;
     let fileUri = editor && editor.document.uri;
     let filePath = fileUri && fileUri.fsPath;
-    let fileWorkspaceFolderUri = vscode.workspace.getWorkspaceFolder(fileUri);
+    let fileWorkspaceFolderUri =
+      fileUri && vscode.workspace.getWorkspaceFolder(fileUri);
     let fileWorkspaceFolder =
       (fileWorkspaceFolderUri && fileWorkspaceFolderUri.uri.fsPath) || "";
 

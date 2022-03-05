@@ -7,6 +7,7 @@
 import * as assert from "assert";
 import * as vscode from "vscode";
 import * as fs from "fs";
+import "../../src/extension";
 import * as utils from "../../src/utils";
 
 var rewire = require("rewire");
