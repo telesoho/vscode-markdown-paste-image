@@ -39,3 +39,7 @@ jobs:
 
       - name: npm test
         run: npm test
+        env:
+          CI: true
+          ELECTRON_NO_ATTACH_CONSOLE: 1
+          DISPLAY: ":99.0"
