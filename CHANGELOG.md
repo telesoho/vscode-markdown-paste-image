@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.18.6 (March 5, 2022)
+
+- Fix #76: Windows: Markdown Download always saved to C:\
+
 ## 0.18.4 (February 19, 2022)
 
 - Fix: parse lang_rules output not correct
