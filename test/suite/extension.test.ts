@@ -39,15 +39,17 @@ suite("Extension Tests", () => {
       "d:/abc/efg/images/test.png"
     );
     assert.notStrictEqual(ret, null);
-    assert.strictEqual("d:/abc/efg/images/test.png", ret.targetFile.fsPath);
+    assert.strictEqual(
+      "d:/abc/efg/images/test.png",
+      paster.Paster.encodePath(ret.targetFile.fsPath)
+    );
 
     ret = paster.Paster.parsePasteImageContext(
       "w:/Source Markdown/Build Ours Blog/images/test.gif"
     );
-    assert.notStrictEqual(ret, null);
     assert.strictEqual(
-      "w:/Source Markdown/Build Ours Blog/images/test.gif",
-      ret.targetFile.fsPath
+      "w:/Source%20Markdown/Build%20Ours%20Blog/images/test.gif",
+      paster.Paster.encodePath(ret.targetFile.fsPath)
     );
 
     let imagePath = "w:/Source Markdown/Build Ours Blog/images/test.gif";
@@ -56,8 +58,8 @@ suite("Extension Tests", () => {
     }
     let targetFile = vscode.Uri.parse(imagePath);
     assert.strictEqual(
-      targetFile.fsPath,
-      "w:/Source Markdown/Build Ours Blog/images/test.gif"
+      paster.Paster.encodePath(targetFile.fsPath),
+      "w:/Source%20Markdown/Build%20Ours%20Blog/images/test.gif"
     );
   });
 });
