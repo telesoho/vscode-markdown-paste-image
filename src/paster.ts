@@ -201,7 +201,7 @@ class Paster {
     let fileWorkspaceFolder =
       (fileWorkspaceFolderUri && fileWorkspaceFolderUri.uri.fsPath) || "";
 
-    replaceMap["${datetime}"] = moment().format("Y-MM-DD-HH-mm-ss");
+    replaceMap["${datetime}"] = moment().format("yyyyMMDDHHmmss");
     replaceMap["${fileWorkspaceFolder}"] = fileWorkspaceFolder;
 
     if (filePath) {
@@ -347,7 +347,7 @@ class Paster {
     if (imgTag) {
       return `<img src='${imageFilePath}' width='${imgTag.width}' height='${imgTag.height}'/>`;
     }
-    return `![](${imageFilePath})`;
+    return `![](${imageFilePath})  `;
   }
 
   private static renderMdImageBase64(
@@ -365,7 +365,7 @@ class Paster {
     if (imgTag) {
       renderText = `<img src='data:image/png;base64,${renderText}' width='${imgTag.width}' height='${imgTag.height}'/>`;
     } else {
-      renderText = `![](data:image/png;base64,${renderText})`;
+      renderText = `![](data:image/png;base64,${renderText})  `;
     }
 
     const rmOptions: RmOptions = {
@@ -488,7 +488,7 @@ class Paster {
             path.relative(path.dirname(current_file_path), content)
           );
 
-          return `![](${relative_path})`;
+          return `![](${relative_path})  `;
         }
       }
     } catch (error) {
