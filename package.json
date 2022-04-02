@@ -52,7 +52,10 @@
     "watch": "tsc -watch -p ./",
     "pretest": "npm run prettier && npm run lint && tsc --project ./ts-test.json",
     "lint": "eslint src --ext ts",
-    "test": "node ./out_test/test/runTest.js"
+    "test": "node ./out_test/test/runTest.js",
+    "preinstall": "npx vsce package",
+    "install": "code --install-extension ./vscode-markdown-paste-image-*.vsix"
+
   },
   "contributes": {
     "configuration": {
