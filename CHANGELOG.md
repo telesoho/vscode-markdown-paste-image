@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.18.7 (April 7, 2022)
+
+- Fix #83 pasting does not work in WSL
+
 ## 0.18.6 (March 5, 2022)
 
 - Fix #76: Windows: Markdown Download always saved to C:\

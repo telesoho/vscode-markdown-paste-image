@@ -812,7 +812,7 @@ class Paster {
           "-nologo",
           "-sta",
           "-executionpolicy",
-          "unrestricted",
+          "bypass",
           "-windowstyle",
           "hidden",
           "-file",
