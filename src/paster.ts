@@ -121,7 +121,6 @@ class Paster {
       case ClipboardType.Image:
         Paster.pasteImage();
         break;
-      case ClipboardType.Apple:
       case ClipboardType.Unknown:
         // Probably missing script to support type detection
         const textContent = clipboard.readSync();
@@ -144,7 +143,6 @@ class Paster {
     Logger.log("Clipboard Type:", ctx_type);
     switch (ctx_type) {
       case ClipboardType.Html:
-      case ClipboardType.Apple:
       case ClipboardType.Text:
         const text = await this.pasteTextPlain();
         if (text) {
@@ -507,7 +505,7 @@ class Paster {
     const script = {
       win32: "win32_get_clipboard_text_plain.ps1",
       linux: "linux_get_clipboard_text_plain.sh",
-      darwin: "mac_get_clipboard_text_plain.applescript",
+      darwin: "darwin_get_clipboard_text_plain.applescript",
       wsl: "win32_get_clipboard_text_plain.ps1",
       win10: "win32_get_clipboard_text_plain.ps1",
     };
@@ -742,6 +740,19 @@ class Paster {
           }
         }
         break;
+      case "darwin":
+        for (const type of types) {
+          switch (type) {
+            case "Text":
+              detectedTypes.add(ClipboardType.Text);
+              break;
+            case "HTML":
+              detectedTypes.add(ClipboardType.Html);
+            case "Image":
+              detectedTypes.add(ClipboardType.Image);
+          }
+        }
+        break;
     }
 
     // Set priority based on which to return type
@@ -760,16 +771,12 @@ class Paster {
     const script = {
       linux: "linux_get_clipboard_content_type.sh",
       win32: "win32_get_clipboard_content_type.ps1",
-      darwin: null,
+      darwin: "darwin_get_clipboard_content_type.applescript",
       wsl: "win32_get_clipboard_content_type.ps1",
       win10: "win32_get_clipboard_content_type.ps1",
     };
 
     try {
-      let platform = getCurrentPlatform();
-      if (platform === "darwin") {
-        return ClipboardType.Apple;
-      }
       let data = await this.runScript(script, []);
       Logger.log("getClipboardContentType", data);
       if (data == "no xclip") {
