@@ -21,7 +21,6 @@ enum ClipboardType {
   Html = 0,
   Text,
   Image,
-  Apple,
 }
 
 class PasteImageContext {
@@ -826,7 +825,7 @@ class Paster {
           "-nologo",
           "-sta",
           "-executionpolicy",
-          "unrestricted",
+          "bypass",
           "-windowstyle",
           "hidden",
           "-file",
