@@ -53,8 +53,8 @@
     "pretest": "npm run prettier && npm run lint && tsc --project ./ts-test.json",
     "lint": "eslint src --ext ts",
     "test": "node ./out_test/test/runTest.js",
-    "preinstall": "npx vsce package",
-    "install": "code --install-extension ./vscode-markdown-paste-image-*.vsix"
+    "dev:preinstall": "npx vsce package",
+    "dev:install": "code --install-extension ./vscode-markdown-paste-image-*.vsix"
 
   },
   "contributes": {
