@@ -198,7 +198,7 @@ class Paster {
     let fileWorkspaceFolder =
       (fileWorkspaceFolderUri && fileWorkspaceFolderUri.uri.fsPath) || "";
 
-    replaceMap["${datetime}"] = moment().format("Y-MM-DD-HH-mm-ss");
+    replaceMap["${datetime}"] = moment().format("yyyyMMDDHHmmss");
     replaceMap["${fileWorkspaceFolder}"] = fileWorkspaceFolder;
 
     if (filePath) {
@@ -344,7 +344,7 @@ class Paster {
     if (imgTag) {
       return `<img src='${imageFilePath}' width='${imgTag.width}' height='${imgTag.height}'/>`;
     }
-    return `![](${imageFilePath})`;
+    return `![](${imageFilePath})  `;
   }
 
   private static renderMdImageBase64(
@@ -362,7 +362,7 @@ class Paster {
     if (imgTag) {
       renderText = `<img src='data:image/png;base64,${renderText}' width='${imgTag.width}' height='${imgTag.height}'/>`;
     } else {
-      renderText = `![](data:image/png;base64,${renderText})`;
+      renderText = `![](data:image/png;base64,${renderText})  `;
     }
 
     const rmOptions: RmOptions = {
@@ -485,7 +485,7 @@ class Paster {
             path.relative(path.dirname(current_file_path), content)
           );
 
-          return `![](${relative_path})`;
+          return `![](${relative_path})  `;
         }
       }
     } catch (error) {
@@ -504,7 +504,7 @@ class Paster {
     const script = {
       win32: "win32_get_clipboard_text_plain.ps1",
       linux: "linux_get_clipboard_text_plain.sh",
-      darwin: null,
+      darwin: "darwin_get_clipboard_text_plain.applescript",
       wsl: "win32_get_clipboard_text_plain.ps1",
       win10: "win32_get_clipboard_text_plain.ps1",
     };
@@ -739,6 +739,19 @@ class Paster {
           }
         }
         break;
+      case "darwin":
+        for (const type of types) {
+          switch (type) {
+            case "Text":
+              detectedTypes.add(ClipboardType.Text);
+              break;
+            case "HTML":
+              detectedTypes.add(ClipboardType.Html);
+            case "Image":
+              detectedTypes.add(ClipboardType.Image);
+          }
+        }
+        break;
     }
 
     // Set priority based on which to return type
@@ -757,7 +770,7 @@ class Paster {
     const script = {
       linux: "linux_get_clipboard_content_type.sh",
       win32: "win32_get_clipboard_content_type.ps1",
-      darwin: null,
+      darwin: "darwin_get_clipboard_content_type.applescript",
       wsl: "win32_get_clipboard_content_type.ps1",
       win10: "win32_get_clipboard_content_type.ps1",
     };
