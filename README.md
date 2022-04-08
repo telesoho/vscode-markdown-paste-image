@@ -67,7 +67,7 @@ Smartly paste for Markdown.
   - `${fileBasenameNoExtension}` - the current opened file's base name with no file extension
   - `${fileExtname}` - the current opened file's extension
   - `${fileDirname}` - the current opened file's directory name
-  - `${datetime}` - the current date & time formatted by `"Y-MM-DD-HH-mm-ss"`
+  - `${datetime}` - the current date & time formatted by `"yyyyMMDDHHmmss"`
 
 - `MarkdownPaste.path`
 
