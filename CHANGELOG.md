@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.19.0 (April 8, 2022)
+
+- Added macOS get clipboard content type script. #84
+
 ## 0.18.7 (April 7, 2022)
 
 - Fix #83 pasting does not work in WSL
