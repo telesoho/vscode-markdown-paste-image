@@ -61,5 +61,10 @@ suite("Extension Tests", () => {
       paster.Paster.encodePath(targetFile.fsPath),
       "w:/Source%20Markdown/Build%20Ours%20Blog/images/test.gif"
     );
+
+    ret = paster.Paster.parsePasteImageContext(
+      "d:/Source Markdown/Build Ours Blog/images/"
+    );
+    assert.strictEqual(ret.convertToBase64, true);
   });
 });

@@ -1,6 +1,5 @@
 # Change Log
 
-
 ## 0.19.1 (May 28, 2022)
 
 - Fixed paste as base64 not work on Windows. #86
