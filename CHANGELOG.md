@@ -1,5 +1,10 @@
 # Change Log
 
+
+## 0.19.1 (May 28, 2022)
+
+- Fixed paste as base64 not work on Windows. #86
+
 ## 0.19.0 (April 8, 2022)
 
 - Added macOS get clipboard content type script. #84
