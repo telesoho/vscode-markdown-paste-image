@@ -4,6 +4,8 @@ import { spawn } from "child_process";
 import * as moment from "moment";
 import * as vscode from "vscode";
 import { toMarkdown } from "./toMarkdown";
+import * as fs from "fs";
+
 import {
   prepareDirForFile,
   fetchAndSaveFile,
@@ -270,7 +272,7 @@ class Paster {
 
     let inputUri = vscode.Uri.parse(inputVal);
 
-    if (inputUri.fsPath.slice(inputUri.fsPath.length - 1) == "/") {
+    if (fs.lstatSync(inputUri.fsPath).isDirectory()) {
       // While filename is empty(ex: /abc/?200,20),  paste clipboard to a temporay file, then convert it to base64 image to markdown.
       pasteImgContext.targetFile = newTemporaryFilename();
       pasteImgContext.convertToBase64 = true;
