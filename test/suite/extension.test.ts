@@ -62,4 +62,14 @@ suite("Extension Tests", () => {
       "w:/Source%20Markdown/Build%20Ours%20Blog/images/test.gif"
     );
   });
+  test("getDimensionProps test", () => {
+    let ret = paster.Paster.getDimensionProps(undefined, 200);
+    assert.strictEqual(ret, "height='200'");
+
+    ret = paster.Paster.getDimensionProps(200, 200);
+    assert.strictEqual(ret, "width='200' height='200'");
+
+    ret = paster.Paster.getDimensionProps(200, undefined);
+    assert.strictEqual(ret, "width='200'");
+  });
 });

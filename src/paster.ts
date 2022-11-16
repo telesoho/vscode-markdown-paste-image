@@ -320,6 +320,13 @@ class Paster {
     this.renderMarkdownLink(pasteImgContext);
   }
 
+  private static getDimensionProps(width: any, height: any) {
+    const widthProp = width === undefined ? "" : `width='${width}'`;
+    const heightProp = height === undefined ? "" : `height='${height}'`;
+
+    return [widthProp, heightProp].join(" ").trim();
+  }
+
   private static renderMdFilePath(pasteImgContext: PasteImageContext): string {
     let editor = vscode.window.activeTextEditor;
     if (!editor) return;
@@ -342,7 +349,10 @@ class Paster {
     //"../../static/images/vscode-paste/cover.png".replace(new RegExp("(.*/static/)(.*)", ""), "/$2")
     let imgTag = pasteImgContext.imgTag;
     if (imgTag) {
-      return `<img src='${imageFilePath}' width='${imgTag.width}' height='${imgTag.height}'/>`;
+      return `<img src='${imageFilePath}' ${this.getDimensionProps(
+        imgTag.width,
+        imgTag.height
+      )}/>`;
     }
     return `![](${imageFilePath})  `;
   }
@@ -360,7 +370,10 @@ class Paster {
     let renderText = base64Encode(pasteImgContext.targetFile.fsPath);
     let imgTag = pasteImgContext.imgTag;
     if (imgTag) {
-      renderText = `<img src='data:image/png;base64,${renderText}' width='${imgTag.width}' height='${imgTag.height}'/>`;
+      renderText = `<img src='data:image/png;base64,${renderText}' ${this.getDimensionProps(
+        imgTag.width,
+        imgTag.height
+      )}/>`;
     } else {
       renderText = `![](data:image/png;base64,${renderText})  `;
     }

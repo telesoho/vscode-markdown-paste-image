@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.19.1 (November 16, 2022)
+
+- Fix #90: allow passing width only
+
 ## 0.19.0 (April 8, 2022)
 
 - Added macOS get clipboard content type script. #84
