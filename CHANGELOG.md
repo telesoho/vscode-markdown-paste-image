@@ -1,8 +1,12 @@
 # Change Log
 
-## 0.19.1 (November 16, 2022)
+## 0.19.2 (November 16, 2022)
 
 - Fix #90: allow passing width only
+
+## 0.19.1 (May 28, 2022)
+
+- Fixed paste as base64 not work on Windows. #86
 
 ## 0.19.0 (April 8, 2022)
 
