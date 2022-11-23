@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.19.3 (November 23, 2022)
+
+- Add: ${datetime|format} supported. #91  
+
 ## 0.19.2 (November 16, 2022)
 
 - Fix #90: allow passing width only

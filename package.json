@@ -2,7 +2,7 @@
   "name": "vscode-markdown-paste-image",
   "displayName": "Markdown Paste",
   "description": "A smartly paste for markdown.",
-  "version": "0.19.2",
+  "version": "0.19.3",
   "publisher": "telesoho",
   "author": {
     "name": "telesoho",
@@ -70,7 +70,7 @@
         "MarkdownPaste.nameBase": {
           "type": "string",
           "scope": "resource",
-          "default": "${datetime}",
+          "default": "${datetime|yyyyMMDDHHmmss}",
           "description": "The string of default image file name."
         },
         "MarkdownPaste.namePrefix": {

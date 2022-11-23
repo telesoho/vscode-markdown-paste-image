@@ -67,7 +67,7 @@ Smartly paste for Markdown.
   - `${fileBasenameNoExtension}` - the current opened file's base name with no file extension
   - `${fileExtname}` - the current opened file's extension
   - `${fileDirname}` - the current opened file's directory name
-  - `${datetime}` - the current date & time formatted by `"yyyyMMDDHHmmss"`
+  - `${datetime}` - the current date & time formatted by `"yyyyMMDDHHmmss"`, You can customize the format by format string. exp: `${datetime|yyyy-MM-DD_HH-mm-ss}`
 
 - `MarkdownPaste.path`
 
@@ -79,7 +79,7 @@ Smartly paste for Markdown.
 
   The string as the default image file name. Support predefined variables.
 
-  Default value is `${datetime}`.
+  Default value is `${datetime|yyyyMMDDHHmmss}`.
 
 - `MarkdownPaste.namePrefix`
 

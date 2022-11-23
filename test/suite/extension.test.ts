@@ -8,6 +8,7 @@ import * as assert from "assert";
 import * as vscode from "vscode";
 import * as fs from "fs";
 import "../../src/extension";
+import { Predefine } from "../../src/predefine";
 import * as utils from "../../src/utils";
 
 var rewire = require("rewire");
@@ -76,5 +77,83 @@ suite("Extension Tests", () => {
 
     ret = paster.Paster.getDimensionProps(200, undefined);
     assert.strictEqual(ret, "width='200'");
+  });
+  test("replaceRegPredefinedVars test", () => {
+    class PredefineTest extends Predefine {
+      public datetime(dateformat: string = "yyyyMMDDHHmmss") {
+        return `datetime('${dateformat}')`;
+      }
+
+      public workspaceRoot() {
+        return "/telesoho/workspaceRoot";
+      }
+
+      public filePath() {
+        return "/telesoho/filepath";
+      }
+
+      public fileWorkspaceFolder() {
+        return "/telesoho/fileWorkspaceFolder";
+      }
+
+      public fileBasename(): string {
+        return "fileBasename.test";
+      }
+
+      public fileExtname(): string {
+        return "test";
+      }
+
+      public fileBasenameNoExtension(): string {
+        return "fileBasename";
+      }
+      public fileDirname(): string {
+        return "/telesoho/fileDirname";
+      }
+    }
+    let predefine = new PredefineTest();
+    let str = "";
+    let ret_expect = "";
+    let ret = null;
+
+    str = "${workspaceRoot},${datetime|aabbccddee},${fileExtname}";
+    ret_expect = "/telesoho/workspaceRoot,datetime('aabbccddee'),test";
+    ret = paster.Paster.replaceRegPredefinedVars(str, predefine);
+    assert.strictEqual(ret, ret_expect);
+
+    str = "${workspaceRoot}";
+    ret_expect = "/telesoho/workspaceRoot";
+    ret = paster.Paster.replaceRegPredefinedVars(str, predefine);
+    assert.strictEqual(ret, ret_expect);
+
+    str = "${ workspaceRoot }";
+    ret_expect = "/telesoho/workspaceRoot";
+    ret = paster.Paster.replaceRegPredefinedVars(str, predefine);
+    assert.strictEqual(ret, ret_expect);
+
+    str = "${datetime}";
+    ret_expect = "datetime('yyyyMMDDHHmmss')";
+    ret = paster.Paster.replaceRegPredefinedVars(str, predefine);
+    assert.strictEqual(ret, ret_expect);
+
+    str = "${ datetime | abc }";
+    ret_expect = "datetime(' abc ')";
+    ret = paster.Paster.replaceRegPredefinedVars(str, predefine);
+    assert.strictEqual(ret, ret_expect);
+
+    str = "${ datetime| abc}";
+    ret_expect = "datetime(' abc')";
+    ret = paster.Paster.replaceRegPredefinedVars(str, predefine);
+    assert.strictEqual(ret, ret_expect);
+
+    str = "${ datetime|ab c}";
+    ret_expect = "datetime('ab c')";
+    ret = paster.Paster.replaceRegPredefinedVars(str, predefine);
+    assert.strictEqual(ret, ret_expect);
+
+    str = "${notExist}";
+    ret_expect = "${notExist}";
+    ret = paster.Paster.replaceRegPredefinedVars(str, predefine);
+    assert.strictEqual(ret, ret_expect);
   });
 });

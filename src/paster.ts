@@ -4,6 +4,7 @@ import { spawn } from "child_process";
 import * as moment from "moment";
 import * as vscode from "vscode";
 import { toMarkdown } from "./toMarkdown";
+import { Predefine } from "./predefine";
 
 import {
   prepareDirForFile,
@@ -183,41 +184,38 @@ class Paster {
    * @param str path
    * @returns
    */
-  private static replacePredefinedVars(str) {
-    let replaceMap = {
-      "${workspaceRoot}":
-        (vscode.workspace.workspaceFolders &&
-          vscode.workspace.workspaceFolders[0].uri.fsPath) ||
-        "",
-    };
+  private static replacePredefinedVars(str: string) {
+    let predefine = new Predefine();
+    return this.replaceRegPredefinedVars(str, predefine);
+  }
 
-    let editor = vscode.window.activeTextEditor;
-    let fileUri = editor && editor.document.uri;
-    let filePath = fileUri && fileUri.fsPath;
-    let fileWorkspaceFolderUri =
-      fileUri && vscode.workspace.getWorkspaceFolder(fileUri);
-    let fileWorkspaceFolder =
-      (fileWorkspaceFolderUri && fileWorkspaceFolderUri.uri.fsPath) || "";
+  /**
+   * Replace all predefined variable with Regexp.
+   * @param str path
+   * @returns
+   */
+  private static replaceRegPredefinedVars(str: string, predefine: Predefine) {
+    const regex = /(?<var>\$\{\s*(?<name>\w+)\s*(\|(?<param>.*?))?\})/gm;
 
-    replaceMap["${datetime}"] = moment().format("yyyyMMDDHHmmss");
-    replaceMap["${fileWorkspaceFolder}"] = fileWorkspaceFolder;
+    let ret: string = str;
+    let m: RegExpExecArray;
 
-    if (filePath) {
-      replaceMap["${fileExtname}"] = path.extname(filePath);
-      replaceMap["${fileBasenameNoExtension}"] = path.basename(
-        filePath,
-        replaceMap["${fileExtname}"]
-      );
-      replaceMap["${fileBasename}"] = path.basename(filePath);
-      replaceMap["${fileDirname}"] = path.dirname(filePath);
-    }
+    while ((m = regex.exec(str)) !== null) {
+      // This is necessary to avoid infinite loops with zero-width matches
+      if (m.index === regex.lastIndex) {
+        regex.lastIndex++;
+      }
 
-    for (const search in replaceMap) {
-      str = str.replace(search, replaceMap[search]);
+      if (m.groups.name in predefine) {
+        ret = ret.replace(
+          m.groups.var,
+          predefine[m.groups.name](m.groups.param)
+        );
+      }
     }
 
     // User may be input a path with backward slashes (\), so need to replace all '\' to '/'.
-    return str.replace(/\\/g, "/");
+    return ret.replace(/\\/g, "/");
   }
 
   protected static getConfig() {
