@@ -5,7 +5,7 @@
       "name": "Launch Extension",
       "outFiles": ["${workspaceFolder}/out/**/*.js"],
       "request": "launch",
-      "type": "pwa-extensionHost",
+      "type": "extensionHost",
       "preLaunchTask": "npm: compile"
     },
     {

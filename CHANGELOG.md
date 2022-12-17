@@ -1,8 +1,12 @@
 # Change Log
 
+## 0.19.4 (December 17, 2022)
+
+- Add ${relativeFileDirname} ${workspaceFolderBasename} ${file} predefines. #89 #93 
+
 ## 0.19.3 (November 23, 2022)
 
-- Add: ${datetime|format} supported. #91  
+- Add: ${datetime|format} supported. #91
 
 ## 0.19.2 (November 16, 2022)
 

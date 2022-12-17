@@ -61,8 +61,11 @@ Smartly paste for Markdown.
 
 - Predefined variables
 
-  - `${workspaceRoot}` - the path of the folder opened in VS Code
-  - `${fileWorkspaceFolder}` - - the current opened file's workspace folder
+  - `${workspaceRoot}` or `${workspaceFolder}` - the path of the folder opened in VS Code
+  - `${workspaceFolderBasename}` - the name of the folder opened in VS Code without any slashes (/)
+  - `${fileWorkspaceFolder}` - the current opened file's workspace folder
+  - `${file}` or `${filePath}` - the current opened file
+  - `${relativeFileDirname}` - the current opened file's dirname relative to `$fileWorkspaceFolder`
   - `${fileBasename}` - the current opened file's base name
   - `${fileBasenameNoExtension}` - the current opened file's base name with no file extension
   - `${fileExtname}` - the current opened file's extension

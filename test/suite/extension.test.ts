@@ -89,26 +89,25 @@ suite("Extension Tests", () => {
       }
 
       public filePath() {
-        return "/telesoho/filepath";
+        return `${this.fileDirname()}/${this.fileBasename()}`;
       }
-
       public fileWorkspaceFolder() {
         return "/telesoho/fileWorkspaceFolder";
       }
 
       public fileBasename(): string {
-        return "fileBasename.test";
+        return `fileBasenameNoExtension.${this.fileExtname()}`;
       }
 
       public fileExtname(): string {
-        return "test";
+        return "fileExtname";
       }
 
       public fileBasenameNoExtension(): string {
-        return "fileBasename";
+        return "fileBasenameNoExtension";
       }
       public fileDirname(): string {
-        return "/telesoho/fileDirname";
+        return `${this.fileWorkspaceFolder()}/filedir`;
       }
     }
     let predefine = new PredefineTest();
@@ -117,7 +116,7 @@ suite("Extension Tests", () => {
     let ret = null;
 
     str = "${workspaceRoot},${datetime|aabbccddee},${fileExtname}";
-    ret_expect = "/telesoho/workspaceRoot,datetime('aabbccddee'),test";
+    ret_expect = "/telesoho/workspaceRoot,datetime('aabbccddee'),fileExtname";
     ret = paster.Paster.replaceRegPredefinedVars(str, predefine);
     assert.strictEqual(ret, ret_expect);
 
@@ -153,6 +152,21 @@ suite("Extension Tests", () => {
 
     str = "${notExist}";
     ret_expect = "${notExist}";
+    ret = paster.Paster.replaceRegPredefinedVars(str, predefine);
+    assert.strictEqual(ret, ret_expect);
+
+    str = "${notExist}";
+    ret_expect = "${notExist}";
+    ret = paster.Paster.replaceRegPredefinedVars(str, predefine);
+    assert.strictEqual(ret, ret_expect);
+
+    str = "${relativeFileDirname}";
+    ret_expect = "filedir";
+    ret = paster.Paster.replaceRegPredefinedVars(str, predefine);
+    assert.strictEqual(ret, ret_expect);
+
+    str = "${workspaceFolderBasename}";
+    ret_expect = "fileWorkspaceFolder";
     ret = paster.Paster.replaceRegPredefinedVars(str, predefine);
     assert.strictEqual(ret, ret_expect);
   });

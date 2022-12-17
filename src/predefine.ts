@@ -47,6 +47,10 @@ class Predefine {
     );
   }
 
+  public workspaceFolder() {
+    return this.workspaceRoot();
+  }
+
   public filePath() {
     return this._filePath;
   }
@@ -68,6 +72,26 @@ class Predefine {
   }
   public fileDirname(): string {
     return this._fileDirname;
+  }
+  /**
+   * the current opened file's dirname relative to `$fileWorkspaceFolder`
+   */
+  public relativeFileDirname(): string {
+    return path.relative(this.fileWorkspaceFolder(), this.fileDirname());
+  }
+
+  /**
+   * 
+   * @returns the name of the folder opened in VS Code without any slashes (/)
+   */
+  public workspaceFolderBasename(): string {
+    return path.basename(this.fileWorkspaceFolder());
+  }
+  /**
+   * ${file} - the current opened file
+   */
+  public file(): string {
+    return this.filePath();
   }
 }
 
