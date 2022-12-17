@@ -81,14 +81,13 @@ class Predefine {
   }
 
   /**
-   * 
-   * @returns the name of the folder opened in VS Code without any slashes (/)
+   * the name of the folder opened in VS Code without any slashes (/)
    */
   public workspaceFolderBasename(): string {
     return path.basename(this.fileWorkspaceFolder());
   }
   /**
-   * ${file} - the current opened file
+   * the current opened file
    */
   public file(): string {
     return this.filePath();

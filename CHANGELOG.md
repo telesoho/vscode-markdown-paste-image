@@ -2,7 +2,7 @@
 
 ## 0.19.4 (December 17, 2022)
 
-- Add ${relativeFileDirname} ${workspaceFolderBasename} ${file} predefines. #89 #93 
+- Add ${relativeFileDirname} ${workspaceFolderBasename} ${file} predefines. #89 #93
 
 ## 0.19.3 (November 23, 2022)
 
