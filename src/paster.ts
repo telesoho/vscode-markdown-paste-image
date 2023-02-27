@@ -354,7 +354,7 @@ class Paster {
         imgTag.height
       )}/>`;
     }
-    return `![](${imageFilePath})  `;
+    return `![](${imageFilePath})`;
   }
 
   private static renderMdImageBase64(
@@ -375,7 +375,7 @@ class Paster {
         imgTag.height
       )}/>`;
     } else {
-      renderText = `![](data:image/png;base64,${renderText})  `;
+      renderText = `![](data:image/png;base64,${renderText})`;
     }
 
     const rmOptions: RmOptions = {
@@ -498,7 +498,7 @@ class Paster {
             path.relative(path.dirname(current_file_path), content)
           );
 
-          return `![](${relative_path})  `;
+          return `![](${relative_path})`;
         }
       }
     } catch (error) {
