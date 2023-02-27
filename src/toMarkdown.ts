@@ -31,21 +31,21 @@ function cell(content, node) {
 function toMarkdown(content) {
   // http://pandoc.org/README.html#pandocs-markdown
   const pandoc = [
-    {
-      filter: "h1",
-      replacement: function (content, node) {
-        const underline = Array(content.length + 1).join("=");
-        return "\n\n" + content + "\n" + underline + "\n\n";
-      },
-    },
+    // {
+    //   filter: "h1",
+    //   replacement: function (content, node) {
+    //     const underline = Array(content.length + 1).join("=");
+    //     return "\n\n" + content + "\n" + underline + "\n\n";
+    //   },
+    // },
 
-    {
-      filter: "h2",
-      replacement: function (content, node) {
-        const underline = Array(content.length + 1).join("-");
-        return "\n\n" + content + "\n" + underline + "\n\n";
-      },
-    },
+    // {
+    //   filter: "h2",
+    //   replacement: function (content, node) {
+    //     const underline = Array(content.length + 1).join("-");
+    //     return "\n\n" + content + "\n" + underline + "\n\n";
+    //   },
+    // },
 
     {
       filter: "sup",
@@ -110,8 +110,10 @@ function toMarkdown(content) {
           return "<" + url + ">";
         } else if (url === "mailto:" + content) {
           return "<" + content + ">";
-        } else {
+        } else if (content !== "") {
           return "[" + content + "](" + url + titlePart + ")";
+        } else {
+          return "";
         }
       },
     },
@@ -135,9 +137,15 @@ function toMarkdown(content) {
       },
     },
     {
-      filter: ["font", "span", "div"],
+      filter: ["font", "span"],
       replacement: function (content) {
         return content;
+      },
+    },
+    {
+      filter: ["div"],
+      replacement: function (content) {
+        return content + "\n";
       },
     },
     {
