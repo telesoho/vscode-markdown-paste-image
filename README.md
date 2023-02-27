@@ -160,6 +160,28 @@ Smartly paste for Markdown.
 
   **NOTE** While pasting image, this option also apply to render image path link.
 
+
+- `MarkdownPaste.applyAllRules`
+
+  If true, it will apply all rules to the same text orderly, instead only the first applicable one.
+  
+  Default value is `True`.
+
+
+- `MarkdownPaste.enableHtmlConverter`
+
+  Enable/disable converting html to markdown. 
+  
+  Default value is `True`.
+
+
+- `MarkdownPaste.enableRulesForHtml`
+
+  Enable/disable using rules after converting html to markdown. 
+  
+  Default value is `True`.
+
+
 - `MarkdownPaste.lang_rules`
 
   As `MarkdownPaste.rules`, you can define rules for other language (for example: asciidoc).

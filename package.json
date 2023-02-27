@@ -2,7 +2,7 @@
   "name": "vscode-markdown-paste-image",
   "displayName": "Markdown Paste",
   "description": "A smartly paste for markdown.",
-  "version": "0.19.4",
+  "version": "0.20.0",
   "publisher": "telesoho",
   "author": {
     "name": "telesoho",
@@ -37,11 +37,6 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:telesoho.MarkdownDownload",
-    "onCommand:telesoho.MarkdownPaste",
-    "onCommand:telesoho.MarkdownRuby",
-    "onCommand:telesoho.insertMathSymbol",
-    "onCommand:telesoho.MarkdownPasteCode"
   ],
   "main": "./out/extension",
   "scripts": {
