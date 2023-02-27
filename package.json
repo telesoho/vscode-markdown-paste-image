@@ -91,6 +91,12 @@
           "default": false,
           "description": "Enable/disable showing confirm box while paste image."
         },
+        "MarkdownPaste.applyAllRules": {
+          "type": "boolean",
+          "scope": "resource",
+          "default": false,
+          "description": "If true, it will apply all rules to the same text orderly, instead only the first applicable one."
+        },
         "MarkdownPaste.enableHtmlConverter": {
           "type": "boolean",
           "scope": "resource",
