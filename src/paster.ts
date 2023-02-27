@@ -503,10 +503,13 @@ class Paster {
     let editor = vscode.window.activeTextEditor;
     let fileUri = editor.document.uri;
 
-    // parse content by rule, if match return replaced string
+    // parse content by rule, if match return replaced string,
+    // else return origin content
     let ret = Paster.parse_rules(content);
     if (typeof ret === "string") {
       return ret;
+    } else {
+      return content;
     }
 
     try {
