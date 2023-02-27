@@ -104,13 +104,29 @@ class Paster {
   public static async pasteText() {
     const ctx_type = await this.getClipboardContentType();
 
+    let enableHtmlConverter = this.getConfig().enableHtmlConverter;
+    let enableRulesForHtml = this.getConfig().enableRulesForHtml;
+
     Logger.log("Clipboard Type:", ctx_type);
     switch (ctx_type) {
       case ClipboardType.Html:
-        const html = await this.pasteTextHtml();
-        Logger.log(html);
-        const markdown = toMarkdown(html);
-        Paster.writeToEditor(markdown);
+        if (enableHtmlConverter) {
+          const html = await this.pasteTextHtml();
+          Logger.log(html);
+          const markdown = toMarkdown(html);
+          if (enableRulesForHtml) {
+            let newMarkdown = Paster.parse(markdown);
+            Paster.writeToEditor(newMarkdown);
+          } else {
+            Paster.writeToEditor(markdown);
+          }
+        } else {
+          const text = await this.pasteTextPlain();
+          if (text) {
+            let newContent = Paster.parse(text);
+            Paster.writeToEditor(newContent);
+          }
+        }
         break;
       case ClipboardType.Text:
         const text = await this.pasteTextPlain();
@@ -354,7 +370,7 @@ class Paster {
         imgTag.height
       )}/>`;
     }
-    return `![](${imageFilePath})  `;
+    return `![](${imageFilePath})`;
   }
 
   private static renderMdImageBase64(
@@ -375,7 +391,7 @@ class Paster {
         imgTag.height
       )}/>`;
     } else {
-      renderText = `![](data:image/png;base64,${renderText})  `;
+      renderText = `![](data:image/png;base64,${renderText})`;
     }
 
     const rmOptions: RmOptions = {
@@ -507,7 +523,7 @@ class Paster {
             path.relative(path.dirname(current_file_path), content)
           );
 
-          return `![](${relative_path})  `;
+          return `![](${relative_path})`;
         }
       }
     } catch (error) {

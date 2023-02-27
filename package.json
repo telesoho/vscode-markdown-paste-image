@@ -97,6 +97,18 @@
           "default": false,
           "description": "If true, it will apply all rules to the same text orderly, instead only the first applicable one."
         },
+        "MarkdownPaste.enableHtmlConverter": {
+          "type": "boolean",
+          "scope": "resource",
+          "default": true,
+          "description": "Enable/disable converting html to markdown."
+        },
+        "MarkdownPaste.enableRulesForHtml": {
+          "type": "boolean",
+          "scope": "resource",
+          "default": true,
+          "description": "Enable/disable using rules after converting html to markdown."
+        },
         "MarkdownPaste.enableImgTag": {
           "type": "boolean",
           "scope": "resource",
