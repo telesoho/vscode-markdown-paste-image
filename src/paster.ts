@@ -463,15 +463,24 @@ class Paster {
     let editor = vscode.window.activeTextEditor;
     let languageId = editor.document.languageId;
     let rules = this.get_rules(languageId);
+    let applyAllRules = this.getConfig().applyAllRules;
+    let isApplicable = false;
     for (const rule of rules) {
       const re = new RegExp(rule.regex, rule.options);
       const reps = rule.replace;
       if (re.test(content)) {
-        const newstr = content.replace(re, reps);
-        return newstr;
+        content = content.replace(re, reps);
+        if (!applyAllRules) {
+          return content;
+        }
+        isApplicable = true;
       }
     }
-    return null;
+    if (isApplicable) {
+      return content;
+    } else {
+      return null;
+    }
   }
 
   private static parse(content) {
