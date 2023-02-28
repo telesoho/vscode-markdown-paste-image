@@ -182,10 +182,6 @@ class Paster {
     editor.insertSnippet(rubyTag);
   }
 
-  private static isHTML(content) {
-    return /<[a-z][\s\S]*>/i.test(content);
-  }
-
   private static writeToEditor(content): Thenable<boolean> {
     let startLine = vscode.window.activeTextEditor.selection.start.line;
     const selection = vscode.window.activeTextEditor.selection;
@@ -508,8 +504,6 @@ class Paster {
     let ret = Paster.parse_rules(content);
     if (typeof ret === "string") {
       return ret;
-    } else {
-      return content;
     }
 
     try {
@@ -532,10 +526,6 @@ class Paster {
     } catch (error) {
       // do nothing
       // Logger.log(error);
-    }
-
-    if (Paster.isHTML(content)) {
-      return toMarkdown(content);
     }
 
     return content;
@@ -678,16 +668,6 @@ class Paster {
     }
 
     let filePath = fileUri.fsPath;
-    // get selection as image file name, need check
-    const selection = editor.selection;
-    const selectText = editor.document.getText(selection);
-
-    if (selectText && !/^[^\\/:\*\?""<>|]{1,120}$/.test(selectText)) {
-      vscode.window.showInformationMessage(
-        "Your selection is not a valid file name!"
-      );
-      return;
-    }
 
     // get image destination path
     let folderPathFromConfig = this.getConfig().path;
@@ -709,12 +689,8 @@ class Paster {
     let namePrefix = this.getConfig().namePrefix;
     let nameBase = this.getConfig().nameBase;
     let nameSuffix = this.getConfig().nameSuffix;
-    if (!selectText) {
-      imageFileName = namePrefix + nameBase + nameSuffix + extension;
-      imageFileName = this.replacePredefinedVars(imageFileName);
-    } else {
-      imageFileName = selectText + extension;
-    }
+    imageFileName = namePrefix + nameBase + nameSuffix + extension;
+    imageFileName = this.replacePredefinedVars(imageFileName);
 
     // image output path
     let folderPath = path.dirname(filePath);
