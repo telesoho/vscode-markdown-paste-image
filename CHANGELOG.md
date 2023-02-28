@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.21.0 (February 28, 2023)
+
+- feat: add ${selectedText} predefine
+
 ## 0.20.0 (February 27, 2023)
 
 - feat: add applyAllRules config 
