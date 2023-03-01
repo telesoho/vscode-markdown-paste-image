@@ -95,11 +95,12 @@ class Predefine {
 
   /**
    * Get current selected text.
+   * @param defaultText
    * @returns
    *  string: selected text
-   *  "" : if selected text contain illegal characters
+   *  defaultText : if selected text contain illegal characters or empty
    */
-  public selectedText(): string {
+  public selectedText(defaultText: string = ""): string {
     const selection = vscode.window.activeTextEditor.selection;
     const selectText =
       vscode.window.activeTextEditor.document.getText(selection);
@@ -108,8 +109,11 @@ class Predefine {
       vscode.window.showInformationMessage(
         "The selected text contains illegal characters that cannot be used as a file name!"
       );
-      return "";
+      return defaultText;
+    } else if (selectText.trim() == "") {
+      return defaultText;
     }
+
     return selectText;
   }
 }
