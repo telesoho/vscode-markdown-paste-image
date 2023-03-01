@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.21.1 (March 1, 2023)
+
+- fix: add default text for ${selectedText}
+
 ## 0.21.0 (February 28, 2023)
 
 - feat: add ${selectedText} predefine
