@@ -253,8 +253,12 @@ function toMarkdown(content) {
       .replace(/^\s+|[\s\\]+$/g, "");
   };
 
-  const to_Markdown = require("to-markdown");
-  return escape(to_Markdown(content, { converters: pandoc }));
+  var TurndownService = require("turndown");
+  var turndownService = new TurndownService();
+  Object.entries(pandoc).forEach(([key, value]) => {
+    turndownService.addRule(key, value);
+  });
+  return escape(turndownService.turndown(content));
 }
 
 export { toMarkdown };
