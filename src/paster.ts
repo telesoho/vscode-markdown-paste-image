@@ -1,8 +1,7 @@
 import * as path from "path";
-import * as clipboard from "clipboardy";
 import { spawn } from "child_process";
-import * as moment from "moment";
 import * as vscode from "vscode";
+import * as clipboard from "./clipboard";
 import { toMarkdown } from "./toMarkdown";
 import { Predefine } from "./predefine";
 
@@ -90,7 +89,7 @@ function runCommand(
 
 class Paster {
   public static async pasteCode() {
-    const content = clipboard.readSync();
+    const content = await clipboard.read();
     if (content) {
       let ld = new LanguageDetection();
       let lang = await ld.detectLanguage(content);
@@ -140,7 +139,7 @@ class Paster {
         break;
       case ClipboardType.Unknown:
         // Probably missing script to support type detection
-        const textContent = clipboard.readSync();
+        const textContent = await clipboard.read();
         // If clipboard has text, paste it
         if (textContent) {
           Paster.writeToEditor(textContent);
@@ -366,7 +365,7 @@ class Paster {
         imgTag.height
       )}/>`;
     }
-    return `![](${imageFilePath})`;
+    return `![${Paster.getAltText()}](${imageFilePath})`;
   }
 
   private static renderMdImageBase64(
@@ -520,7 +519,7 @@ class Paster {
             path.relative(path.dirname(current_file_path), content)
           );
 
-          return `![](${relative_path})`;
+          return `![${Paster.getAltText()}](${relative_path})`;
         }
       }
     } catch (error) {
@@ -885,6 +884,13 @@ class Paster {
     };
 
     return this.runScript(script, [await wslSafe(imagePath)]);
+  }
+
+  private static getAltText(): string {
+    const selection = vscode.window.activeTextEditor.selection;
+    const selectText =
+      vscode.window.activeTextEditor.document.getText(selection);
+    return selectText;
   }
 }
 

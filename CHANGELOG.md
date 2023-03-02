@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.21.2 (March 3, 2023)
+
+- feat: useing selected text as alt text for image.
+
 ## 0.21.1 (March 1, 2023)
 
 - fix: add default text for ${selectedText}
@@ -10,11 +14,11 @@
 
 ## 0.20.0 (February 27, 2023)
 
-- feat: add applyAllRules config 
+- feat: add applyAllRules config
 - feat: add enableHtmlConverter & enableRulesForHtml
-- fix: fix spaces-after-image bug 
-- fix: fix bug in to-markdown 
-- fix: fix chinese character bug in #87 , using the method from #44 
+- fix: fix spaces-after-image bug
+- fix: fix bug in to-markdown
+- fix: fix chinese character bug in #87 , using the method from #44
 
 ## 0.19.4 (December 17, 2022)
 

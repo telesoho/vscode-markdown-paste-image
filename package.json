@@ -2,7 +2,7 @@
   "name": "vscode-markdown-paste-image",
   "displayName": "Markdown Paste",
   "description": "A smartly paste for markdown.",
-  "version": "0.21.1",
+  "version": "0.21.2",
   "publisher": "telesoho",
   "author": {
     "name": "telesoho",
@@ -36,8 +36,7 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [
-  ],
+  "activationEvents": [],
   "main": "./out/extension",
   "scripts": {
     "publish": "npx vsce publish",
@@ -264,18 +263,19 @@
     ]
   },
   "dependencies": {
-    "@vscode/vscode-languagedetection": "^1.0.21",
-    "clipboardy": "1.1.4",
+    "@vscode/vscode-languagedetection": "^1.0.22",
+    "arch": "^2.2.0",
+    "execa": "^5.1.1",
     "is-wsl": "^2.2.0",
     "moment": "^2.22.1",
-    "shelljs": "^0.7.7",
-    "to-markdown": "^3.1.1"
+    "shelljs": "^0.8.5",
+    "turndown": "^7.1.1"
   },
   "devDependencies": {
     "@types/glob": "^7.1.3",
     "@types/mocha": "^8.2.2",
-    "@types/node": "14.x",
-    "@types/vscode": "^1.58.0",
+    "@types/node": "~14.x",
+    "@types/vscode": "^1.63.2",
     "@typescript-eslint/eslint-plugin": "^4.26.0",
     "@typescript-eslint/parser": "^4.26.0",
     "@vscode/test-electron": "^1.6.1",
@@ -283,7 +283,7 @@
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^4.0.0",
     "glob": "^7.1.7",
-    "mocha": "^8.4.0",
+    "mocha": "^10.2.0",
     "prettier": "2.5.1",
     "rewire": "^6.0.0",
     "typescript": "^4.3.2",

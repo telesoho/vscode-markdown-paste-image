@@ -1,9 +1,11 @@
 {
+  "extends": "./ts-config.base.json",
   "compilerOptions": {
-    "module": "commonjs",
-    "target": "es6",
+    "module": "CommonJS",
+    "target": "ES2021",
+    "lib": ["ES2021"],
+    "noUnusedLocals": false,
     "outDir": "out_test",
-    "lib": ["es6"],
     "sourceMap": true
   },
   "include": ["test/**/*"],

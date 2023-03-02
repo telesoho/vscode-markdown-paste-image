@@ -7,6 +7,7 @@
 import * as assert from "assert";
 import * as vscode from "vscode";
 import * as fs from "fs";
+import { tmpdir } from "os";
 import "../../src/extension";
 import { Predefine } from "../../src/predefine";
 import * as utils from "../../src/utils";
@@ -18,9 +19,9 @@ var paster = rewire("../../src/paster.js");
 suite("Extension Tests", () => {
   // Defines a Mocha unit test
   test("download test", () => {
-    let target_file = "out_test/data/abc/test.png";
+    let target_file = `${tmpdir()}/out_test/data/abc/test.png`;
     if (!utils.prepareDirForFile(target_file)) {
-      assert.fail("error", "errora", "prepare dir failed");
+      assert.fail(`prepare ${target_file} dir failed`);
     }
     utils
       .fetchAndSaveFile(
@@ -29,7 +30,7 @@ suite("Extension Tests", () => {
       )
       .then((msg) => {
         console.log(msg);
-        assert.equal(fs.existsSync(target_file), true);
+        assert.strictEqual(fs.existsSync(target_file), true);
       })
       .catch((err) => {
         console.log(err);
