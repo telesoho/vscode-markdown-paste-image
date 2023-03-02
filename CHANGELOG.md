@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.21.2 (March 3, 2023)
+
+- feat: useing selected text as alt text for image.
+
 ## 0.21.1 (March 1, 2023)
 
 - fix: add default text for ${selectedText}

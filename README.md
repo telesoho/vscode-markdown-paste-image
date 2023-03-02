@@ -8,9 +8,9 @@ Smartly paste for Markdown.
 
 ## Requirements
 
-- 'xclip' command be required (Linux)
-- 'powershell' command be required (Win32)
-- 'pbpaste' command be required (Mac)
+- `xclip` & `xsel` command be required (Linux)
+- `powershell` command be required (Win32)
+- `pbpaste` command be required (Mac)
 
 ## Features
 
