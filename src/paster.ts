@@ -366,7 +366,7 @@ class Paster {
         imgTag.height
       )}/>`;
     }
-    return `![](${imageFilePath})`;
+    return `![${Paster.getAltText()}](${imageFilePath})`;
   }
 
   private static renderMdImageBase64(
@@ -520,7 +520,7 @@ class Paster {
             path.relative(path.dirname(current_file_path), content)
           );
 
-          return `![](${relative_path})`;
+          return `![${Paster.getAltText()}](${relative_path})`;
         }
       }
     } catch (error) {
@@ -885,6 +885,13 @@ class Paster {
     };
 
     return this.runScript(script, [await wslSafe(imagePath)]);
+  }
+
+  private static getAltText(): string {
+    const selection = vscode.window.activeTextEditor.selection;
+    const selectText =
+      vscode.window.activeTextEditor.document.getText(selection);
+    return selectText;
   }
 }
 
