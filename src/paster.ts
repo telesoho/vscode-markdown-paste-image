@@ -1,8 +1,7 @@
 import * as path from "path";
-import * as clipboard from "clipboardy";
 import { spawn } from "child_process";
-import * as moment from "moment";
 import * as vscode from "vscode";
+import * as clipboard from "./clipboard";
 import { toMarkdown } from "./toMarkdown";
 import { Predefine } from "./predefine";
 
@@ -90,7 +89,7 @@ function runCommand(
 
 class Paster {
   public static async pasteCode() {
-    const content = clipboard.readSync();
+    const content = await clipboard.read();
     if (content) {
       let ld = new LanguageDetection();
       let lang = await ld.detectLanguage(content);
@@ -140,7 +139,7 @@ class Paster {
         break;
       case ClipboardType.Unknown:
         // Probably missing script to support type detection
-        const textContent = clipboard.readSync();
+        const textContent = await clipboard.read();
         // If clipboard has text, paste it
         if (textContent) {
           Paster.writeToEditor(textContent);

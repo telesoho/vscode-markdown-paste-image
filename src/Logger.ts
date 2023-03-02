@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import * as moment from "moment";
+import moment from "moment";
 
 export default class Logger {
   static channel: vscode.OutputChannel;

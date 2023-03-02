@@ -4,10 +4,10 @@ import * as https from "https";
 import * as path from "path";
 import { mkdir } from "shelljs";
 import * as fs from "fs";
-import * as moment from "moment";
+import moment from "moment";
 import { Uri } from "vscode";
 import * as os from "os";
-import isWsl = require("is-wsl");
+import isWsl from "is-wsl";
 import Logger from "./Logger";
 export type Platform = "darwin" | "win32" | "win10" | "linux" | "wsl";
 
