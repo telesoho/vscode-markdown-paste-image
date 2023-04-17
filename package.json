@@ -44,7 +44,7 @@
     "prettier": "npx prettier -w .",
     "compile": "npm run lint && tsc -p ./",
     "watch": "tsc -watch -p ./",
-    "pretest": "npm run prettier && npm run lint && tsc --project ./ts-test.json",
+    "pretest": "npm run prettier && npm run lint && tsc --project ./ts-test.json && cpx './res/**/*' ./out_test/res --clean",
     "lint": "eslint src --ext ts",
     "test": "node ./out_test/test/runTest.js",
     "dev:preinstall": "npx vsce package",
@@ -278,7 +278,8 @@
     "@types/vscode": "^1.58.0",
     "@typescript-eslint/eslint-plugin": "^4.26.0",
     "@typescript-eslint/parser": "^4.26.0",
-    "@vscode/test-electron": "^1.6.1",
+    "@vscode/test-electron": "^2.3.0",
+    "cpx": "^1.5.0",
     "eslint": "^7.27.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^4.0.0",
@@ -286,7 +287,6 @@
     "mocha": "^10.2.0",
     "prettier": "2.5.1",
     "rewire": "^6.0.0",
-    "typescript": "^4.3.2",
-    "vscode-test": "^1.5.2"
+    "typescript": "^4.3.2"
   }
 }
