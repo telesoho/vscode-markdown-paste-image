@@ -69,9 +69,10 @@ async function runScript(
       break;
   }
 
-  const runer = runCommand(shell, command);
-
-  return runer.then((stdout) => stdout.trim());
+  let stdout = await runCommand(shell, command);
+  return stdout.trim();
+  // const runer = runCommand(shell, command);
+  // return runer.then((stdout) => stdout.trim());
 }
 
 /**
@@ -290,8 +291,8 @@ async function setHtmlToClipboard(htmlPath) {
     win32: "win32_set_clipboard_text_html.ps1",
     darwin: "darwin_set_cliboard_text_html.applescript",
     linux: "linux_set_clipboard_text_html.sh",
-    wsl: "win32_save_clipboard_text_html.ps1",
-    win10: "win32_save_clipboard_text_html.ps1",
+    wsl: "win32_set_clipboard_text_html.ps1",
+    win10: "win32_set_clipboard_text_html.ps1",
   };
 
   const params = {
@@ -315,8 +316,8 @@ async function setTextToClipboard(textPath) {
     win32: "win32_set_clipboard_text_plain.ps1",
     darwin: "darwin_set_cliboard_text_plain.applescript",
     linux: "linux_set_clipboard_text_plain.sh",
-    wsl: "win32_save_clipboard_text_plain.ps1",
-    win10: "win32_save_clipboard_text_plain.ps1",
+    wsl: "win32_set_clipboard_text_plain.ps1",
+    win10: "win32_set_clipboard_text_plain.ps1",
   };
 
   const params = {

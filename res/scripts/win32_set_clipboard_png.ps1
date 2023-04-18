@@ -52,8 +52,6 @@ function Set-ClipboardImage {
     }
 }
 
+Set-ClipboardImage -Destination $imagePath -Encoding Png
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
-
-Set-ClipboardImage -Destination $imagePath -Encoding Jpeg
-
 [Console]::WriteLine($imagePath)
