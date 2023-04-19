@@ -85,9 +85,7 @@ async function runScript(
   }
 
   let stdout = await runCommand(shell, command);
-  return stdout.trim();
-  // const runer = runCommand(shell, command);
-  // return runer.then((stdout) => stdout.trim());
+  return stdout;
 }
 
 /**
@@ -123,7 +121,7 @@ function runCommand(
 
       if (!errorTriggered) {
         if (code === 0) {
-          resolve(output.trim());
+          resolve(output);
         } else {
           reject(errorMessage);
         }
@@ -273,7 +271,8 @@ async function saveClipboardImageToFileAndGetPath(imagePath) {
     win10: "win32_save_clipboard_png.ps1",
   };
 
-  return runScript(script, [await wslSafe(imagePath)]);
+  let data: string = await runScript(script, [await wslSafe(imagePath)]);
+  return data.trim();
 }
 
 /**
