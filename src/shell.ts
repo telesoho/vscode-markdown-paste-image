@@ -247,7 +247,7 @@ async function saveClipboardImageToFileAndGetPath(imagePath) {
 
   const script = {
     win32: "win32_save_clipboard_png.ps1",
-    darwin: "mac.applescript",
+    darwin: "darwin_save_clipboard_png.applescript",
     linux: "linux_save_clipboard_png.sh",
     wsl: "win32_save_clipboard_png.ps1",
     win10: "win32_save_clipboard_png.ps1",
@@ -264,7 +264,7 @@ async function setImageToClipboard(imagePath) {
 
   const script = {
     win32: "win32_set_clipboard_png.ps1",
-    darwin: "darwin_set_cliboard_png.applescript",
+    darwin: "darwin_set_clipboard_png.applescript",
     linux: "linux_set_clipboard_png.sh",
     wsl: "win32_save_clipboard_png.ps1",
     win10: "win32_save_clipboard_png.ps1",
@@ -289,7 +289,7 @@ async function setHtmlToClipboard(htmlPath) {
 
   const script = {
     win32: "win32_set_clipboard_text_html.ps1",
-    darwin: "darwin_set_cliboard_text_html.applescript",
+    darwin: "darwin_set_clipboard_text_html.applescript",
     linux: "linux_set_clipboard_text_html.sh",
     wsl: "win32_set_clipboard_text_html.ps1",
     win10: "win32_set_clipboard_text_html.ps1",
@@ -314,7 +314,7 @@ async function setTextToClipboard(textPath) {
 
   const script = {
     win32: "win32_set_clipboard_text_plain.ps1",
-    darwin: "darwin_set_cliboard_text_plain.applescript",
+    darwin: "darwin_set_clipboard_text_plain.applescript",
     linux: "linux_set_clipboard_text_plain.sh",
     wsl: "win32_set_clipboard_text_plain.ps1",
     win10: "win32_set_clipboard_text_plain.ps1",
