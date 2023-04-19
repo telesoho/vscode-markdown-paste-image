@@ -8,9 +8,9 @@ import * as utils from "../src/utils";
 import path from "path";
 import { tmpdir } from "os";
 
-const test_png = path.join(__dirname, `../res/scripts/test-data/test.png`);
-const test_html = path.join(__dirname, `../res/scripts/test-data/test.html`);
-const test_text = path.join(__dirname, `../res/scripts/test-data/test.txt`);
+const test_png = path.join(__dirname, `./test-data/test.png`);
+const test_html = path.join(__dirname, `./test-data/test.html`);
+const test_text = path.join(__dirname, `./test-data/test.txt`);
 
 describe("Shell tests", () => {
   beforeEach(() => {
@@ -39,7 +39,7 @@ describe("Shell tests", () => {
     await shell.setTextToClipboard(test_text);
     await shell.getClipboardTextPlain().then((text) => {
       const text_content = fs.readFileSync(test_text, "utf8");
-      expect(text).toBe(text_content.trim());
+      expect(text).toBe(text_content);
     });
   });
 
@@ -47,14 +47,14 @@ describe("Shell tests", () => {
     await shell.setHtmlToClipboard(test_html);
     await shell.getClipboardTextHtml().then((html) => {
       const html_content = fs.readFileSync(test_html, "utf8");
-      expect(html).toBe(html_content.trim());
+      expect(html).toBe(html_content);
     });
   });
   it("get clipboard content test png", async () => {
     await shell.setImageToClipboard(test_png);
     const png_content = fs.readFileSync(test_png).toString("base64");
 
-    const tmpfile = `${tmpdir()}/out_test/data/abc/test.png`;
+    const tmpfile = `${tmpdir()}/shell-test/data/test.png`;
     utils.prepareDirForFile(tmpfile);
 
     await shell.saveClipboardImageToFileAndGetPath(tmpfile).then((png_file) => {
