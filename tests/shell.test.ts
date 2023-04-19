@@ -1,4 +1,4 @@
-jest.useFakeTimers().setSystemTime(new Date("2023-03-19T18:00:00.000"));
+jest.useRealTimers();
 jest.unmock("../src/shell");
 jest.unmock("../src/utils");
 jest.unmock("child_process");

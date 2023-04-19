@@ -10,6 +10,21 @@ enum ClipboardType {
   Image,
 }
 
+function darwin_HextoHtml(str: string) {
+  const regex = /«data HTML(.*?)»/;
+
+  // Alternative syntax using RegExp constructor
+  // const regex = new RegExp('«data HTML(.*?)»', '')
+
+  const subst = `$1`;
+
+  // The substituted value will be contained in the result variable
+  const data = str.replace(regex, subst);
+
+  let buff = Buffer.from(data, "hex");
+  return buff.toString("utf8");
+}
+
 async function wslSafe(path: string) {
   if (getCurrentPlatform() != "wsl") return path;
   await runCommand("touch", [path]);
@@ -225,7 +240,12 @@ async function getClipboardTextHtml() {
     wsl: "win32_get_clipboard_text_html.ps1",
     win10: "win32_get_clipboard_text_html.ps1",
   };
-  return runScript(script, []);
+  const data: string = await runScript(script, []);
+  const platform: Platform = getCurrentPlatform();
+  if (platform === "darwin") {
+    return darwin_HextoHtml(data);
+  }
+  return data;
 }
 
 async function getClipboardTextPlain() {
