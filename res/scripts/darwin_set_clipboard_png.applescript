@@ -1,4 +1,4 @@
-property PNG : Çclass PNGfÈ
+property PNG : ï¿½class PNGfï¿½
 
 on run argv
   if argv is {} then
@@ -6,4 +6,5 @@ on run argv
   end if
   set imagePath to (item 1 of argv)
   set the clipboard to (read imagePath as PNG)
+  copy imagePath to stdout
 end run
