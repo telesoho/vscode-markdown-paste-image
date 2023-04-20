@@ -38,9 +38,8 @@ EndFragment:<<<<<<<<4";
     [System.Windows.Forms.Clipboard]::SetDataObject($data)
 }
 
-[Console]::InputEncoding = [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
-$htmlContent = Get-Content -Path $htmlPath -Raw -Encoding UTF8
+$OutputEncoding = [Console]::InputEncoding = [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+# $htmlContent = Get-Content -Path $htmlPath -Raw -Encoding UTF8
+$htmlContentDefault = Get-Content -Path $htmlPath -Raw -Encoding UTF8
 # SetHtmlDataString $htmlContent
-Set-Clipboard -ashtml -Value $htmlContent
-
-
+Set-Clipboard -ashtml -Value $htmlContentDefault

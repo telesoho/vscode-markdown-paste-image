@@ -39,9 +39,10 @@ async function wslSafe(path: string) {
  */
 async function runScript(
   script: Record<Platform, string | null>,
-  parameters = []
+  script_parameters = {}
 ) {
-  let platform = getCurrentPlatform();
+  const platform = getCurrentPlatform();
+  const parameters = script_parameters[platform] || [];
   if (script[platform] == null) {
     Logger.log(`No scipt exists for ${platform}`);
     throw new Error(`No scipt exists for ${platform}`);
@@ -220,7 +221,7 @@ async function getClipboardContentType() {
   };
 
   try {
-    let data = await runScript(script, []);
+    let data = await runScript(script);
     Logger.log("getClipboardContentType", data);
     let types = data.split(/\r\n|\n|\r/);
 
@@ -238,7 +239,7 @@ async function getClipboardTextHtml() {
     wsl: "win32_get_clipboard_text_html.ps1",
     win10: "win32_get_clipboard_text_html.ps1",
   };
-  const data: string = await runScript(script, []);
+  const data: string = await runScript(script);
   const platform: Platform = getCurrentPlatform();
   if (platform === "darwin") {
     return darwin_HextoHtml(data);
@@ -255,7 +256,8 @@ async function getClipboardTextPlain() {
     win10: "win32_get_clipboard_text_plain.ps1",
   };
 
-  return runScript(script, []);
+  const data: string = await runScript(script);
+  return data.trim();
 }
 /**
  * use applescript to save image from clipboard and get file path
@@ -270,8 +272,15 @@ async function saveClipboardImageToFileAndGetPath(imagePath) {
     wsl: "win32_save_clipboard_png.ps1",
     win10: "win32_save_clipboard_png.ps1",
   };
+  const script_parameters = {
+    win32: [imagePath],
+    darwin: [imagePath],
+    linux: [imagePath],
+    wsl: [wslSafe(imagePath)],
+    win10: [imagePath],
+  };
 
-  let data: string = await runScript(script, [await wslSafe(imagePath)]);
+  let data: string = await runScript(script, script_parameters);
   return data.trim();
 }
 
@@ -285,8 +294,8 @@ async function setImageToClipboard(imagePath) {
     win32: "win32_set_clipboard_png.ps1",
     darwin: "darwin_set_clipboard_png.applescript",
     linux: "linux_set_clipboard_png.sh",
-    wsl: "win32_save_clipboard_png.ps1",
-    win10: "win32_save_clipboard_png.ps1",
+    wsl: "win32_set_clipboard_png.ps1",
+    win10: "win32_set_clipboard_png.ps1",
   };
 
   const params = {
@@ -297,7 +306,8 @@ async function setImageToClipboard(imagePath) {
     win10: [imagePath],
   };
 
-  return runScript(script, params[getCurrentPlatform()]);
+  const data = await runScript(script, params);
+  return data.trim();
 }
 
 /**
@@ -322,7 +332,8 @@ async function setHtmlToClipboard(htmlPath) {
     win10: [htmlPath],
   };
 
-  return runScript(script, params[getCurrentPlatform()]);
+  const data = await runScript(script, params);
+  return data.trim();
 }
 
 /**
@@ -347,7 +358,8 @@ async function setTextToClipboard(textPath) {
     win10: [textPath],
   };
 
-  return runScript(script, params[getCurrentPlatform()]);
+  const data = await runScript(script, params);
+  return data.trim();
 }
 
 export {

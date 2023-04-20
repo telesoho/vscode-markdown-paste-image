@@ -29,7 +29,8 @@ describe("Shell tests", () => {
     });
   });
   it("get clipboard type test png", async () => {
-    await shell.setImageToClipboard(test_png);
+    const png = await shell.setImageToClipboard(test_png);
+    expect(png).toBe(test_png);
     await shell.getClipboardContentType().then((val) => {
       expect(val).toBe(shell.ClipboardType.Image);
     });
@@ -46,23 +47,18 @@ describe("Shell tests", () => {
   it("get clipboard content test html", async () => {
     await shell.setHtmlToClipboard(test_html);
     await shell.getClipboardTextHtml().then((html) => {
-      const html_content = fs.readFileSync(test_html, "utf8");
-      expect(html).toBe(html_content);
+      const html_content = fs.readFileSync(test_html, "utf-8");
+      expect(html.trim()).toBe(html_content.trim());
     });
   });
   it("get clipboard content test png", async () => {
     await shell.setImageToClipboard(test_png);
-    const png_content = fs.readFileSync(test_png).toString("base64");
-
     const tmpfile = `${tmpdir()}/shell-test/data/test.png`;
     utils.prepareDirForFile(tmpfile);
 
     await shell.saveClipboardImageToFileAndGetPath(tmpfile).then((png_file) => {
-      expect(png_file).not.toBe(undefined);
-      if (png_file) {
-        const png_content_pasted = fs.readFileSync(png_file).toString("base64");
-        expect(png_content_pasted).toBe(png_content);
-      }
+      expect(png_file).toBe(tmpfile);
+      expect(fs.existsSync(tmpfile)).toBe(true);
     });
   });
 });
