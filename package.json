@@ -2,7 +2,7 @@
   "name": "vscode-markdown-paste-image",
   "displayName": "Markdown Paste",
   "description": "A smartly paste for markdown.",
-  "version": "0.21.3",
+  "version": "1.0.0",
   "publisher": "telesoho",
   "author": {
     "name": "telesoho",
@@ -44,7 +44,7 @@
     "prettier": "npx prettier -w .",
     "compile": "npm run lint && tsc -p ./",
     "watch": "tsc -watch -p ./",
-    "pretest": "npm run prettier && npm run lint && tsc --project ./ts-test.json",
+    "pretest": "npm run prettier && npm run lint && tsc --project ./ts-test.json && cpx \"./res/**/*\" \"./out_test/res\" --clean",
     "lint": "eslint src --ext ts",
     "test": "node ./out_test/test/runTest.js",
     "dev:preinstall": "npx vsce package",
@@ -265,28 +265,29 @@
   "dependencies": {
     "@vscode/vscode-languagedetection": "^1.0.22",
     "arch": "^2.2.0",
-    "execa": "^5.1.1",
-    "is-wsl": "^2.2.0",
     "moment": "^2.22.1",
     "shelljs": "^0.8.5",
-    "turndown": "^7.1.1"
+    "turndown": "^7.1.1",
+    "xclip": "^1.0.1"
   },
   "devDependencies": {
     "@types/glob": "^7.1.3",
     "@types/mocha": "^8.2.2",
-    "@types/node": "~14.x",
+    "@types/node": "^18.11.18",
     "@types/vscode": "^1.58.0",
-    "@typescript-eslint/eslint-plugin": "^4.26.0",
-    "@typescript-eslint/parser": "^4.26.0",
-    "@vscode/test-electron": "^1.6.1",
+    "@typescript-eslint/eslint-plugin": "^5.48.1",
+    "@typescript-eslint/parser": "^5.48.1",
+    "@vscode/test-electron": "^2.3.0",
+    "cpx": "^1.5.0",
     "eslint": "^7.27.0",
-    "eslint-config-prettier": "^8.3.0",
+    "eslint-config-prettier": "^8.6.0",
+    "eslint-plugin-jsdoc": "^39.6.4",
+    "eslint-plugin-prefer-arrow": "^1.2.3",
     "eslint-plugin-prettier": "^4.0.0",
     "glob": "^7.1.7",
     "mocha": "^10.2.0",
     "prettier": "2.5.1",
     "rewire": "^6.0.0",
-    "typescript": "^4.3.2",
-    "vscode-test": "^1.5.2"
+    "typescript": "^4.9.4"
   }
 }

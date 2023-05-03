@@ -19,6 +19,6 @@
       ],
       "outFiles": ["${workspaceFolder}/out_test/test/**/*.js"],
       "preLaunchTask": "npm: pretest"
-    }    
+    }
   ]
 }

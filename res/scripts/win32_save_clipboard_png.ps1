@@ -11,7 +11,7 @@ if(![System.Windows.Forms.Clipboard]::ContainsImage())
 }
 
 $img = [Windows.Clipboard]::GetImage()
-if ($img -eq $null) {
+if ($null -eq $img) {
     [Console]::WriteLine($noImage)
     Exit 1
 }

@@ -1,5 +1,10 @@
 # Change Log
 
+## 1.0.0 (May 3, 2023)
+
+- feat: Mac Support for Rich Text Paste #74
+- fix: Mac OS Ventura: Command not found #113
+
 ## 0.21.2 (March 3, 2023)
 
 - feat: useing selected text as alt text for image.

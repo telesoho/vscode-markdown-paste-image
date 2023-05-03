@@ -48,7 +48,7 @@ class LanguageDetection {
     }
 
     const modelResults = await modelOperations.runModel(content);
-    if (!modelResults) {
+    if (!modelResults || !modelResults[0]) {
       return;
     }
 

@@ -1,7 +1,6 @@
 import * as path from "path";
-import { spawn } from "child_process";
 import * as vscode from "vscode";
-import * as clipboard from "./clipboard";
+import * as xclip from "xclip";
 import { toMarkdown } from "./toMarkdown";
 import { Predefine } from "./predefine";
 
@@ -10,19 +9,10 @@ import {
   fetchAndSaveFile,
   newTemporaryFilename,
   base64Encode,
-  getCurrentPlatform,
-  Platform,
 } from "./utils";
 import { existsSync, rmSync, RmOptions } from "fs";
 import { LanguageDetection } from "./language_detection";
 import Logger from "./Logger";
-
-enum ClipboardType {
-  Unknown = -1,
-  Html = 0,
-  Text,
-  Image,
-}
 
 class PasteImageContext {
   targetFile?: vscode.Uri;
@@ -34,62 +24,11 @@ class PasteImageContext {
   } | null;
 }
 
-async function wslSafe(path: string) {
-  if (getCurrentPlatform() != "wsl") return path;
-  await runCommand("touch", [path]);
-  return runCommand("wslpath", ["-m", path]);
-}
-
-/**
- * Run command and get stdout
- * @param shell
- * @param options
- */
-function runCommand(
-  shell,
-  options: string[],
-  timeout = 10000
-): Promise<string> {
-  return new Promise((resolve, reject) => {
-    let errorTriggered = false;
-    let output = "";
-    let errorMessage = "";
-    let process = spawn(shell, options, { timeout });
-
-    process.stdout.on("data", (chunk) => {
-      Logger.log(chunk);
-      output += `${chunk}`;
-    });
-
-    process.stderr.on("data", (chunk) => {
-      Logger.log(chunk);
-      errorMessage += `${chunk}`;
-    });
-
-    process.on("exit", (code, signal) => {
-      if (process.killed) {
-        Logger.log("Process took too long and was killed");
-      }
-
-      if (!errorTriggered) {
-        if (code === 0) {
-          resolve(output.trim());
-        } else {
-          reject(errorMessage);
-        }
-      }
-    });
-
-    process.on("error", (error) => {
-      errorTriggered = true;
-      reject(error);
-    });
-  });
-}
-
 class Paster {
   public static async pasteCode() {
-    const content = await clipboard.read();
+    const shell = xclip.getShell();
+    const cb = shell.getClipboard();
+    const content = await cb.getTextPlain();
     if (content) {
       let ld = new LanguageDetection();
       let lang = await ld.detectLanguage(content);
@@ -101,16 +40,18 @@ class Paster {
    * Paste text
    */
   public static async pasteText() {
-    const ctx_type = await this.getClipboardContentType();
+    const shell = xclip.getShell();
+    const cb = shell.getClipboard();
+    const ctx_type = await cb.getContentType();
 
     let enableHtmlConverter = this.getConfig().enableHtmlConverter;
     let enableRulesForHtml = this.getConfig().enableRulesForHtml;
 
     Logger.log("Clipboard Type:", ctx_type);
     switch (ctx_type) {
-      case ClipboardType.Html:
+      case xclip.ClipboardType.Html:
         if (enableHtmlConverter) {
-          const html = await this.pasteTextHtml();
+          const html = await cb.getTextHtml();
           Logger.log(html);
           const markdown = toMarkdown(html);
           if (enableRulesForHtml) {
@@ -120,33 +61,25 @@ class Paster {
             Paster.writeToEditor(markdown);
           }
         } else {
-          const text = await this.pasteTextPlain();
+          const text = await cb.getTextPlain();
           if (text) {
             let newContent = Paster.parse(text);
             Paster.writeToEditor(newContent);
           }
         }
         break;
-      case ClipboardType.Text:
-        const text = await this.pasteTextPlain();
+      case xclip.ClipboardType.Text:
+        const text = await cb.getTextPlain();
         if (text) {
           let newContent = Paster.parse(text);
           Paster.writeToEditor(newContent);
         }
         break;
-      case ClipboardType.Image:
+      case xclip.ClipboardType.Image:
         Paster.pasteImage();
         break;
-      case ClipboardType.Unknown:
-        // Probably missing script to support type detection
-        const textContent = await clipboard.read();
-        // If clipboard has text, paste it
-        if (textContent) {
-          Paster.writeToEditor(textContent);
-        } else {
-          // No text in clipboard, attempt to paste image
-          Paster.pasteImage();
-        }
+      case xclip.ClipboardType.Unknown:
+        Logger.log("Unknown type");
         break;
     }
   }
@@ -155,12 +88,14 @@ class Paster {
    * Download url content in clipboard
    */
   public static async pasteDownload() {
-    const ctx_type = await this.getClipboardContentType();
+    const shell = xclip.getShell();
+    const cb = shell.getClipboard();
+    const ctx_type = await cb.getContentType();
     Logger.log("Clipboard Type:", ctx_type);
     switch (ctx_type) {
-      case ClipboardType.Html:
-      case ClipboardType.Text:
-        const text = await this.pasteTextPlain();
+      case xclip.ClipboardType.Html:
+      case xclip.ClipboardType.Text:
+        const text = await cb.getTextPlain();
         if (text) {
           if (/^(http[s]:)+\/\/(.*)/i.test(text)) {
             Paster.pasteImageURL(text);
@@ -319,7 +254,9 @@ class Paster {
     }
 
     // save image and insert to current edit file
-    const imagePath = await this.saveClipboardImageToFileAndGetPath(imgPath);
+    const shell = xclip.getShell();
+    const cb = shell.getClipboard();
+    const imagePath = await cb.getImage(imgPath);
     if (!imagePath) return;
     if (imagePath === "no image") {
       vscode.window.showInformationMessage(
@@ -530,29 +467,6 @@ class Paster {
     return content;
   }
 
-  private static async pasteTextPlain() {
-    const script = {
-      win32: "win32_get_clipboard_text_plain.ps1",
-      linux: "linux_get_clipboard_text_plain.sh",
-      darwin: "darwin_get_clipboard_text_plain.applescript",
-      wsl: "win32_get_clipboard_text_plain.ps1",
-      win10: "win32_get_clipboard_text_plain.ps1",
-    };
-
-    return this.runScript(script, []);
-  }
-
-  private static async pasteTextHtml() {
-    const script = {
-      win32: "win32_get_clipboard_text_html.ps1",
-      linux: "linux_get_clipboard_text_html.sh",
-      darwin: null,
-      wsl: "win32_get_clipboard_text_html.ps1",
-      win10: "win32_get_clipboard_text_html.ps1",
-    };
-    return this.runScript(script, []);
-  }
-
   /**
    * Download image to local and render markdown link for it.
    * @param image_url
@@ -709,181 +623,6 @@ class Paster {
     }
 
     return imagePath;
-  }
-
-  private static getClipboardType(types) {
-    if (!types) {
-      return ClipboardType.Unknown;
-    }
-
-    const detectedTypes = new Set();
-    let platform = getCurrentPlatform();
-    Logger.log("platform", platform);
-    switch (platform) {
-      case "linux":
-        for (const type of types) {
-          switch (type) {
-            case "image/png":
-              detectedTypes.add(ClipboardType.Image);
-              break;
-            case "text/html":
-              detectedTypes.add(ClipboardType.Html);
-              break;
-            default:
-              detectedTypes.add(ClipboardType.Text);
-              break;
-          }
-        }
-        break;
-      case "win32":
-      case "win10":
-      case "wsl":
-        for (const type of types) {
-          switch (type) {
-            case "PNG":
-            case "Bitmap":
-            case "DeviceIndependentBitmap":
-              detectedTypes.add(ClipboardType.Image);
-              break;
-            case "HTML Format":
-              detectedTypes.add(ClipboardType.Html);
-              break;
-            case "Text":
-            case "UnicodeText":
-              detectedTypes.add(ClipboardType.Text);
-              break;
-          }
-        }
-        break;
-      case "darwin":
-        for (const type of types) {
-          switch (type) {
-            case "Text":
-              detectedTypes.add(ClipboardType.Text);
-              break;
-            case "HTML":
-              detectedTypes.add(ClipboardType.Html);
-            case "Image":
-              detectedTypes.add(ClipboardType.Image);
-          }
-        }
-        break;
-    }
-
-    // Set priority based on which to return type
-    const priorityOrdering = [
-      ClipboardType.Image,
-      ClipboardType.Html,
-      ClipboardType.Text,
-    ];
-    for (const type of priorityOrdering)
-      if (detectedTypes.has(type)) return type;
-    // No known types detected
-    return ClipboardType.Unknown;
-  }
-
-  private static async getClipboardContentType() {
-    const script = {
-      linux: "linux_get_clipboard_content_type.sh",
-      win32: "win32_get_clipboard_content_type.ps1",
-      darwin: "darwin_get_clipboard_content_type.applescript",
-      wsl: "win32_get_clipboard_content_type.ps1",
-      win10: "win32_get_clipboard_content_type.ps1",
-    };
-
-    try {
-      let data = await this.runScript(script, []);
-      Logger.log("getClipboardContentType", data);
-      if (data == "no xclip") {
-        vscode.window.showInformationMessage(
-          "You need to install xclip command first."
-        );
-        return;
-      }
-      let types = data.split(/\r\n|\n|\r/);
-
-      return this.getClipboardType(types);
-    } catch (e) {
-      return ClipboardType.Unknown;
-    }
-  }
-
-  /**
-   * Run shell script.
-   * @param script
-   * @param parameters
-   * @param callback
-   */
-  private static async runScript(
-    script: Record<Platform, string | null>,
-    parameters = []
-  ) {
-    let platform = getCurrentPlatform();
-    if (script[platform] == null) {
-      Logger.log(`No scipt exists for ${platform}`);
-      throw new Error(`No scipt exists for ${platform}`);
-    }
-    const scriptPath = path.join(
-      __dirname,
-      "../res/scripts/" + script[platform]
-    );
-    let shell = "";
-    let command = [];
-
-    switch (platform) {
-      case "win32":
-      case "win10":
-      case "wsl":
-        // Windows
-        command = [
-          "-noprofile",
-          "-noninteractive",
-          "-nologo",
-          "-sta",
-          "-executionpolicy",
-          "bypass",
-          "-windowstyle",
-          "hidden",
-          "-file",
-          await wslSafe(scriptPath),
-        ].concat(parameters);
-        shell =
-          platform == "wsl"
-            ? "/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe"
-            : "powershell";
-        break;
-      case "darwin":
-        // Mac
-        shell = "osascript";
-        command = [scriptPath].concat(parameters);
-        break;
-      case "linux":
-        // Linux
-        shell = "sh";
-        command = [scriptPath].concat(parameters);
-        break;
-    }
-
-    const runer = runCommand(shell, command);
-
-    return runer.then((stdout) => stdout.trim());
-  }
-
-  /**
-   * use applescript to save image from clipboard and get file path
-   */
-  private static async saveClipboardImageToFileAndGetPath(imagePath) {
-    if (!imagePath) return;
-
-    const script = {
-      win32: "win32_save_clipboard_png.ps1",
-      darwin: "mac.applescript",
-      linux: "linux_save_clipboard_png.sh",
-      wsl: "win32_save_clipboard_png.ps1",
-      win10: "win32_save_clipboard_png.ps1",
-    };
-
-    return this.runScript(script, [await wslSafe(imagePath)]);
   }
 
   private static getAltText(): string {
