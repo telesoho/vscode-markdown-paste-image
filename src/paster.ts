@@ -1,15 +1,8 @@
 import * as path from "path";
 import * as vscode from "vscode";
-import * as clipboard from "./clipboard";
+import * as xclip from "xclip";
 import { toMarkdown } from "./toMarkdown";
 import { Predefine } from "./predefine";
-import {
-  ClipboardType,
-  getClipboardContentType,
-  getClipboardTextHtml,
-  getClipboardTextPlain,
-  saveClipboardImageToFileAndGetPath,
-} from "./shell";
 
 import {
   prepareDirForFile,
@@ -33,7 +26,9 @@ class PasteImageContext {
 
 class Paster {
   public static async pasteCode() {
-    const content = await clipboard.read();
+    const shell = xclip.getShell();
+    const cb = shell.getClipboard();
+    const content = await cb.getTextPlain();
     if (content) {
       let ld = new LanguageDetection();
       let lang = await ld.detectLanguage(content);
@@ -45,16 +40,18 @@ class Paster {
    * Paste text
    */
   public static async pasteText() {
-    const ctx_type = await getClipboardContentType();
+    const shell = xclip.getShell();
+    const cb = shell.getClipboard();
+    const ctx_type = await cb.getContentType();
 
     let enableHtmlConverter = this.getConfig().enableHtmlConverter;
     let enableRulesForHtml = this.getConfig().enableRulesForHtml;
 
     Logger.log("Clipboard Type:", ctx_type);
     switch (ctx_type) {
-      case ClipboardType.Html:
+      case xclip.ClipboardType.Html:
         if (enableHtmlConverter) {
-          const html = await getClipboardTextHtml();
+          const html = await cb.getTextHtml();
           Logger.log(html);
           const markdown = toMarkdown(html);
           if (enableRulesForHtml) {
@@ -64,33 +61,25 @@ class Paster {
             Paster.writeToEditor(markdown);
           }
         } else {
-          const text = await getClipboardTextPlain();
+          const text = await cb.getTextPlain();
           if (text) {
             let newContent = Paster.parse(text);
             Paster.writeToEditor(newContent);
           }
         }
         break;
-      case ClipboardType.Text:
-        const text = await getClipboardTextPlain();
+      case xclip.ClipboardType.Text:
+        const text = await cb.getTextPlain();
         if (text) {
           let newContent = Paster.parse(text);
           Paster.writeToEditor(newContent);
         }
         break;
-      case ClipboardType.Image:
+      case xclip.ClipboardType.Image:
         Paster.pasteImage();
         break;
-      case ClipboardType.Unknown:
-        // Probably missing script to support type detection
-        const textContent = await clipboard.read();
-        // If clipboard has text, paste it
-        if (textContent) {
-          Paster.writeToEditor(textContent);
-        } else {
-          // No text in clipboard, attempt to paste image
-          Paster.pasteImage();
-        }
+      case xclip.ClipboardType.Unknown:
+        Logger.log("Unknown type");
         break;
     }
   }
@@ -99,12 +88,14 @@ class Paster {
    * Download url content in clipboard
    */
   public static async pasteDownload() {
-    const ctx_type = await getClipboardContentType();
+    const shell = xclip.getShell();
+    const cb = shell.getClipboard();
+    const ctx_type = await cb.getContentType();
     Logger.log("Clipboard Type:", ctx_type);
     switch (ctx_type) {
-      case ClipboardType.Html:
-      case ClipboardType.Text:
-        const text = await getClipboardTextPlain();
+      case xclip.ClipboardType.Html:
+      case xclip.ClipboardType.Text:
+        const text = await cb.getTextPlain();
         if (text) {
           if (/^(http[s]:)+\/\/(.*)/i.test(text)) {
             Paster.pasteImageURL(text);
@@ -263,7 +254,9 @@ class Paster {
     }
 
     // save image and insert to current edit file
-    const imagePath = await saveClipboardImageToFileAndGetPath(imgPath);
+    const shell = xclip.getShell();
+    const cb = shell.getClipboard();
+    const imagePath = await cb.getImage(imgPath);
     if (!imagePath) return;
     if (imagePath === "no image") {
       vscode.window.showInformationMessage(

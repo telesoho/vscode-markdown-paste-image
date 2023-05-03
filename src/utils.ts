@@ -7,9 +7,7 @@ import * as fs from "fs";
 import moment from "moment";
 import { Uri } from "vscode";
 import * as os from "os";
-import isWsl from "is-wsl";
 import Logger from "./Logger";
-export type Platform = "darwin" | "win32" | "win10" | "linux" | "wsl";
 
 /**
  * prepare directory for specified file.
@@ -36,7 +34,7 @@ function fetchAndSaveFile(fileURL: string, filepath: string) {
   // Get the directory and basename of the filepath
   const dest = path.dirname(filepath);
   const basename = path.basename(filepath);
-  return new Promise((resolve, reject) => {
+  return new Promise<string>((resolve, reject) => {
     // Set a timeout of 10 seconds for the request
     const timeout = 10000;
     // Parse the URL
@@ -107,29 +105,9 @@ function base64Encode(file) {
   return Buffer.from(bitmap).toString("base64");
 }
 
-const getCurrentPlatform = (): Platform => {
-  const platform = process.platform;
-  if (isWsl) {
-    return "wsl";
-  }
-  if (platform === "win32") {
-    const currentOS = os.release().split(".")[0];
-    if (currentOS === "10") {
-      return "win10";
-    } else {
-      return "win32";
-    }
-  } else if (platform === "darwin") {
-    return "darwin";
-  } else {
-    return "linux";
-  }
-};
-
 export {
   prepareDirForFile,
   fetchAndSaveFile,
   base64Encode,
   newTemporaryFilename,
-  getCurrentPlatform,
 };

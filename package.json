@@ -44,11 +44,9 @@
     "prettier": "npx prettier -w .",
     "compile": "npm run lint && tsc -p ./",
     "watch": "tsc -watch -p ./",
-    "pretest": "npm run prettier && npm run lint",
+    "pretest": "npm run prettier && npm run lint && tsc --project ./ts-test.json && cpx \"./res/**/*\" \"./out_test/res\" --clean",
     "lint": "eslint src --ext ts",
-    "test": "npm run jest",
-    "jest": "jest --detectOpenHandles --no-cache --forceExit",
-    "jest:watch": "jest --detectOpenHandles --watchAll --no-cache --forceExit",
+    "test": "node ./out_test/test/runTest.js",
     "dev:preinstall": "npx vsce package",
     "dev:install": "code --install-extension ./vscode-markdown-paste-image-*.vsix"
   },
@@ -267,15 +265,15 @@
   "dependencies": {
     "@vscode/vscode-languagedetection": "^1.0.22",
     "arch": "^2.2.0",
-    "execa": "^5.1.1",
     "is-wsl": "^2.2.0",
     "moment": "^2.22.1",
     "shelljs": "^0.8.5",
-    "turndown": "^7.1.1"
+    "turndown": "^7.1.1",
+    "xclip": "file:../xclip"
   },
   "devDependencies": {
     "@types/glob": "^7.1.3",
-    "@types/jest": "^29.5.0",
+    "@types/mocha": "^8.2.2",
     "@types/node": "^18.11.18",
     "@types/vscode": "^1.58.0",
     "@typescript-eslint/eslint-plugin": "^5.48.1",
@@ -283,16 +281,14 @@
     "@vscode/test-electron": "^2.3.0",
     "cpx": "^1.5.0",
     "eslint": "^7.27.0",
+    "mocha": "^10.2.0",
     "eslint-config-prettier": "^8.6.0",
-    "eslint-plugin-jest": "^27.2.1",
     "eslint-plugin-jsdoc": "^39.6.4",
     "eslint-plugin-prefer-arrow": "^1.2.3",
     "eslint-plugin-prettier": "^4.0.0",
     "glob": "^7.1.7",
-    "jest": "^29.5.0",
     "prettier": "2.5.1",
     "rewire": "^6.0.0",
-    "ts-jest": "^29.1.0",
     "typescript": "^4.9.4"
   }
 }
