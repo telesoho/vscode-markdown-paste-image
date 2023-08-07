@@ -44,8 +44,8 @@ class Paster {
     const cb = shell.getClipboard();
     const ctx_type = await cb.getContentType();
 
-    let enableHtmlConverter = this.getConfig().enableHtmlConverter;
-    let enableRulesForHtml = this.getConfig().enableRulesForHtml;
+    let enableHtmlConverter = Paster.getConfig().enableHtmlConverter;
+    let enableRulesForHtml = Paster.getConfig().enableRulesForHtml;
 
     Logger.log("Clipboard Type:", ctx_type);
     switch (ctx_type) {
@@ -121,6 +121,7 @@ class Paster {
     const selection = vscode.window.activeTextEditor.selection;
     let position = new vscode.Position(startLine, selection.start.character);
     return vscode.window.activeTextEditor.edit((editBuilder) => {
+      editBuilder.delete(selection);
       editBuilder.insert(position, content);
     });
   }
@@ -132,7 +133,7 @@ class Paster {
    */
   private static replacePredefinedVars(str: string) {
     let predefine = new Predefine();
-    return this.replaceRegPredefinedVars(str, predefine);
+    return Paster.replaceRegPredefinedVars(str, predefine);
   }
 
   /**
@@ -190,7 +191,7 @@ class Paster {
   ): PasteImageContext | null {
     if (!inputVal) return;
 
-    inputVal = this.replacePredefinedVars(inputVal);
+    inputVal = Paster.replacePredefinedVars(inputVal);
 
     //leading and trailling white space are invalidate
     if (inputVal && inputVal.length !== inputVal.trim().length) {
@@ -227,7 +228,7 @@ class Paster {
       pasteImgContext.removeTargetFileAfterConvert = false;
     }
 
-    let enableImgTagConfig = this.getConfig().enableImgTag;
+    let enableImgTagConfig = Paster.getConfig().enableImgTag;
     if (enableImgTagConfig && inputUri.query) {
       // parse `<filepath>[?width,height]`. for example. /abc/abc.png?200,100
       let ar = inputUri.query.split(",");
@@ -243,7 +244,7 @@ class Paster {
   }
 
   protected static async saveImage(targetPath: string) {
-    let pasteImgContext = this.parsePasteImageContext(targetPath);
+    let pasteImgContext = Paster.parsePasteImageContext(targetPath);
     if (!pasteImgContext || !pasteImgContext.targetFile) return;
 
     let imgPath = pasteImgContext.targetFile.fsPath;
@@ -265,7 +266,7 @@ class Paster {
       return;
     }
 
-    this.renderMarkdownLink(pasteImgContext);
+    Paster.renderMarkdownLink(pasteImgContext);
   }
 
   private static getDimensionProps(width: any, height: any) {
@@ -284,12 +285,12 @@ class Paster {
     let basePath = path.dirname(fileUri.fsPath);
 
     // relative will be add backslash characters so need to replace '\' to '/' here.
-    let imageFilePath = this.encodePath(
+    let imageFilePath = Paster.encodePath(
       path.relative(basePath, pasteImgContext.targetFile.fsPath)
     );
 
     // parse imageFilePath by rule again for appling lang_rule to image path
-    let parse_result = this.parse_rules(imageFilePath);
+    let parse_result = Paster.parse_rules(imageFilePath);
     if (typeof parse_result === "string") {
       return parse_result;
     }
@@ -297,7 +298,7 @@ class Paster {
     //"../../static/images/vscode-paste/cover.png".replace(new RegExp("(.*/static/)(.*)", ""), "/$2")
     let imgTag = pasteImgContext.imgTag;
     if (imgTag) {
-      return `<img src='${imageFilePath}' ${this.getDimensionProps(
+      return `<img src='${imageFilePath}' ${Paster.getDimensionProps(
         imgTag.width,
         imgTag.height
       )}/>`;
@@ -318,7 +319,7 @@ class Paster {
     let renderText = base64Encode(pasteImgContext.targetFile.fsPath);
     let imgTag = pasteImgContext.imgTag;
     if (imgTag) {
-      renderText = `<img src='data:image/png;base64,${renderText}' ${this.getDimensionProps(
+      renderText = `<img src='data:image/png;base64,${renderText}' ${Paster.getDimensionProps(
         imgTag.width,
         imgTag.height
       )}/>`;
@@ -344,9 +345,9 @@ class Paster {
 
     let renderText: string;
     if (pasteImgContext.convertToBase64) {
-      renderText = this.renderMdImageBase64(pasteImgContext);
+      renderText = Paster.renderMdImageBase64(pasteImgContext);
     } else {
-      renderText = this.renderMdFilePath(pasteImgContext);
+      renderText = Paster.renderMdFilePath(pasteImgContext);
     }
 
     if (renderText) {
@@ -372,7 +373,7 @@ class Paster {
   private static encodePath(filePath: string) {
     filePath = filePath.replace(/\\/g, "/");
 
-    const encodePathConfig = this.getConfig().encodePath;
+    const encodePathConfig = Paster.getConfig().encodePath;
 
     if (encodePathConfig == "encodeURI") {
       filePath = encodeURI(filePath);
@@ -383,10 +384,10 @@ class Paster {
   }
 
   private static get_rules(languageId) {
-    let lang_rules = this.getConfig().lang_rules;
+    let lang_rules = Paster.getConfig().lang_rules;
 
     if (languageId === "markdown") {
-      return this.getConfig().rules;
+      return Paster.getConfig().rules;
     }
 
     // find lang rules
@@ -410,12 +411,12 @@ class Paster {
   private static parse_rules(content): string | null {
     let editor = vscode.window.activeTextEditor;
     let languageId = editor.document.languageId;
-    let rules = this.get_rules(languageId);
-    let applyAllRules = this.getConfig().applyAllRules;
+    let rules = Paster.get_rules(languageId);
+    let applyAllRules = Paster.getConfig().applyAllRules;
     let isApplicable = false;
     for (const rule of rules) {
       const re = new RegExp(rule.regex, rule.options);
-      const reps = rule.replace;
+      const reps = Paster.replacePredefinedVars(rule.replace);
       if (re.test(content)) {
         content = content.replace(re, reps);
         if (!applyAllRules) {
@@ -452,7 +453,7 @@ class Paster {
           vscode.workspace.workspaceFolders[0].uri.path;
 
         if (content.startsWith(workspace_root_dir)) {
-          let relative_path = this.encodePath(
+          let relative_path = Paster.encodePath(
             path.relative(path.dirname(current_file_path), content)
           );
 
@@ -474,10 +475,10 @@ class Paster {
   private static pasteImageURL(image_url) {
     let filename = image_url.split("/").pop().split("?")[0];
     let ext = path.extname(filename);
-    let imagePath = this.genTargetImagePath(ext);
+    let imagePath = Paster.genTargetImagePath(ext);
     if (!imagePath) return;
 
-    let silence = this.getConfig().silence;
+    let silence = Paster.getConfig().silence;
     if (silence) {
       Paster.downloadFile(image_url, imagePath);
     } else {
@@ -498,7 +499,7 @@ class Paster {
   }
 
   private static downloadFile(image_url: string, target: string) {
-    let pasteImgContext = this.parsePasteImageContext(target);
+    let pasteImgContext = Paster.parsePasteImageContext(target);
 
     if (!pasteImgContext || !pasteImgContext.targetFile) return;
 
@@ -524,7 +525,7 @@ class Paster {
         }
         pasteImgContext.targetFile = vscode.Uri.parse(imagePath);
 
-        this.renderMarkdownLink(pasteImgContext);
+        Paster.renderMarkdownLink(pasteImgContext);
       })
       .catch((err) => {
         vscode.window.showErrorMessage("Download failed:" + err);
@@ -537,10 +538,10 @@ class Paster {
    */
   private static pasteImage() {
     let ext = ".png";
-    let imagePath = this.genTargetImagePath(ext);
+    let imagePath = Paster.genTargetImagePath(ext);
     if (!imagePath) return;
 
-    let silence = this.getConfig().silence;
+    let silence = Paster.getConfig().silence;
 
     if (silence) {
       Paster.saveImage(imagePath);
@@ -583,9 +584,9 @@ class Paster {
     let filePath = fileUri.fsPath;
 
     // get image destination path
-    let folderPathFromConfig = this.getConfig().path;
+    let folderPathFromConfig = Paster.getConfig().path;
 
-    folderPathFromConfig = this.replacePredefinedVars(folderPathFromConfig);
+    folderPathFromConfig = Paster.replacePredefinedVars(folderPathFromConfig);
 
     if (
       folderPathFromConfig &&
@@ -599,11 +600,11 @@ class Paster {
 
     // image file name
     let imageFileName = "";
-    let namePrefix = this.getConfig().namePrefix;
-    let nameBase = this.getConfig().nameBase;
-    let nameSuffix = this.getConfig().nameSuffix;
+    let namePrefix = Paster.getConfig().namePrefix;
+    let nameBase = Paster.getConfig().nameBase;
+    let nameSuffix = Paster.getConfig().nameSuffix;
     imageFileName = namePrefix + nameBase + nameSuffix + extension;
-    imageFileName = this.replacePredefinedVars(imageFileName);
+    imageFileName = Paster.replacePredefinedVars(imageFileName);
 
     // image output path
     let folderPath = path.dirname(filePath);

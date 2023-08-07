@@ -268,7 +268,7 @@
     "moment": "^2.22.1",
     "shelljs": "^0.8.5",
     "turndown": "^7.1.1",
-    "xclip": "^1.0.1"
+    "xclip": "^1.0.3"
   },
   "devDependencies": {
     "@types/glob": "^7.1.3",
