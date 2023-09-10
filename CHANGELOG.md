@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.0.1 (September 10, 2023)
+
+- fix: Variable expansion in rules and Lang-rules: 125
+
 ## 1.0.0 (May 3, 2023)
 
 - feat: Mac Support for Rich Text Paste #74
