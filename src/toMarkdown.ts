@@ -28,7 +28,7 @@ function cell(content, node) {
   return prefix + content + " " + suffix;
 }
 
-function toMarkdown(content) {
+function toMarkdown(content, headingStyle) {
   // http://pandoc.org/README.html#pandocs-markdown
   const pandoc = [
     // {
@@ -254,7 +254,7 @@ function toMarkdown(content) {
   };
 
   var TurndownService = require("turndown");
-  var turndownService = new TurndownService();
+  var turndownService = new TurndownService({ headingStyle });
   Object.entries(pandoc).forEach(([key, value]) => {
     turndownService.addRule(key, value);
   });

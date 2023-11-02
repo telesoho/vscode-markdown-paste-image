@@ -97,6 +97,16 @@
           "default": true,
           "description": "Enable/disable converting html to markdown."
         },
+        "MarkdownPaste.headerStyle": {
+          "type": "string",
+          "scope": "resource",
+          "enum": [
+            "setext",
+            "atx"
+          ],
+          "default": "setext",
+          "description": "Use setext or atx style markdown headers."
+        },
         "MarkdownPaste.enableRulesForHtml": {
           "type": "boolean",
           "scope": "resource",
