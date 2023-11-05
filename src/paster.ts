@@ -46,6 +46,7 @@ class Paster {
 
     let enableHtmlConverter = Paster.getConfig().enableHtmlConverter;
     let enableRulesForHtml = Paster.getConfig().enableRulesForHtml;
+    let headerStyle = Paster.getConfig().headerStyle;
 
     Logger.log("Clipboard Type:", ctx_type);
     switch (ctx_type) {
@@ -53,7 +54,7 @@ class Paster {
         if (enableHtmlConverter) {
           const html = await cb.getTextHtml();
           Logger.log(html);
-          const markdown = toMarkdown(html);
+          const markdown = toMarkdown(html, headerStyle);
           if (enableRulesForHtml) {
             let newMarkdown = Paster.parse(markdown);
             Paster.writeToEditor(newMarkdown);
