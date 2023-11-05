@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.0.2 (November 5, 2023)
+
+- feat: New vscode option for html to markdown
+
 ## 1.0.1 (September 10, 2023)
 
 - fix: Variable expansion in rules and Lang-rules: 125
