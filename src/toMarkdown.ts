@@ -28,7 +28,7 @@ function cell(content, node) {
   return prefix + content + " " + suffix;
 }
 
-function toMarkdown(content, headingStyle) {
+function toMarkdown(content, options) {
   // http://pandoc.org/README.html#pandocs-markdown
   const pandoc = [
     // {
@@ -67,18 +67,10 @@ function toMarkdown(content, headingStyle) {
         return "\n";
       },
     },
-
-    {
-      filter: "hr",
-      replacement: function () {
-        return "\n\n* * * * *\n\n";
-      },
-    },
-
     {
       filter: ["em", "i", "cite", "var"],
-      replacement: function (content) {
-        return "*" + content + "*";
+      replacement: function (content, node, options) {
+        return options.emDelimiter + content + options.emDelimiter;
       },
     },
 
@@ -94,7 +86,7 @@ function toMarkdown(content, headingStyle) {
 
         return isCodeElem && !isCodeBlock;
       },
-      replacement: function (content) {
+      replacement: function (content, node, options) {
         return "`" + content + "`";
       },
     },
@@ -103,7 +95,7 @@ function toMarkdown(content, headingStyle) {
       filter: function (node) {
         return node.nodeName === "A" && node.getAttribute("href");
       },
-      replacement: function (content, node) {
+      replacement: function (content, node, options) {
         const url = node.getAttribute("href");
         const titlePart = node.title ? ' "' + node.title + '"' : "";
         if (content === url) {
@@ -118,24 +110,6 @@ function toMarkdown(content, headingStyle) {
       },
     },
 
-    {
-      filter: "li",
-      replacement: function (content, node) {
-        content = content.replace(/^\s+/, "").replace(/\n/gm, "\n    ");
-        let prefix = "-   ";
-        const parent = node.parentNode;
-
-        if (/ol/i.test(parent.nodeName)) {
-          const index = Array.prototype.indexOf.call(parent.children, node) + 1;
-          prefix = index + ". ";
-          while (prefix.length < 4) {
-            prefix += " ";
-          }
-        }
-
-        return prefix + content;
-      },
-    },
     {
       filter: ["font", "span"],
       replacement: function (content) {
@@ -254,7 +228,7 @@ function toMarkdown(content, headingStyle) {
   };
 
   var TurndownService = require("turndown");
-  var turndownService = new TurndownService({ headingStyle });
+  var turndownService = new TurndownService(options);
   Object.entries(pandoc).forEach(([key, value]) => {
     turndownService.addRule(key, value);
   });

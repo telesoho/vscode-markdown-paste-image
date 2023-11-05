@@ -97,15 +97,18 @@
           "default": true,
           "description": "Enable/disable converting html to markdown."
         },
-        "MarkdownPaste.headerStyle": {
-          "type": "string",
+        "MarkdownPaste.turndownOptions": {
+          "type": "object",
           "scope": "resource",
-          "enum": [
-            "setext",
-            "atx"
-          ],
-          "default": "setext",
-          "description": "Use setext or atx style markdown headers."
+          "default": {
+            "headingStyle": "setext",
+            "bulletListMarker": "-",
+            "strongDelimiter": "**",
+            "emDelimiter": "*",
+            "preformattedCode": "true",
+            "hr": "\n\n* * * *\n\n"
+          },
+          "description": "Use turndown options: https://github.com/mixmark-io/turndown#options"
         },
         "MarkdownPaste.enableRulesForHtml": {
           "type": "boolean",
@@ -277,7 +280,7 @@
     "arch": "^2.2.0",
     "moment": "^2.22.1",
     "shelljs": "^0.8.5",
-    "turndown": "^7.1.1",
+    "turndown": "^7.1.2",
     "xclip": "^1.0.3"
   },
   "devDependencies": {
