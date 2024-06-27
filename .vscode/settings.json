@@ -12,6 +12,14 @@
   "MarkdownPaste.nameBase": "image",
   "MarkdownPaste.nameSuffix": "_${datetime}",
   "MarkdownPaste.path": "${fileWorkspaceFolder}/res/images",
-  "MarkdownPaste.namePrefix": "${fileBasename}_"
+  "MarkdownPaste.namePrefix": "${fileBasename}_",
+  "MarkdownPaste.turndownOptions": {
+    "headingStyle": "atx",
+    "bulletListMarker": "-",
+    "strongDelimiter": "**",
+    "emDelimiter": "*",
+    "preformattedCode": "true",
+    "hr": "\n\n* * * *\n\n"
+  }
 }  
 

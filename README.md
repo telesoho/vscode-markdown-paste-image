@@ -179,6 +179,12 @@ Smartly paste for Markdown.
 
   Default value is `True`.
 
+- `MarkdownPaste.turndownOptions`
+
+  Use turndown options when cover html to markdown, please see  [turndown options](https://github.com/mixmark-io/turndown#options) for detail.
+  
+  Default value is `setext`
+
 - `MarkdownPaste.lang_rules`
 
   As `MarkdownPaste.rules`, you can define rules for other language (for example: asciidoc).
