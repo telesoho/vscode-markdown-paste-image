@@ -290,7 +290,7 @@
     "@types/vscode": "^1.58.0",
     "@typescript-eslint/eslint-plugin": "^5.48.1",
     "@typescript-eslint/parser": "^5.48.1",
-    "@vscode/test-electron": "^2.3.0",
+    "@vscode/test-electron": "^2.3.8",
     "@vscode/vsce": "^2.19.0",
     "cpx2": "^4.2.3",
     "eslint": "^7.27.0",
