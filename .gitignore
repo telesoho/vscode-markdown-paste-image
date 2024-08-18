@@ -9,3 +9,4 @@ _jest-editor/
 /coverage/
 generated-icons/
 *.zip
+/xclip
