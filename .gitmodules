@@ -1,3 +1,4 @@
 [submodule "xclip"]
 	path = xclip
 	url = git@github.com:telesoho/xclip.git
+	branch = main	
