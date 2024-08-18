@@ -8,7 +8,6 @@
     "rootDir": "src",
     "outDir": "out",
     "sourceMap": true,
-    "skipLibCheck": true
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", ".vscode-test", "scripts"]

@@ -4,6 +4,7 @@
   "compilerOptions": {
     "moduleResolution": "Node16",
     "newLine": "lf",
+    "skipLibCheck": true,
     "esModuleInterop": true
   }
 }
