@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.1.0 (2024.08.18)
+
+- feat: Added functionality to analyze clipboard content using a large language model with Groq.
+
 ## 1.0.2 (November 5, 2023)
 
 - feat: New vscode option for html to markdown

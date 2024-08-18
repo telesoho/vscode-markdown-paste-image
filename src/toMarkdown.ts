@@ -224,6 +224,7 @@ function toMarkdown(content, options) {
       .replace(/\n\n\s*\\\n/g, "\n\n")
       .replace(/\n\n\n*/g, "\n\n")
       .replace(/[ ]+$/gm, "")
+      .replace(/<!--\s*([\s\S]*?)\s*-->/gm, "")
       .replace(/^\s+|[\s\\]+$/g, "");
   };
 

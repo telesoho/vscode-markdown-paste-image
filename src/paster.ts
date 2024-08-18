@@ -3,7 +3,7 @@ import * as vscode from "vscode";
 import * as xclip from "xclip";
 import { toMarkdown } from "./toMarkdown";
 import { Predefine } from "./predefine";
-
+import { AIPaster } from "./ai_paster";
 import {
   prepareDirForFile,
   fetchAndSaveFile,
@@ -36,6 +36,20 @@ class Paster {
     }
   }
 
+  static async parseByAI(content: string): Promise<Boolean> {
+    if (Paster.getConfig().enableAI) {
+      const p = new AIPaster();
+      const result = await p.callAI(content);
+      if (result["status"] == "success") {
+        let newContent = result["data"];
+        Logger.log(newContent);
+        Paster.writeToEditor(newContent);
+        return true;
+      }
+    }
+    return false;
+  }
+
   /**
    * Paste text
    */
@@ -53,6 +67,9 @@ class Paster {
       case xclip.ClipboardType.Html:
         if (enableHtmlConverter) {
           const html = await cb.getTextHtml();
+          if (await Paster.parseByAI(html)) {
+            return;
+          }
           Logger.log(html);
           const markdown = toMarkdown(html, turndownOptions);
           if (enableRulesForHtml) {
@@ -63,6 +80,9 @@ class Paster {
           }
         } else {
           const text = await cb.getTextPlain();
+          if (Paster.parseByAI(text)) {
+            return;
+          }
           if (text) {
             let newContent = Paster.parse(text);
             Paster.writeToEditor(newContent);
@@ -71,6 +91,9 @@ class Paster {
         break;
       case xclip.ClipboardType.Text:
         const text = await cb.getTextPlain();
+        if (await Paster.parseByAI(text)) {
+          return;
+        }
         if (text) {
           let newContent = Paster.parse(text);
           Paster.writeToEditor(newContent);
@@ -166,7 +189,7 @@ class Paster {
     return ret.replace(/\\/g, "/");
   }
 
-  protected static getConfig() {
+  static getConfig() {
     let editor = vscode.window.activeTextEditor;
     if (!editor) return vscode.workspace.getConfiguration("MarkdownPaste");
 

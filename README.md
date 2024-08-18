@@ -14,6 +14,12 @@ Smartly paste for Markdown.
 
 ## Features
 
+- AI Parse Clipboard
+
+  This feature uses a large language model(Groq.com) to analyze the clipboard content and convert it into Markdown format.
+
+  You can enable this feature by set `MarkdownPaste.enableAI` to ture.
+
 - Paste smart
 
   Smartly paste in Markdown by pressing 'Ctrl+Alt+V' ('Cmd+Alt+V' on Mac) or `Markdown Paste` command.
@@ -72,6 +78,36 @@ Smartly paste for Markdown.
   - `${fileDirname}` - the current opened file's directory name
   - `${datetime}` - the current date & time formatted by `"yyyyMMDDHHmmss"`, You can customize the format by format string. exp: `${datetime|yyyy-MM-DD_HH-mm-ss}`
   - `${selectedText}` - the current selected text. If selected text contain illegal characters `\/:*?""<>|\r\n` it will return "". You can also set the default text, exp: `${selectedText|default text}`, If selected text contain illegal characters or selected text is empty it will return the default text.
+
+- `MarkdownPaste.enableAI`
+
+  Enable/disable AI to parse clipboard content. If enable, `MarkdownPaste.aiKey` must be required.
+
+  Default value is `false`.
+
+- `MarkdownPaste.aiKey`
+
+  The API key for Groq. You can get one from [Groq.com](https://groq.com/).
+
+  Default value is `""`.
+
+- `MarkdownPaste.aiModel`
+
+  The LLM model to use.
+
+  Default value is `llama3-8b-8192`.
+
+- `MarkdownPaste.aiSysMessage`
+
+  The system message for the LLM model.
+
+  Default value is `You are responsible for converting text content into Markdown format. If the original content is HTML, ignore any color or font settings and comments, but retain tables.`
+
+- `MarkdownPaste.aiTemperature`
+
+  The temperature setting for the LLM model.
+
+  Default value is `1`.
 
 - `MarkdownPaste.path`
 
@@ -231,11 +267,15 @@ Smartly paste for Markdown.
 
   **NOTE** If any language rule been matched, it will not apply `MarkdownPaste.rules` anymore.
 
-## FAQ
+## 问题和建议
 
-1. Extension not working on Windows, nor on Mac.
+1. 请通过以下链接提交Bug。
 
-   https://github.com/telesoho/vscode-markdown-paste-image/issues/6
+   https://github.com/telesoho/vscode-markdown-paste-image/issues
+
+2. 请通过以下链接发布建议。
+
+   https://github.com/telesoho/vscode-markdown-paste-image/discussions
 
 ## Contributing
 

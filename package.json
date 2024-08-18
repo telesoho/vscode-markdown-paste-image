@@ -2,7 +2,7 @@
   "name": "vscode-markdown-paste-image",
   "displayName": "Markdown Paste",
   "description": "A smartly paste for markdown.",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "publisher": "telesoho",
   "author": {
     "name": "telesoho",
@@ -28,7 +28,8 @@
     "markdown",
     "paste image",
     "paste url",
-    "paste code"
+    "paste code",
+    "AI"
   ],
   "engines": {
     "vscode": "^1.58.0"
@@ -55,6 +56,36 @@
       "id": "MarkdownPaste",
       "title": "Markdown Paste Configuration",
       "properties": {
+        "MarkdownPaste.enableAI": {
+          "type": "bool",
+          "scope": "resource",
+          "default": false,
+          "description": "Enable AI to parse cliboard context"
+        },
+        "MarkdownPaste.aiKey": {
+          "type": "string",
+          "scope": "resource",
+          "default": "",
+          "description": "The api key of Groq"
+        },
+        "MarkdownPaste.aiModel": {
+          "type": "string",
+          "scope": "resource",
+          "default": "llama3-8b-8192",
+          "description": "The LLM model."
+        },
+        "MarkdownPaste.aiSysMessage": {
+          "type": "string",
+          "scope": "resource",
+          "default": "You are responsible for converting text content into Markdown format. If the original content is HTML, ignore any color or font settings and comments, but retain tables.",
+          "description": "The LLM model system message."
+        },
+        "MarkdownPaste.aiTemperature": {
+          "type": "number",
+          "scope": "resource",
+          "default": 1,
+          "description": "The LLM model temperature."
+        },
         "MarkdownPaste.path": {
           "type": "string",
           "scope": "resource",
@@ -278,10 +309,11 @@
   "dependencies": {
     "@vscode/vscode-languagedetection": "^1.0.22",
     "arch": "^2.2.0",
+    "groq-sdk": "^0.5.0",
     "moment": "^2.22.1",
     "shelljs": "^0.8.5",
     "turndown": "^7.1.2",
-    "xclip": "^1.0.3"
+    "xclip": "file:xclip"
   },
   "devDependencies": {
     "@types/glob": "^7.1.3",
