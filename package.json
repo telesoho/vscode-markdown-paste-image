@@ -42,6 +42,7 @@
   "scripts": {
     "publish": "npx vsce publish",
     "vscode:prepublish": "npm run compile",
+    "preinstall": "git submodule update -i -r",    
     "prettier": "npx prettier -w .",
     "compile": "npm run lint && tsc -p ./",
     "watch": "tsc -watch -p ./",
