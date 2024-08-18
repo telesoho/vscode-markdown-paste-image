@@ -267,13 +267,13 @@ Smartly paste for Markdown.
 
   **NOTE** If any language rule been matched, it will not apply `MarkdownPaste.rules` anymore.
 
-## 问题和建议
+## Issues and Suggestions
 
-1. 请通过以下链接提交Bug。
+1. Please submit bugs via the following link:
 
    https://github.com/telesoho/vscode-markdown-paste-image/issues
 
-2. 请通过以下链接发布建议。
+2. Please post suggestions via the following link:
 
    https://github.com/telesoho/vscode-markdown-paste-image/discussions
 
