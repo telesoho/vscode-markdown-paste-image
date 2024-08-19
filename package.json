@@ -313,7 +313,7 @@
     "moment": "^2.22.1",
     "shelljs": "^0.8.5",
     "turndown": "^7.1.2",
-    "xclip": "^1.0.4"
+    "xclip": "file:xclip"
   },
   "devDependencies": {
     "@types/glob": "^7.1.3",

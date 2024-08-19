@@ -22,15 +22,16 @@ Source code is split into several top level folders:
 
 `test/suite` Code for automated test suites.
 
-### res
-
-`res/scripts` contains OS scripts.
-
 ## Cloning and Running
 
 Running from source is relatively straight forward. You should:
 
 1. Clone the repository (or your own fork)
+
+   ```sh
+    git clone https://github.com/telesoho/vscode-markdown-paste-image.git --recursive
+   ```
+
 2. Run `npm install` to install dependencies
 3. Open the repository root folder in Visual Studio Code
 4. Ensure `Launch Extension` is selected in the Debug sidebar
