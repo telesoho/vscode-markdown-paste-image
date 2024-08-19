@@ -42,7 +42,7 @@
   "scripts": {
     "publish": "npx vsce publish",
     "vscode:prepublish": "npm run compile",
-    "build:xclip": "cd xclip && npm run build",
+    "build:xclip": "cd xclip && npm run build && npm run test",
     "prettier": "npx prettier -w .",
     "compile": "npm run lint && tsc -p ./",
     "watch": "tsc -watch -p ./",
