@@ -57,7 +57,7 @@
       "title": "Markdown Paste Configuration",
       "properties": {
         "MarkdownPaste.enableAI": {
-          "type": "bool",
+          "type": "boolean",
           "scope": "resource",
           "default": false,
           "description": "Enable AI to parse cliboard context"
@@ -324,7 +324,7 @@
     "@typescript-eslint/parser": "^5.48.1",
     "@vscode/test-electron": "^2.4.0",
     "@vscode/vsce": "^2.19.0",
-    "cpx": "1.5.0",
+    "cpx": "^1.5.0",
     "eslint": "^7.27.0",
     "eslint-config-prettier": "^8.6.0",
     "eslint-plugin-jsdoc": "^39.6.4",
