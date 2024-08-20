@@ -18,7 +18,7 @@ Smartly paste for Markdown.
 
   This feature uses a large language model(Groq.com) to analyze the clipboard content and convert it into Markdown format.
 
-  Enable this feature by Set `MarkdownPaste.enableAI` to ture.
+  Enable this feature by setting `MarkdownPaste.enableAI` to true.
   You can also customize how AI processes and outputs text by setting the `MarkdownPaste.aiSysMessage` parameter.
 
 - Paste smart
