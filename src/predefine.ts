@@ -116,6 +116,45 @@ class Predefine {
 
     return selectText;
   }
+
+  /**
+   * Replace all predefined variable.
+   * @param str path
+   * @returns
+   */
+  static replacePredefinedVars(str: string) {
+    let predefine = new Predefine();
+    return Predefine.replaceRegPredefinedVars(str, predefine);
+  }
+
+  /**
+   * Replace all predefined variable with Regexp.
+   * @param str path
+   * @returns
+   */
+  static replaceRegPredefinedVars(str: string, predefine: Predefine) {
+    const regex = /(?<var>\$\{\s*(?<name>\w+)\s*(\|(?<param>.*?))?\})/gm;
+
+    let ret: string = str;
+    let m: RegExpExecArray;
+
+    while ((m = regex.exec(str)) !== null) {
+      // This is necessary to avoid infinite loops with zero-width matches
+      if (m.index === regex.lastIndex) {
+        regex.lastIndex++;
+      }
+
+      if (m.groups.name in predefine) {
+        ret = ret.replace(
+          m.groups.var,
+          predefine[m.groups.name](m.groups.param)
+        );
+      }
+    }
+
+    // User may be input a path with backward slashes (\), so need to replace all '\' to '/'.
+    return ret.replace(/\\/g, "/");
+  }
 }
 
 export { Predefine };

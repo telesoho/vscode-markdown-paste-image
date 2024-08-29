@@ -2,7 +2,7 @@
   "name": "vscode-markdown-paste-image",
   "displayName": "Markdown Paste",
   "description": "A smartly paste for markdown.",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "publisher": "telesoho",
   "author": {
     "name": "telesoho",
@@ -80,6 +80,12 @@
           "scope": "resource",
           "default": "You are responsible for converting text content into Markdown format. If the original content is HTML, ignore any color or font settings and comments, but retain tables.",
           "description": "The LLM model system message."
+        },
+        "MarkdownPaste.aiPromptFile": {
+          "type": "string",
+          "scope": "resource",
+          "default": "${fileWorkspaceFolder}/.aiprompt",
+          "description": "The LLM model prompt file."
         },
         "MarkdownPaste.aiTemperature": {
           "type": "number",

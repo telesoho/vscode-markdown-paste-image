@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.1.2 (2024.08.29)
+
+- feat: Add prompt file configuration for AI.
+
 ## 1.1.0 (2024.08.18)
 
 - feat: Added functionality to analyze clipboard content using a large language model with Groq.

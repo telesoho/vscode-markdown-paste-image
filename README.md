@@ -20,6 +20,7 @@ Smartly paste for Markdown.
 
   Enable this feature by setting `MarkdownPaste.enableAI` to true.
   You can also customize how AI processes and outputs text by setting the `MarkdownPaste.aiSysMessage` parameter.
+  If you need to set more complex rules for AI, you can specify the AI's prompt file through `MarkdownPaste.aiPromptFile`.
 
 - Paste smart
 
@@ -103,6 +104,12 @@ Smartly paste for Markdown.
   The system message for the LLM model.
 
   Default value is `You are responsible for converting text content into Markdown format. If the original content is HTML, ignore any color or font settings and comments, but retain tables.`
+
+- `MarkdownPaste.aiPromptFile`
+
+  The path to the file containing the AI model prompt. This file can be used to customize the AI model's behavior and provide additional context for the conversion process. The path can be absolute or relative to the workspace folder. Predefined variables are supported.
+
+  Default value is `${fileWorkspaceFolder}/.aiprompt`.
 
 - `MarkdownPaste.aiTemperature`
 

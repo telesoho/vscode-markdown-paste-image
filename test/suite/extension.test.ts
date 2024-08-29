@@ -114,61 +114,61 @@ suite("Extension Tests", () => {
     let predefine = new PredefineTest();
     let str = "";
     let ret_expect = "";
-    let ret = null;
+    let ret = "";
 
     str = "${workspaceRoot},${datetime|aabbccddee},${fileExtname}";
     ret_expect = "/telesoho/workspaceRoot,datetime('aabbccddee'),fileExtname";
-    ret = paster.Paster.replaceRegPredefinedVars(str, predefine);
+    ret = Predefine.replaceRegPredefinedVars(str, predefine);
     assert.strictEqual(ret, ret_expect);
 
     str = "${workspaceRoot}";
     ret_expect = "/telesoho/workspaceRoot";
-    ret = paster.Paster.replaceRegPredefinedVars(str, predefine);
+    ret = Predefine.replaceRegPredefinedVars(str, predefine);
     assert.strictEqual(ret, ret_expect);
 
     str = "${ workspaceRoot }";
     ret_expect = "/telesoho/workspaceRoot";
-    ret = paster.Paster.replaceRegPredefinedVars(str, predefine);
+    ret = Predefine.replaceRegPredefinedVars(str, predefine);
     assert.strictEqual(ret, ret_expect);
 
     str = "${datetime}";
     ret_expect = "datetime('yyyyMMDDHHmmss')";
-    ret = paster.Paster.replaceRegPredefinedVars(str, predefine);
+    ret = Predefine.replaceRegPredefinedVars(str, predefine);
     assert.strictEqual(ret, ret_expect);
 
     str = "${ datetime | abc }";
     ret_expect = "datetime(' abc ')";
-    ret = paster.Paster.replaceRegPredefinedVars(str, predefine);
+    ret = Predefine.replaceRegPredefinedVars(str, predefine);
     assert.strictEqual(ret, ret_expect);
 
     str = "${ datetime| abc}";
     ret_expect = "datetime(' abc')";
-    ret = paster.Paster.replaceRegPredefinedVars(str, predefine);
+    ret = Predefine.replaceRegPredefinedVars(str, predefine);
     assert.strictEqual(ret, ret_expect);
 
     str = "${ datetime|ab c}";
     ret_expect = "datetime('ab c')";
-    ret = paster.Paster.replaceRegPredefinedVars(str, predefine);
+    ret = Predefine.replaceRegPredefinedVars(str, predefine);
     assert.strictEqual(ret, ret_expect);
 
     str = "${notExist}";
     ret_expect = "${notExist}";
-    ret = paster.Paster.replaceRegPredefinedVars(str, predefine);
+    ret = Predefine.replaceRegPredefinedVars(str, predefine);
     assert.strictEqual(ret, ret_expect);
 
     str = "${notExist}";
     ret_expect = "${notExist}";
-    ret = paster.Paster.replaceRegPredefinedVars(str, predefine);
+    ret = Predefine.replaceRegPredefinedVars(str, predefine);
     assert.strictEqual(ret, ret_expect);
 
     str = "${relativeFileDirname}";
     ret_expect = "filedir";
-    ret = paster.Paster.replaceRegPredefinedVars(str, predefine);
+    ret = Predefine.replaceRegPredefinedVars(str, predefine);
     assert.strictEqual(ret, ret_expect);
 
     str = "${workspaceFolderBasename}";
     ret_expect = "fileWorkspaceFolder";
-    ret = paster.Paster.replaceRegPredefinedVars(str, predefine);
+    ret = Predefine.replaceRegPredefinedVars(str, predefine);
     assert.strictEqual(ret, ret_expect);
   });
 });

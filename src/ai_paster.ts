@@ -1,5 +1,6 @@
 import { Paster } from "./paster";
 import { Groq } from "groq-sdk";
+import { Predefine } from "./predefine";
 
 export interface Message {
   role: "user" | "assistant";
@@ -35,7 +36,20 @@ export class AIPaster {
     try {
       const today = new Date().toISOString().split("T")[0];
       let _model = model || this.config.aiModel;
-      const sysMessage = this.config.aiSysMessage;
+      let sysMessage = this.config.aiSysMessage;
+      try {
+        const fs = require("fs");
+        const path = require("path");
+        const promptFile = Predefine.replacePredefinedVars(
+          this.config.aiPromptFile
+        );
+        const aiPromptFilePath = path.resolve(promptFile);
+        if (fs.existsSync(aiPromptFilePath)) {
+          sysMessage = fs.readFileSync(aiPromptFilePath, "utf8");
+        }
+      } catch (error) {
+        console.error("Failed to read AI prompt file:", error);
+      }
 
       const completion = await this.client.chat.completions.create({
         messages: [

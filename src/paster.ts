@@ -150,45 +150,6 @@ class Paster {
     });
   }
 
-  /**
-   * Replace all predefined variable.
-   * @param str path
-   * @returns
-   */
-  private static replacePredefinedVars(str: string) {
-    let predefine = new Predefine();
-    return Paster.replaceRegPredefinedVars(str, predefine);
-  }
-
-  /**
-   * Replace all predefined variable with Regexp.
-   * @param str path
-   * @returns
-   */
-  private static replaceRegPredefinedVars(str: string, predefine: Predefine) {
-    const regex = /(?<var>\$\{\s*(?<name>\w+)\s*(\|(?<param>.*?))?\})/gm;
-
-    let ret: string = str;
-    let m: RegExpExecArray;
-
-    while ((m = regex.exec(str)) !== null) {
-      // This is necessary to avoid infinite loops with zero-width matches
-      if (m.index === regex.lastIndex) {
-        regex.lastIndex++;
-      }
-
-      if (m.groups.name in predefine) {
-        ret = ret.replace(
-          m.groups.var,
-          predefine[m.groups.name](m.groups.param)
-        );
-      }
-    }
-
-    // User may be input a path with backward slashes (\), so need to replace all '\' to '/'.
-    return ret.replace(/\\/g, "/");
-  }
-
   static getConfig() {
     let editor = vscode.window.activeTextEditor;
     if (!editor) return vscode.workspace.getConfiguration("MarkdownPaste");
@@ -215,7 +176,7 @@ class Paster {
   ): PasteImageContext | null {
     if (!inputVal) return;
 
-    inputVal = Paster.replacePredefinedVars(inputVal);
+    inputVal = Predefine.replacePredefinedVars(inputVal);
 
     //leading and trailling white space are invalidate
     if (inputVal && inputVal.length !== inputVal.trim().length) {
@@ -440,7 +401,7 @@ class Paster {
     let isApplicable = false;
     for (const rule of rules) {
       const re = new RegExp(rule.regex, rule.options);
-      const reps = Paster.replacePredefinedVars(rule.replace);
+      const reps = Predefine.replacePredefinedVars(rule.replace);
       if (re.test(content)) {
         content = content.replace(re, reps);
         if (!applyAllRules) {
@@ -610,7 +571,8 @@ class Paster {
     // get image destination path
     let folderPathFromConfig = Paster.getConfig().path;
 
-    folderPathFromConfig = Paster.replacePredefinedVars(folderPathFromConfig);
+    folderPathFromConfig =
+      Predefine.replacePredefinedVars(folderPathFromConfig);
 
     if (
       folderPathFromConfig &&
@@ -628,7 +590,7 @@ class Paster {
     let nameBase = Paster.getConfig().nameBase;
     let nameSuffix = Paster.getConfig().nameSuffix;
     imageFileName = namePrefix + nameBase + nameSuffix + extension;
-    imageFileName = Paster.replacePredefinedVars(imageFileName);
+    imageFileName = Predefine.replacePredefinedVars(imageFileName);
 
     // image output path
     let folderPath = path.dirname(filePath);
