@@ -45,7 +45,7 @@
     "test:xclip": "cd xclip && npm run build && npm run test",
     "build:xclip": "cd xclip && npm run build",
     "prettier": "npx prettier -w .",
-    "compile": "npm run build:xclip && npm run lint && tsc -p ./",
+    "compile": "npm run build:xclip && tsc -p ./",
     "watch": "tsc -watch -p ./",
     "pretest": "npm run test:xclip && rimraf ./out_test && npm run prettier && npm run lint && tsc --project ./ts-test.json && cpx \"./res/**/*\" \"./out_test/res\" --clean",
     "lint": "eslint src --ext ts",
