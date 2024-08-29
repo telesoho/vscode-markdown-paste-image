@@ -45,9 +45,9 @@
     "test:xclip": "cd xclip && npm run build && npm run test",
     "build:xclip": "cd xclip && npm run build",
     "prettier": "npx prettier -w .",
-    "compile": "npm run build:xclip && tsc -p ./",
+    "compile": "npm run lint && tsc -p ./",
     "watch": "tsc -watch -p ./",
-    "pretest": "npm run test:xclip && rimraf ./out_test && npm run prettier && npm run lint && tsc --project ./ts-test.json && cpx \"./res/**/*\" \"./out_test/res\" --clean",
+    "pretest": "rimraf ./out_test && npm run prettier && npm run lint && tsc --project ./ts-test.json && cpx \"./res/**/*\" \"./out_test/res\" --clean",
     "lint": "eslint src --ext ts",
     "test": "node ./out_test/test/runTest.js",
     "dev:preinstall": "npx vsce package",
@@ -321,7 +321,7 @@
     "moment": "^2.22.1",
     "shelljs": "^0.8.5",
     "turndown": "^7.1.2",
-    "xclip": "file:xclip"
+    "xclip": "^1.0.5"
   },
   "devDependencies": {
     "@types/glob": "^7.1.3",
