@@ -1,5 +1,6 @@
 import { ChatCompletionTool } from "openai/resources/chat/completions";
 import Logger from "./Logger";
+import { fetchWeb } from "./tool_functions";
 
 type ToolFunction = (...args: any[]) => any;
 
@@ -35,6 +36,13 @@ export class ToolsManager {
         required: ["city"],
       }
     );
+    this.registerTool("fetchWeb", fetchWeb, "fetch a web page content", {
+      type: "object",
+      properties: {
+        url: { type: "string", description: "The url of the web page" },
+      },
+      required: ["url"],
+    });
   }
 
   public registerTool(
@@ -46,11 +54,11 @@ export class ToolsManager {
     this.tools.set(name, { func, description, parameters });
   }
 
-  public executeTool(name: string, args: any): string | null {
+  public async executeTool(name: string, args: any): Promise<string> {
     const toolInfo = this.tools.get(name);
     if (toolInfo) {
       try {
-        return JSON.stringify(toolInfo.func(args));
+        return JSON.stringify(await toolInfo.func(args));
       } catch (error) {
         Logger.log(`Error executing tool ${name}:`, error);
         return null;

@@ -333,11 +333,12 @@
   "dependencies": {
     "@vscode/vscode-languagedetection": "^1.0.22",
     "arch": "^2.2.0",
+    "axios": "^1.7.7",
     "moment": "^2.22.1",
+    "openai": "^4.61.0",
     "shelljs": "^0.8.5",
     "turndown": "^7.1.2",
-    "xclip": "^1.0.5",
-    "openai": "^4.61.0"
+    "xclip": "^1.0.5"
   },
   "devDependencies": {
     "@types/glob": "^7.1.3",

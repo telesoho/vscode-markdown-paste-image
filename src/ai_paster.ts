@@ -46,7 +46,7 @@ export class AIPaster {
       if (toolCalls) {
         for (const toolCall of toolCalls) {
           const functionName = toolCall.function.name;
-          const functionResponse = this.toolsManager.executeTool(
+          const functionResponse = await this.toolsManager.executeTool(
             functionName,
             JSON.parse(toolCall.function.arguments)
           );
