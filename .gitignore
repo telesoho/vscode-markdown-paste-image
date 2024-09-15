@@ -9,3 +9,5 @@ _jest-editor/
 /coverage/
 generated-icons/
 *.zip
+/package-lock.json
+/pnpm-lock.yaml
