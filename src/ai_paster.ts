@@ -1,77 +1,136 @@
 import { Paster } from "./paster";
-import { Groq } from "groq-sdk";
+import OpenAI from "openai";
+import {
+  ChatCompletionMessageParam,
+  ChatCompletionTool,
+  ChatCompletionToolMessageParam,
+} from "openai/resources/chat/completions";
 import { Predefine } from "./predefine";
 
-export interface Message {
-  role: "user" | "assistant";
-  content: string;
-  context?: string;
-  formatedContent?: string;
-  dateTimestamp?: number;
-  readableDateAndTime?: string;
-  sessionId?: string;
-}
+import Logger from "./Logger";
 
 export class AIPaster {
-  private client: Groq;
+  private client: OpenAI;
 
   constructor() {
-    this.client = new Groq({
-      apiKey: this.config.aiKey,
-    });
+    this.client = new OpenAI(this.config.openaiConnectOption);
+  }
+
+  public destructor() {
+    delete this.client;
+    this.client = null;
   }
 
   public get config() {
     return Paster.getConfig();
   }
 
-  public async callAI(
-    message: string,
-    current_messages: Message[] = [],
-    model: string = null
-  ): Promise<any> {
-    if (!this.client) {
-      return { status: "error", message: "Client is not initialized" };
-    }
+  private async runCompletion(completion) {
     try {
-      const today = new Date().toISOString().split("T")[0];
-      let _model = model || this.config.aiModel;
-      let sysMessage = this.config.aiSysMessage;
+      completion.messages.forEach((message) => {
+        Logger.log(
+          `Role: ${message.role}, Content: ${
+            typeof message.content === "string"
+              ? message.content
+              : JSON.stringify(message.content)
+          }`
+        );
+      });
+      const chatCompletion = await this.client.chat.completions.create(
+        completion
+      );
+      const responseMessages = chatCompletion.choices[0].message;
+      const toolCalls = chatCompletion.choices[0].message.tool_calls;
+      if (toolCalls) {
+        const availableFunctions = {
+          get_current_weather: function ({ city }: { city: string }) {
+            return JSON.stringify({
+              city: city,
+              temperature: "25°C",
+              weather: "sunny",
+            });
+          },
+        };
+        // messages.push(responseMessages);
+        for (const toolCall of toolCalls) {
+          const functionName: keyof typeof availableFunctions = toolCall
+            .function.name as keyof typeof availableFunctions;
+          const functionToCall = availableFunctions[functionName];
+          const functionArgs = JSON.parse(toolCall.function.arguments);
+          const functionResponse = functionToCall(functionArgs);
+          completion.messages.push({
+            tool_call_id: toolCall.id,
+            role: "tool",
+            content: functionResponse,
+          });
+        }
+        completion.messages.forEach((message: ChatCompletionMessageParam) => {
+          Logger.log(
+            `Role: ${message.role}, Content: ${
+              typeof message.content === "string"
+                ? message.content
+                : JSON.stringify(message.content)
+            }`
+          );
+        });
+        const secondResponse = await this.client.chat.completions.create(
+          completion
+        );
+
+        secondResponse.choices.forEach((choice, index) => {
+          Logger.log(choice.message.content);
+        });
+        return secondResponse.choices[0].message.content;
+      }
+      return responseMessages.content;
+    } catch (error) {
+      Logger.log("Error", error);
+      throw error;
+    }
+  }
+
+  public async callAI(clipboardText: string): Promise<any> {
+    try {
+      let openaiCompletionTemplate = this.config.openaiCompletionTemplate;
       try {
         const fs = require("fs");
         const path = require("path");
-        const promptFile = Predefine.replacePredefinedVars(
-          this.config.aiPromptFile
+        const openaiCompletionTemplateFile = path.resolve(
+          Predefine.replacePredefinedVars(
+            this.config.openaiCompletionTemplateFile
+          )
         );
-        const aiPromptFilePath = path.resolve(promptFile);
-        if (fs.existsSync(aiPromptFilePath)) {
-          sysMessage = fs.readFileSync(aiPromptFilePath, "utf8");
+        if (fs.existsSync(openaiCompletionTemplateFile)) {
+          openaiCompletionTemplate = JSON.parse(
+            fs.readFileSync(openaiCompletionTemplateFile, "utf8")
+          );
         }
       } catch (error) {
-        console.error("Failed to read AI prompt file:", error);
+        Logger.log("Failed to read openaiCompletionTemplate file:", error);
       }
 
-      const completion = await this.client.chat.completions.create({
-        messages: [
-          {
-            role: "system",
-            content: sysMessage,
-          },
-          ...current_messages.map((c) => ({
-            role: c.role,
-            content: c.content,
-          })),
-          {
-            role: "user",
-            content: message,
-          },
-        ],
-        temperature: this.config.aiTemperature,
-        top_p: 0.9,
-        model: _model,
-      });
+      let result = "";
 
-      return { status: "success", data: completion.choices[0].message.content };
+      await Promise.all(
+        openaiCompletionTemplate.map(async (completion: any) => {
+          completion.messages.forEach((message: any) => {
+            if (Array.isArray(message.content)) {
+              message.content = message.content.join("\n");
+            }
+            if (message.content.includes("{{clipboard_text}}")) {
+              message.content = message.content.replace(
+                "{{clipboard_text}}",
+                clipboardText
+              );
+            }
+          });
+          let content = await this.runCompletion(completion);
+          Logger.log("content:", content);
+          result += content;
+        })
+      );
+
+      return { status: "success", message: result };
     } catch (error: any) {
       if (error && error.message) {
         console.log(error.message);

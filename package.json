@@ -2,7 +2,7 @@
   "name": "vscode-markdown-paste-image",
   "displayName": "Markdown Paste",
   "description": "A smartly paste for markdown.",
-  "version": "1.1.2",
+  "version": "1.2.0",
   "publisher": "telesoho",
   "author": {
     "name": "telesoho",
@@ -64,35 +64,51 @@
           "default": false,
           "description": "Enable AI to parse cliboard context"
         },
-        "MarkdownPaste.aiKey": {
+        "MarkdownPaste.openaiConnectOption": {
+          "type": "object",
+          "scope": "resource",
+          "default": {
+            "apiKey": "",
+            "baseURL": "https://api.groq.com/openai/v1",
+            "maxRetries": 2
+          },
+          "description": "Configuration options for connecting to the OpenAI compatible API, including the API key, base URL, and maximum number of retries."
+        },
+        "MarkdownPaste.openaiCompletionTemplate": {
+          "type": "array",
+          "scope": "resource",
+          "items": {
+            "type": "object"
+          },
+          "default": [
+            {
+              "model": "llama-3.1-8b-instant",
+              "messages": [
+                {
+                  "role": "system",
+                  "content": [
+                    "You are responsible for converting text content into Markdown format. ",
+                    "If the original content is HTML, ignore any color or font settings and comments, but retain tables.",
+                    "Only output convered content"
+                  ]
+                },
+                {
+                  "role": "user",
+                  "content": "{{clipboard_text}}"
+                }
+              ],
+              "tools": [],
+              "tool_choice": "auto",
+              "max_tokens": 4096
+            }
+          ],
+          "description": "The template for AI completion responses. See:"
+        },
+        "MarkdownPaste.openaiCompletionTemplateFile": {
           "type": "string",
           "scope": "resource",
-          "default": "",
-          "description": "The api key of Groq"
-        },
-        "MarkdownPaste.aiModel": {
-          "type": "string",
-          "scope": "resource",
-          "default": "llama3-8b-8192",
-          "description": "The LLM model."
-        },
-        "MarkdownPaste.aiSysMessage": {
-          "type": "string",
-          "scope": "resource",
-          "default": "You are responsible for converting text content into Markdown format. If the original content is HTML, ignore any color or font settings and comments, but retain tables.",
-          "description": "The LLM model system message."
-        },
-        "MarkdownPaste.aiPromptFile": {
-          "type": "string",
-          "scope": "resource",
-          "default": "${fileWorkspaceFolder}/.aiprompt",
-          "description": "The LLM model prompt file."
-        },
-        "MarkdownPaste.aiTemperature": {
-          "type": "number",
-          "scope": "resource",
-          "default": 1,
-          "description": "The LLM model temperature."
+          "default": "${fileWorkspaceFolder}/.openaiCompletionTemplate.json",
+          "description": "The template file for AI completion responses"
         },
         "MarkdownPaste.path": {
           "type": "string",
@@ -317,11 +333,11 @@
   "dependencies": {
     "@vscode/vscode-languagedetection": "^1.0.22",
     "arch": "^2.2.0",
-    "groq-sdk": "^0.5.0",
     "moment": "^2.22.1",
     "shelljs": "^0.8.5",
     "turndown": "^7.1.2",
-    "xclip": "^1.0.5"
+    "xclip": "^1.0.5",
+    "openai": "^4.61.0"    
   },
   "devDependencies": {
     "@types/glob": "^7.1.3",

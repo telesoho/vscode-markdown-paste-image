@@ -40,10 +40,8 @@ class Paster {
     if (Paster.getConfig().enableAI) {
       const p = new AIPaster();
       const result = await p.callAI(content);
-      if (result["status"] == "success") {
-        let newContent = result["data"];
-        Logger.log(newContent);
-        Paster.writeToEditor(newContent);
+      if (result.status == "success") {
+        Paster.writeToEditor(result.message);
         return true;
       }
     }
