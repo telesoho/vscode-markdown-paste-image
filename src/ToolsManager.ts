@@ -20,7 +20,7 @@ export class ToolsManager {
   public registerDefaultTools() {
     this.registerTool(
       "get_current_weather",
-      ({ city }: { city: string }) => {
+      async ({ city }: { city: string }) => {
         return JSON.stringify({
           city: city,
           temperature: "25°C",

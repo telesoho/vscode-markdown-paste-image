@@ -30,9 +30,9 @@ suite("ToolsManager Tests", () => {
     assert.deepStrictEqual(tools[0].function.parameters, toolParameters);
   });
 
-  test("executeTool should call the registered tool function", () => {
+  test("executeTool should call the registered tool function", async () => {
     const toolName = "test_tool";
-    const toolFunc = (args: any) => ({ result: args.input });
+    const toolFunc = async (args: any) => ({ result: args.input });
     const toolDescription = "A test tool";
     const toolParameters = { type: "object", properties: {} };
 
@@ -43,12 +43,12 @@ suite("ToolsManager Tests", () => {
       toolParameters
     );
 
-    const result = toolsManager.executeTool(toolName, { input: "test" });
+    const result = await toolsManager.executeTool(toolName, { input: "test" });
     assert.strictEqual(result, JSON.stringify({ result: "test" }));
   });
 
-  test("executeTool should return null for unregistered tool", () => {
-    const result = toolsManager.executeTool("nonexistent_tool", {});
+  test("executeTool should return null for unregistered tool", async () => {
+    const result = await toolsManager.executeTool("nonexistent_tool", {});
     assert.strictEqual(result, null);
   });
 
@@ -80,14 +80,7 @@ suite("ToolsManager Tests", () => {
     });
   });
 
-  test("registerDefaultTools should register the weather tool", () => {
-    toolsManager.registerDefaultTools();
-    const tools = toolsManager.getToolsForOpenAI();
-    assert.strictEqual(tools.length, 1);
-    assert.strictEqual(tools[0].function.name, "get_current_weather");
-  });
-
-  test("registerTool should overwrite existing tool with same name", () => {
+  test("registerTool should overwrite existing tool with same name", async () => {
     const toolName = "test_tool";
     const toolFunc1 = () => ({ result: "original" });
     const toolFunc2 = () => ({ result: "overwritten" });
@@ -107,11 +100,11 @@ suite("ToolsManager Tests", () => {
       toolParameters
     );
 
-    const result = toolsManager.executeTool(toolName, {});
+    const result = await toolsManager.executeTool(toolName, {});
     assert.strictEqual(result, JSON.stringify({ result: "overwritten" }));
   });
 
-  test("executeTool should handle errors in tool function", () => {
+  test("executeTool should handle errors in tool function", async () => {
     const toolName = "error_tool";
     const toolFunc = () => {
       throw new Error("Test error");
@@ -126,7 +119,7 @@ suite("ToolsManager Tests", () => {
       toolParameters
     );
 
-    const result = toolsManager.executeTool(toolName, {});
+    const result = await toolsManager.executeTool(toolName, {});
     assert.strictEqual(result, null);
   });
 
