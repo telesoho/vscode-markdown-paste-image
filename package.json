@@ -102,7 +102,7 @@
               "max_tokens": 4096
             }
           ],
-          "description": "The template for AI completion responses. See:"
+          "description": "The template for AI completion responses."
         },
         "MarkdownPaste.openaiCompletionTemplateFile": {
           "type": "string",
@@ -337,7 +337,7 @@
     "shelljs": "^0.8.5",
     "turndown": "^7.1.2",
     "xclip": "^1.0.5",
-    "openai": "^4.61.0"    
+    "openai": "^4.61.0"
   },
   "devDependencies": {
     "@types/glob": "^7.1.3",

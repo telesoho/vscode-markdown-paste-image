@@ -3,17 +3,19 @@ import OpenAI from "openai";
 import {
   ChatCompletionMessageParam,
   ChatCompletionTool,
-  ChatCompletionToolMessageParam,
 } from "openai/resources/chat/completions";
 import { Predefine } from "./predefine";
-
 import Logger from "./Logger";
+import { ToolsManager } from "./ToolsManager";
 
 export class AIPaster {
   private client: OpenAI;
+  private toolsManager: ToolsManager;
 
   constructor() {
     this.client = new OpenAI(this.config.openaiConnectOption);
+    this.toolsManager = new ToolsManager();
+    this.toolsManager.registerDefaultTools();
   }
 
   public destructor() {
@@ -42,27 +44,19 @@ export class AIPaster {
       const responseMessages = chatCompletion.choices[0].message;
       const toolCalls = chatCompletion.choices[0].message.tool_calls;
       if (toolCalls) {
-        const availableFunctions = {
-          get_current_weather: function ({ city }: { city: string }) {
-            return JSON.stringify({
-              city: city,
-              temperature: "25°C",
-              weather: "sunny",
-            });
-          },
-        };
-        // messages.push(responseMessages);
         for (const toolCall of toolCalls) {
-          const functionName: keyof typeof availableFunctions = toolCall
-            .function.name as keyof typeof availableFunctions;
-          const functionToCall = availableFunctions[functionName];
-          const functionArgs = JSON.parse(toolCall.function.arguments);
-          const functionResponse = functionToCall(functionArgs);
-          completion.messages.push({
-            tool_call_id: toolCall.id,
-            role: "tool",
-            content: functionResponse,
-          });
+          const functionName = toolCall.function.name;
+          const functionResponse = this.toolsManager.executeTool(
+            functionName,
+            JSON.parse(toolCall.function.arguments)
+          );
+          if (functionResponse !== null) {
+            completion.messages.push({
+              tool_call_id: toolCall.id,
+              role: "tool",
+              content: functionResponse,
+            });
+          }
         }
         completion.messages.forEach((message: ChatCompletionMessageParam) => {
           Logger.log(
@@ -87,6 +81,15 @@ export class AIPaster {
       Logger.log("Error", error);
       throw error;
     }
+  }
+
+  private mergeToolsByFunctionName(existingTools, newTools) {
+    const toolMap = new Map();
+
+    existingTools.forEach((tool) => toolMap.set(tool.function.name, tool));
+    newTools.forEach((tool) => toolMap.set(tool.function.name, tool));
+
+    return Array.from(toolMap.values());
   }
 
   public async callAI(clipboardText: string): Promise<any> {
@@ -124,6 +127,14 @@ export class AIPaster {
               );
             }
           });
+          if (completion.tools && Array.isArray(completion.tools)) {
+            completion.tools = this.mergeToolsByFunctionName(
+              completion.tools,
+              this.toolsManager.getToolsForOpenAI()
+            );
+          } else {
+            completion.tools = this.toolsManager.getToolsForOpenAI();
+          }
           let content = await this.runCompletion(completion);
           Logger.log("content:", content);
           result += content;
