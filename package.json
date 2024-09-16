@@ -223,6 +223,35 @@
           "default": "encodeSpaceOnly",
           "description": "Encode path to URL-encode format. Options: none, encodeURI, encodeSpaceOnly"
         },
+        "MarkdownPaste.autoSelectClipboardType": {
+          "type": "string",
+          "enum": [
+            "always",
+            "never",
+            "html&text"
+          ],
+          "scope": "resource",
+          "description": "Auto select clipboard type while multiple clipboard types are available.",
+          "default": "html&text"
+        },
+        "MarkdownPaste.autoSelectClipboardTypePriority": {
+          "type": "array",
+          "scope": "resource",
+          "items": {
+            "type": "string",
+            "enum": [
+              "image",
+              "html",
+              "text"
+            ]
+          },
+          "description": "Rules for lang paste.",
+          "default": [
+            "image",
+            "html",
+            "text"
+          ]
+        },
         "MarkdownPaste.lang_rules": {
           "type": "array",
           "scope": "resource",
@@ -338,7 +367,7 @@
     "openai": "^4.61.0",
     "shelljs": "^0.8.5",
     "turndown": "^7.1.2",
-    "xclip": "^1.0.5"
+    "xclip": "^1.0.6"
   },
   "devDependencies": {
     "@types/glob": "^7.1.3",

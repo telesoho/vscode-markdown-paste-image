@@ -48,17 +48,48 @@ class Paster {
     return false;
   }
 
+  static async selectClipboardType(
+    type: Set<xclip.ClipboardType> | xclip.ClipboardType
+  ): Promise<xclip.ClipboardType> {
+    if (!(type instanceof Set)) {
+      return type;
+    }
+    if (this.config.autoSelectClipboardType == "always") {
+      const priorityOrdering = this.config.autoSelectClipboardTypePriority;
+      for (const theType of priorityOrdering)
+        if (type.has(theType)) return theType;
+      return xclip.ClipboardType.Unknown;
+    }
+    if (
+      this.config.autoSelectClipboardType == "never" ||
+      (this.config.autoSelectClipboardType == "html&text" &&
+        type.has(xclip.ClipboardType.Image))
+    ) {
+      const selected = await vscode.window.showInformationMessage(
+        "There are multiple types of content in your clipboard. Which one do you want to use?",
+        {
+          modal: true,
+        },
+        ...Array.from(type)
+      );
+      if (selected) {
+        return selected;
+      }
+      return xclip.ClipboardType.Unknown;
+    }
+  }
+
   /**
    * Paste text
    */
-  public static async pasteText() {
+  public static async paste() {
     const shell = xclip.getShell();
     const cb = shell.getClipboard();
-    const ctx_type = await cb.getContentType();
+    const ctx_type = await this.selectClipboardType(await cb.getContentType());
 
-    let enableHtmlConverter = Paster.getConfig().enableHtmlConverter;
-    let enableRulesForHtml = Paster.getConfig().enableRulesForHtml;
-    let turndownOptions = Paster.getConfig().turndownOptions;
+    let enableHtmlConverter = this.config.enableHtmlConverter;
+    let enableRulesForHtml = this.config.enableRulesForHtml;
+    let turndownOptions = this.config.turndownOptions;
 
     Logger.log("Clipboard Type:", ctx_type);
     switch (ctx_type) {
@@ -112,7 +143,7 @@ class Paster {
   public static async pasteDownload() {
     const shell = xclip.getShell();
     const cb = shell.getClipboard();
-    const ctx_type = await cb.getContentType();
+    const ctx_type = await this.selectClipboardType(await cb.getContentType());
     Logger.log("Clipboard Type:", ctx_type);
     switch (ctx_type) {
       case xclip.ClipboardType.Html:
@@ -156,6 +187,10 @@ class Paster {
     if (!fileUri) return vscode.workspace.getConfiguration("MarkdownPaste");
 
     return vscode.workspace.getConfiguration("MarkdownPaste", fileUri);
+  }
+
+  static get config() {
+    return Paster.getConfig();
   }
 
   /**
