@@ -38,12 +38,16 @@ export class AIPaster {
           }`
         );
       });
+      completion.tools.forEach((tool) => {
+        Logger.log("tool:", JSON.stringify(tool));
+      });
       const chatCompletion = await this.client.chat.completions.create(
         completion
       );
       const responseMessages = chatCompletion.choices[0].message;
       const toolCalls = chatCompletion.choices[0].message.tool_calls;
       if (toolCalls) {
+        completion.messages.push(responseMessages);
         for (const toolCall of toolCalls) {
           const functionName = toolCall.function.name;
           const functionResponse = await this.toolsManager.executeTool(
@@ -78,7 +82,7 @@ export class AIPaster {
       }
       return responseMessages.content;
     } catch (error) {
-      Logger.log("Error", error);
+      Logger.log("Error:", JSON.stringify(error));
       throw error;
     }
   }

@@ -36,16 +36,15 @@ class Paster {
     }
   }
 
-  static async parseByAI(content: string): Promise<Boolean> {
-    if (Paster.getConfig().enableAI) {
+  static async parseByAI(content: string) {
+    if (Paster.config.enableAI) {
       const p = new AIPaster();
       const result = await p.callAI(content);
       if (result.status == "success") {
-        Paster.writeToEditor(result.message);
-        return true;
+        await Paster.writeToEditor(result.message);
       }
     }
-    return false;
+    Paster.writeToEditor(content);
   }
 
   static async selectClipboardType(
@@ -53,12 +52,6 @@ class Paster {
   ): Promise<xclip.ClipboardType> {
     if (!(type instanceof Set)) {
       return type;
-    }
-    if (this.config.autoSelectClipboardType == "always") {
-      const priorityOrdering = this.config.autoSelectClipboardTypePriority;
-      for (const theType of priorityOrdering)
-        if (type.has(theType)) return theType;
-      return xclip.ClipboardType.Unknown;
     }
     if (
       this.config.autoSelectClipboardType == "never" ||
@@ -77,6 +70,10 @@ class Paster {
       }
       return xclip.ClipboardType.Unknown;
     }
+    const priorityOrdering = this.config.autoSelectClipboardTypePriority;
+    for (const theType of priorityOrdering)
+      if (type.has(theType)) return theType;
+    return xclip.ClipboardType.Unknown;
   }
 
   /**
@@ -96,36 +93,24 @@ class Paster {
       case xclip.ClipboardType.Html:
         if (enableHtmlConverter) {
           const html = await cb.getTextHtml();
-          if (await Paster.parseByAI(html)) {
-            return;
-          }
-          Logger.log(html);
-          const markdown = toMarkdown(html, turndownOptions);
+          let markdown = toMarkdown(html, turndownOptions);
           if (enableRulesForHtml) {
-            let newMarkdown = Paster.parse(markdown);
-            Paster.writeToEditor(newMarkdown);
-          } else {
-            Paster.writeToEditor(markdown);
+            markdown = Paster.parse(markdown);
           }
+          await Paster.parseByAI(markdown);
         } else {
           const text = await cb.getTextPlain();
-          if (Paster.parseByAI(text)) {
-            return;
-          }
           if (text) {
             let newContent = Paster.parse(text);
-            Paster.writeToEditor(newContent);
+            await Paster.parseByAI(newContent);
           }
         }
         break;
       case xclip.ClipboardType.Text:
         const text = await cb.getTextPlain();
-        if (await Paster.parseByAI(text)) {
-          return;
-        }
         if (text) {
           let newContent = Paster.parse(text);
-          Paster.writeToEditor(newContent);
+          await Paster.parseByAI(newContent);
         }
         break;
       case xclip.ClipboardType.Image:
@@ -450,7 +435,7 @@ class Paster {
     }
   }
 
-  private static parse(content) {
+  static parse(content) {
     let editor = vscode.window.activeTextEditor;
     let fileUri = editor.document.uri;
 

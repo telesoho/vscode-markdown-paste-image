@@ -46,7 +46,12 @@ function toMarkdown(content, options) {
     //     return "\n\n" + content + "\n" + underline + "\n\n";
     //   },
     // },
-
+    {
+      filter: ["style", "script", "head", "meta"],
+      replacement: function (content) {
+        return "";
+      },
+    },
     {
       filter: "sup",
       replacement: function (content) {

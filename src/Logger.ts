@@ -8,7 +8,7 @@ export default class Logger {
     if (this.channel) {
       const time = moment().format("MM-DD HH:mm:ss");
       for (const m of message) {
-        const logmsg = `[${time}] ${m}`;
+        const logmsg = `[${time}] ${m.substring(0, 256)}`;
         this.channel.appendLine(logmsg);
       }
     }

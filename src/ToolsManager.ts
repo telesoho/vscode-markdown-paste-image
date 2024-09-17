@@ -1,13 +1,16 @@
 import { ChatCompletionTool } from "openai/resources/chat/completions";
+import { fetchWeb, htmlToMarkdown } from "./tool_functions";
 import Logger from "./Logger";
-import { fetchWeb } from "./tool_functions";
 
+type FunctionParameters = {
+  [x: string]: unknown;
+};
 type ToolFunction = (...args: any[]) => any;
 
 interface ToolInfo {
   func: ToolFunction;
   description: string;
-  parameters: Record<string, unknown>;
+  parameters: FunctionParameters;
 }
 
 export class ToolsManager {
@@ -18,38 +21,32 @@ export class ToolsManager {
   }
 
   public registerDefaultTools() {
-    this.registerTool(
-      "get_current_weather",
-      async ({ city }: { city: string }) => {
-        return JSON.stringify({
-          city: city,
-          temperature: "25°C",
-          weather: "sunny",
-        });
-      },
-      "Get the current weather for a specified city",
-      {
-        type: "object",
-        properties: {
-          city: { type: "string", description: "The name of the city" },
-        },
-        required: ["city"],
-      }
-    );
-    this.registerTool("fetchWeb", fetchWeb, "fetch a web page content", {
-      type: "object",
-      properties: {
-        url: { type: "string", description: "The url of the web page" },
-      },
-      required: ["url"],
-    });
+    // this.registerTool("fetchWeb", fetchWeb, "fetch a web page content", {
+    //   type: "object",
+    //   properties: {
+    //     url: { type: "string", description: "The url of the web page" },
+    //   },
+    //   required: ["url"],
+    // });
+    // this.registerTool(
+    //   "htmlToMarkdown",
+    //   htmlToMarkdown,
+    //   "Conver html to markdown",
+    //   {
+    //     type: "object",
+    //     properties: {
+    //       html: { type: "string", description: "html" },
+    //     },
+    //     required: ["html"],
+    //   }
+    // );
   }
 
   public registerTool(
     name: string,
     func: ToolFunction,
     description: string,
-    parameters: Record<string, unknown>
+    parameters: FunctionParameters
   ) {
     this.tools.set(name, { func, description, parameters });
   }

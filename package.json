@@ -82,23 +82,22 @@
           },
           "default": [
             {
-              "model": "llama-3.1-8b-instant",
+              "model": "llama-3.1-70b-versatile",
               "messages": [
                 {
                   "role": "system",
                   "content": [
-                    "You are responsible for converting text content into Markdown format. ",
-                    "If the original content is HTML, ignore any color or font settings and comments, but retain tables.",
-                    "Only output convered content"
+                    "You are a helpful assistant."
                   ]
                 },
                 {
                   "role": "user",
-                  "content": "{{clipboard_text}}"
+                  "content": [
+                    "Generate consolation for the following text:",
+                    "{{clipboard_text}}"
+                  ]
                 }
               ],
-              "tools": [],
-              "tool_choice": "auto",
               "max_tokens": 4096
             }
           ],
@@ -364,6 +363,7 @@
     "arch": "^2.2.0",
     "axios": "^1.7.7",
     "moment": "^2.22.1",
+    "node-html-parser": "^6.1.13",
     "openai": "^4.61.0",
     "shelljs": "^0.8.5",
     "turndown": "^7.1.2",
