@@ -16,11 +16,12 @@ Smartly paste for Markdown.
 
 - AI Parse Clipboard
 
-  This feature uses a large language model(Groq.com) to analyze the clipboard content and convert it into Markdown format.
+  - `MarkdownPaste.enableAI`: Enable AI clipboard parsing feature.
+  - `MarkdownPaste.openaiConnectOption`: Set OpenAI (compatible) connection options.
+  - `MarkdownPaste.openaiCompletionTemplate`: Set OpenAI completion template.
+  - `MarkdownPaste.openaiCompletionTemplateFile`: Set OpenAI completion template file path.
 
-  Enable this feature by setting `MarkdownPaste.enableAI` to true.
-  You can also customize how AI processes and outputs text by setting the `MarkdownPaste.aiSysMessage` parameter.
-  If you need to set more complex rules for AI, you can specify the AI's prompt file through `MarkdownPaste.aiPromptFile`.
+  With these configurations, you can customize the AI clipboard parsing behavior to better suit different use cases.
 
 - Paste smart
 
