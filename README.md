@@ -16,12 +16,62 @@ Smartly paste for Markdown.
 
 - AI Parse Clipboard
 
-  - `MarkdownPaste.enableAI`: Enable AI clipboard parsing feature.
-  - `MarkdownPaste.openaiConnectOption`: Set OpenAI (compatible) connection options.
-  - `MarkdownPaste.openaiCompletionTemplate`: Set OpenAI completion template.
-  - `MarkdownPaste.openaiCompletionTemplateFile`: Set OpenAI completion template file path.
+  Use LLM AI to parse `text` or `HTML` clipboard content. With the following configurations, you can customize the AI clipboard parsing behavior to better suit different use cases.
 
-  With these configurations, you can customize the AI clipboard parsing behavior to better suit different use cases.
+  - `MarkdownPaste.enableAI`
+
+    Enable AI clipboard parsing feature. default is `false`.
+
+  - `MarkdownPaste.openaiConnectOption`
+    
+    Set OpenAI (compatible) connection options. default is: 
+
+    ```json
+    "MarkdownPaste.openaiConnectOption": {
+        "apiKey": "",
+        "baseURL": "https://api.groq.com/openai/v1",
+        "maxRetries": 2
+    }
+    ```
+
+    The extension use Groq LLM server by default. You can got an API key from [Groq.com](https://groq.com/).     
+    The extension use [OpenAi Node](https://github.com/openai/openai-node) to connect LLM server. So you can also use another LLM server by setting `MarkdownPaste.openaiConnectOption.baseURL`, e.g. `MarkdownPaste.openaiConnectOption.baseURL = "https://api.openai.com/v1"`, the more detail about openai connection options, please see: https://github.com/openai/openai-node 
+
+  - `MarkdownPaste.openaiCompletionTemplate`
+
+    Set OpenAI completion template. default is:
+
+    ```json
+    [
+        {
+            "model": "llama-3.1-70b-versatile",
+            "messages": [
+                {
+                    "role": "system",
+                    "content": [
+                        "You are a helpful assistant."
+                    ]
+                },
+                {
+                    "role": "user",
+                    "content": [
+                        "Translate the following text into English and output in markdown format:",
+                        "{{clipboard_text}}"
+                    ]
+                }
+            ],
+            "max_tokens": 4096
+        }
+    ]
+    ```
+
+    Note: The extension will replace `{{clipboard_text}}` with your clipboard content.
+
+  - `MarkdownPaste.openaiCompletionTemplateFile`
+    
+    Set OpenAI completion template file. default is: `${fileWorkspaceFolder}/.openaiCompletionTemplate.json`
+
+    If you want to write more complicated AI completion template, you can use this option.
 
 - Paste smart
 

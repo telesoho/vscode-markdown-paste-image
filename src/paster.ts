@@ -42,6 +42,7 @@ class Paster {
       const result = await p.callAI(content);
       if (result.status == "success") {
         await Paster.writeToEditor(result.message);
+        return;
       }
     }
     Paster.writeToEditor(content);
