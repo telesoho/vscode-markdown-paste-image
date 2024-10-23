@@ -326,6 +326,23 @@ Smartly paste for Markdown.
 
   **NOTE** If any language rule been matched, it will not apply `MarkdownPaste.rules` anymore.
 
+- `MarkdownPaste.autoSelectClipboardType`
+  
+  Auto select clipboard type while multiple clipboard types are available. default is: `html&text`
+  
+- `MarkdownPaste.autoSelectClipboardTypePriority`
+
+  Auto select clipboard type priority. default is: 
+
+  ```json
+  [
+    "image",
+    "html",
+    "text"
+  ]  
+  ```
+
+
 ## Issues and Suggestions
 
 1. Please submit bugs via the following link:
