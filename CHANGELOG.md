@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.3.1 (2024.11.21)
+
+- feat: Support the OpenAI-compatible interface, customize the baseurl
+
 ## 1.1.2 (2024.08.29)
 
 - feat: Add prompt file configuration for AI.

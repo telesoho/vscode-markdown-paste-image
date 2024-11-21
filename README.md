@@ -14,65 +14,6 @@ Smartly paste for Markdown.
 
 ## Features
 
-- AI Parse Clipboard
-
-  Use LLM AI to parse `text` or `HTML` clipboard content. With the following configurations, you can customize the AI clipboard parsing behavior to better suit different use cases.
-
-  - `MarkdownPaste.enableAI`
-
-    Enable AI clipboard parsing feature. default is `false`.
-
-  - `MarkdownPaste.openaiConnectOption`
-    
-    Set OpenAI (compatible) connection options. default is: 
-
-    ```json
-    "MarkdownPaste.openaiConnectOption": {
-        "apiKey": "",
-        "baseURL": "https://api.groq.com/openai/v1",
-        "maxRetries": 2
-    }
-    ```
-
-    The extension use Groq LLM server by default. You can got an API key from [Groq.com](https://groq.com/).     
-    The extension use [OpenAi Node](https://github.com/openai/openai-node) to connect LLM server. So you can also use another LLM server by setting `MarkdownPaste.openaiConnectOption.baseURL`, e.g. `MarkdownPaste.openaiConnectOption.baseURL = "https://api.openai.com/v1"`, the more detail about openai connection options, please see: https://github.com/openai/openai-node 
-
-  - `MarkdownPaste.openaiCompletionTemplate`
-
-    Set OpenAI completion template. default is:
-
-    ```json
-    [
-        {
-            "model": "llama-3.1-70b-versatile",
-            "messages": [
-                {
-                    "role": "system",
-                    "content": [
-                        "You are a helpful assistant."
-                    ]
-                },
-                {
-                    "role": "user",
-                    "content": [
-                        "Translate the following text into English and output in markdown format:",
-                        "{{clipboard_text}}"
-                    ]
-                }
-            ],
-            "max_tokens": 4096
-        }
-    ]
-    ```
-
-    Note: The extension will replace `{{clipboard_text}}` with your clipboard content.
-
-  - `MarkdownPaste.openaiCompletionTemplateFile`
-    
-    Set OpenAI completion template file. default is: `${fileWorkspaceFolder}/.openaiCompletionTemplate.json`
-
-    If you want to write more complicated AI completion template, you can use this option.
-
 - Paste smart
 
   Smartly paste in Markdown by pressing 'Ctrl+Alt+V' ('Cmd+Alt+V' on Mac) or `Markdown Paste` command.
@@ -116,6 +57,10 @@ Smartly paste for Markdown.
 
   ![](res/images/insert_embed_base64_image.gif)
 
+- AI Parse Clipboard
+
+  Use LLM AI to parse `text` or `HTML` clipboard content. You can also customize the AI clipboard parsing behavior to better suit different use cases by using the AI configurations
+
 ## Config
 
 - Predefined variables
@@ -131,42 +76,6 @@ Smartly paste for Markdown.
   - `${fileDirname}` - the current opened file's directory name
   - `${datetime}` - the current date & time formatted by `"yyyyMMDDHHmmss"`, You can customize the format by format string. exp: `${datetime|yyyy-MM-DD_HH-mm-ss}`
   - `${selectedText}` - the current selected text. If selected text contain illegal characters `\/:*?""<>|\r\n` it will return "". You can also set the default text, exp: `${selectedText|default text}`, If selected text contain illegal characters or selected text is empty it will return the default text.
-
-- `MarkdownPaste.enableAI`
-
-  Enable/disable AI to parse clipboard content. If enable, `MarkdownPaste.aiKey` must be required.
-
-  Default value is `false`.
-
-- `MarkdownPaste.aiKey`
-
-  The API key for Groq. You can get one from [Groq.com](https://groq.com/).
-
-  Default value is `""`.
-
-- `MarkdownPaste.aiModel`
-
-  The LLM model to use.
-
-  Default value is `llama3-8b-8192`.
-
-- `MarkdownPaste.aiSysMessage`
-
-  The system message for the LLM model.
-
-  Default value is `You are responsible for converting text content into Markdown format. If the original content is HTML, ignore any color or font settings and comments, but retain tables.`
-
-- `MarkdownPaste.aiPromptFile`
-
-  The path to the file containing the AI model prompt. This file can be used to customize the AI model's behavior and provide additional context for the conversion process. The path can be absolute or relative to the workspace folder. Predefined variables are supported.
-
-  Default value is `${fileWorkspaceFolder}/.aiprompt`.
-
-- `MarkdownPaste.aiTemperature`
-
-  The temperature setting for the LLM model.
-
-  Default value is `1`.
 
 - `MarkdownPaste.path`
 
@@ -342,6 +251,60 @@ Smartly paste for Markdown.
   ]  
   ```
 
+- `MarkdownPaste.enableAI`
+
+  Enable AI clipboard parsing feature. default is `false`.
+
+- `MarkdownPaste.openaiConnectOption`
+  
+  Set OpenAI (compatible) connection options. default is: 
+
+  ```json
+  "MarkdownPaste.openaiConnectOption": {
+      "apiKey": "",
+      "baseURL": "https://api.groq.com/openai/v1",
+      "maxRetries": 2
+  }
+  ```
+
+  The extension use Groq LLM server by default. You can got an API key from [Groq.com](https://groq.com/).     
+  The extension use [OpenAi Node](https://github.com/openai/openai-node) to connect LLM server. So you can also use another LLM server by setting `MarkdownPaste.openaiConnectOption.baseURL`, e.g. `MarkdownPaste.openaiConnectOption.baseURL = "https://api.openai.com/v1"`, the more detail about openai connection options, please see: https://github.com/openai/openai-node 
+
+- `MarkdownPaste.openaiCompletionTemplate`
+
+  Set OpenAI completion template. default is:
+
+  ```json
+  [
+      {
+          "model": "llama-3.1-70b-versatile",
+          "messages": [
+              {
+                  "role": "system",
+                  "content": [
+                      "You are a helpful assistant."
+                  ]
+              },
+              {
+                  "role": "user",
+                  "content": [
+                      "Translate the following text into English and output in markdown format:",
+                      "{{clipboard_text}}"
+                  ]
+              }
+          ],
+          "max_tokens": 4096
+      }
+  ]
+  ```
+
+  Note: The extension will replace `{{clipboard_text}}` with your clipboard content.
+
+- `MarkdownPaste.openaiCompletionTemplateFile`
+  
+  Set OpenAI completion template file. default is: `${fileWorkspaceFolder}/.openaiCompletionTemplate.json`
+
+  If you want to write more complicated AI completion template, you can use this option.
 
 ## Issues and Suggestions
 
