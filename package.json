@@ -367,6 +367,7 @@
     "openai": "^4.61.0",
     "shelljs": "^0.8.5",
     "turndown": "^7.1.2",
+    "uuid": "^11.0.5",
     "xclip": "^1.0.7"
   },
   "devDependencies": {
