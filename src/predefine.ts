@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 import moment from "moment";
 import * as path from "path";
+import { v4 as uuidv4 } from "uuid";
 
 class Predefine {
   _workspaceRoot: string;
@@ -91,6 +92,13 @@ class Predefine {
    */
   public file(): string {
     return this.filePath();
+  }
+
+  /**
+   * a random UUID v4
+   */
+  public uuid(): string {
+    return uuidv4();
   }
 
   /**

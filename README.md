@@ -76,6 +76,7 @@ Smartly paste for Markdown.
   - `${fileDirname}` - the current opened file's directory name
   - `${datetime}` - the current date & time formatted by `"yyyyMMDDHHmmss"`, You can customize the format by format string. exp: `${datetime|yyyy-MM-DD_HH-mm-ss}`
   - `${selectedText}` - the current selected text. If selected text contain illegal characters `\/:*?""<>|\r\n` it will return "". You can also set the default text, exp: `${selectedText|default text}`, If selected text contain illegal characters or selected text is empty it will return the default text.
+  - `${uuid}` - a random UUID v4
 
 - `MarkdownPaste.path`
 
