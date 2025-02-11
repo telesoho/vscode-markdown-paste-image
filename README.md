@@ -307,6 +307,31 @@ Smartly paste for Markdown.
 
   If you want to write more complicated AI completion template, you can use this option.
 
+
+- **`MarkdownPaste.imageRules`**  
+  **(New Feature)** Define custom rules to modify the target image path and Markdown link pattern based on the current Markdown file's path. Each rule is an object with the following properties:
+  - `match`: A regex pattern (as a string) to test against the current Markdown file’s full path.
+  - `targetPath`: A string pattern (supports predefined variables) that specifies where the image should be saved.
+  - `linkPattern`: A string pattern (supports predefined variables) that specifies how the Markdown link for the image should be formatted.
+  - `options` (optional): Regex options (e.g., `"i"`) for the matching pattern.
+
+  **Example:**
+  ```json
+  "MarkdownPaste.imageRules": [
+    {
+      "match": "courses.*cysec",
+      "targetPath": "${workspaceFolder}/labs/public/images/cysec/${fileBasenameNoExtension}_${datetime|yyyy-MM-DD_HH-mm-ss}",
+      "linkPattern": "![${altText}](/images/cysec/${fileBasenameNoExtension}_${datetime|yyyy-MM-DD_HH-mm-ss}.png)"
+    },
+    {
+      "match": "courses\.*wired",
+      "targetPath": "${workspaceFolder}/labs/public/images/wired/${fileBasenameNoExtension}_${datetime|yyyy-MM-DD_HH-mm-ss}",
+      "linkPattern": "<img src='/images/wired/${fileBasenameNoExtension}_${datetime|yyyy-MM-DD_HH-mm-ss}.png' alt='${altText}'/>"
+    }
+  ]
+  ```
+
+
 ## Issues and Suggestions
 
 1. Please submit bugs via the following link:
