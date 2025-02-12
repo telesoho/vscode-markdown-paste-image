@@ -237,19 +237,15 @@ Smartly paste for Markdown.
   **NOTE** If any language rule been matched, it will not apply `MarkdownPaste.rules` anymore.
 
 - `MarkdownPaste.autoSelectClipboardType`
-  
+
   Auto select clipboard type while multiple clipboard types are available. default is: `html&text`
-  
+
 - `MarkdownPaste.autoSelectClipboardTypePriority`
 
-  Auto select clipboard type priority. default is: 
+  Auto select clipboard type priority. default is:
 
   ```json
-  [
-    "image",
-    "html",
-    "text"
-  ]  
+  ["image", "html", "text"]
   ```
 
 - `MarkdownPaste.enableAI`
@@ -257,8 +253,8 @@ Smartly paste for Markdown.
   Enable AI clipboard parsing feature. default is `false`.
 
 - `MarkdownPaste.openaiConnectOption`
-  
-  Set OpenAI (compatible) connection options. default is: 
+
+  Set OpenAI (compatible) connection options. default is:
 
   ```json
   "MarkdownPaste.openaiConnectOption": {
@@ -268,8 +264,8 @@ Smartly paste for Markdown.
   }
   ```
 
-  The extension use Groq LLM server by default. You can got an API key from [Groq.com](https://groq.com/).     
-  The extension use [OpenAi Node](https://github.com/openai/openai-node) to connect LLM server. So you can also use another LLM server by setting `MarkdownPaste.openaiConnectOption.baseURL`, e.g. `MarkdownPaste.openaiConnectOption.baseURL = "https://api.openai.com/v1"`, the more detail about openai connection options, please see: https://github.com/openai/openai-node 
+  The extension use Groq LLM server by default. You can got an API key from [Groq.com](https://groq.com/).  
+  The extension use [OpenAi Node](https://github.com/openai/openai-node) to connect LLM server. So you can also use another LLM server by setting `MarkdownPaste.openaiConnectOption.baseURL`, e.g. `MarkdownPaste.openaiConnectOption.baseURL = "https://api.openai.com/v1"`, the more detail about openai connection options, please see: https://github.com/openai/openai-node
 
 - `MarkdownPaste.openaiCompletionTemplate`
 
@@ -277,45 +273,44 @@ Smartly paste for Markdown.
 
   ```json
   [
-      {
-          "model": "llama-3.1-70b-versatile",
-          "messages": [
-              {
-                  "role": "system",
-                  "content": [
-                      "You are a helpful assistant."
-                  ]
-              },
-              {
-                  "role": "user",
-                  "content": [
-                      "Translate the following text into English and output in markdown format:",
-                      "{{clipboard_text}}"
-                  ]
-              }
-          ],
-          "max_tokens": 4096
-      }
+    {
+      "model": "llama-3.1-70b-versatile",
+      "messages": [
+        {
+          "role": "system",
+          "content": ["You are a helpful assistant."]
+        },
+        {
+          "role": "user",
+          "content": [
+            "Translate the following text into English and output in markdown format:",
+            "{{clipboard_text}}"
+          ]
+        }
+      ],
+      "max_tokens": 4096
+    }
   ]
   ```
 
   Note: The extension will replace `{{clipboard_text}}` with your clipboard content.
 
 - `MarkdownPaste.openaiCompletionTemplateFile`
-  
+
   Set OpenAI completion template file. default is: `${fileWorkspaceFolder}/.openaiCompletionTemplate.json`
 
   If you want to write more complicated AI completion template, you can use this option.
 
-
 - **`MarkdownPaste.imageRules`**  
   **(New Feature)** Define custom rules to modify the target image path and Markdown link pattern based on the current Markdown file's path. Each rule is an object with the following properties:
+
   - `match`: A regex pattern (as a string) to test against the current Markdown file’s full path.
   - `targetPath`: A string pattern (supports predefined variables) that specifies where the image should be saved.
   - `linkPattern`: A string pattern (supports predefined variables) that specifies how the Markdown link for the image should be formatted. You can use `${altText}` as selected text,`${imageFilePath}` as image saved path in the setting.
   - `options` (optional): Regex options (e.g., `"i"`) for the matching pattern.
 
   **Example:**
+
   ```json
   "MarkdownPaste.imageRules": [
     {
@@ -330,7 +325,6 @@ Smartly paste for Markdown.
     }
   ]
   ```
-
 
 ## Issues and Suggestions
 
