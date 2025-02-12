@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.4.0 (2025/02/12)
+
+- feat: Support imageRules configuration
+
 ## 1.3.1 (2024.11.21)
 
 - feat: Support the OpenAI-compatible interface, customize the baseurl

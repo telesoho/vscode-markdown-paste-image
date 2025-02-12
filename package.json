@@ -2,7 +2,7 @@
   "name": "vscode-markdown-paste-image",
   "displayName": "Markdown Paste",
   "description": "A smartly paste for markdown.",
-  "version": "1.3.1",
+  "version": "1.4.0",
   "publisher": "telesoho",
   "author": {
     "name": "telesoho",
@@ -175,6 +175,44 @@
           "scope": "resource",
           "default": true,
           "description": "Enable/Disable using img tag with width and height for pasting image."
+        },
+        "MarkdownPaste.imageRules": {
+          "type": "array",
+          "scope": "resource",
+          "items": {
+            "type": "object",
+            "title": "Image Link Regex rule",
+            "properties": {
+              "match": {
+                "type": "string",
+                "description": "regex string."
+              },
+              "options": {
+                "type": "string",
+                "description": "Regex options."
+              },
+              "targetPath": {
+                "type": "string",
+                "description": "Target path."
+              },
+              "linkPattern": {
+                "type": "string",
+                "description": "link pattern. ${altText} and ${imageFilePath} predefine variables supported"
+              }
+            }
+          },
+          "examples": [
+            [{
+              "match": "courses.*cysec",
+              "targetPath": "${workspaceFolder}/labs/public/images/cysec/${fileBasenameNoExtension}_${datetime|yyyy-MM-DD_HH-mm-ss}",
+              "linkPattern": "![${altText}](/images/cysec/${fileBasenameNoExtension}_${datetime|yyyy-MM-DD_HH-mm-ss}.png)"
+            },
+            {
+              "match": "courses.*wired",
+              "targetPath": "${workspaceFolder}/labs/public/images/wired/${fileBasenameNoExtension}_${datetime|yyyy-MM-DD_HH-mm-ss}",
+              "linkPattern": "<img src='/images/wired/${fileBasenameNoExtension}_${datetime|yyyy-MM-DD_HH-mm-ss}.png' alt='${altText}'/>"
+            }]
+          ]
         },
         "MarkdownPaste.rules": {
           "type": "array",

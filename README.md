@@ -312,7 +312,7 @@ Smartly paste for Markdown.
   **(New Feature)** Define custom rules to modify the target image path and Markdown link pattern based on the current Markdown file's path. Each rule is an object with the following properties:
   - `match`: A regex pattern (as a string) to test against the current Markdown file’s full path.
   - `targetPath`: A string pattern (supports predefined variables) that specifies where the image should be saved.
-  - `linkPattern`: A string pattern (supports predefined variables) that specifies how the Markdown link for the image should be formatted.
+  - `linkPattern`: A string pattern (supports predefined variables) that specifies how the Markdown link for the image should be formatted. You can use `${altText}` as selected text,`${imageFilePath}` as image saved path in the setting.
   - `options` (optional): Regex options (e.g., `"i"`) for the matching pattern.
 
   **Example:**
