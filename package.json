@@ -37,7 +37,7 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
+  "activationEvents": ["onLanguage:markdown"],
   "main": "./out/extension",
   "scripts": {
     "publish": "npx vsce publish",
