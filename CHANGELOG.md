@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.4.2 (2025/03/29)
+
+- feat: Allow shortcuts and option menu bindings for the mdx, quarto and rmd language.
+
 ## 1.4.0 (2025/02/12)
 
 - feat: Support imageRules configuration

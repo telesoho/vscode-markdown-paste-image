@@ -2,7 +2,7 @@
   "name": "vscode-markdown-paste-image",
   "displayName": "Markdown Paste",
   "description": "A smartly paste for markdown.",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "publisher": "telesoho",
   "author": {
     "name": "telesoho",
@@ -37,7 +37,9 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": ["onLanguage:markdown"],
+  "activationEvents": [
+    "onLanguage:markdown"
+  ],
   "main": "./out/extension",
   "scripts": {
     "publish": "npx vsce publish",
@@ -349,12 +351,12 @@
       "editor/context": [
         {
           "command": "telesoho.MarkdownPaste",
-          "when": "editorLangId == markdown",
+          "when": "editorLangId =~ /^markdown$|^rmd$|^quarto$|^mdx$/",
           "group": "markdown"
         },
         {
           "command": "telesoho.MarkdownPasteCode",
-          "when": "editorLangId == markdown",
+          "when": "editorLangId =~ /^markdown$|^rmd$|^quarto$|^mdx$/",
           "group": "markdown"
         }
       ]
@@ -370,13 +372,13 @@
         "command": "telesoho.MarkdownPaste",
         "key": "ctrl+alt+v",
         "mac": "cmd+alt+v",
-        "when": "editorTextFocus && resourceLangId == markdown"
+        "when": "editorTextFocus && editorLangId =~ /^markdown$|^rmd$|^quarto$|^mdx$/"
       },
       {
         "command": "telesoho.MarkdownPasteCode",
         "key": "ctrl+alt+c",
         "mac": "cmd+alt+c",
-        "when": "editorTextFocus && resourceLangId == markdown"
+        "when": "editorTextFocus && editorLangId =~ /^markdown$|^rmd$|^quarto$|^mdx$/"
       },
       {
         "command": "telesoho.MarkdownRuby",
@@ -401,35 +403,35 @@
   "dependencies": {
     "@vscode/vscode-languagedetection": "^1.0.22",
     "arch": "^2.2.0",
-    "axios": "^1.7.7",
-    "moment": "^2.22.1",
+    "axios": "^1.8.4",
+    "moment": "^2.30.1",
     "node-html-parser": "^6.1.13",
-    "openai": "^4.61.0",
+    "openai": "^4.90.0",
     "shelljs": "^0.8.5",
-    "turndown": "^7.1.2",
-    "uuid": "^11.0.5",
+    "turndown": "^7.2.0",
+    "uuid": "^11.1.0",
     "xclip": "^1.0.7"
   },
   "devDependencies": {
-    "@types/glob": "^7.1.3",
-    "@types/mocha": "^8.2.2",
-    "@types/node": "^18.11.18",
-    "@types/vscode": "^1.58.0",
-    "@typescript-eslint/eslint-plugin": "^5.48.1",
-    "@typescript-eslint/parser": "^5.48.1",
-    "@vscode/test-electron": "^2.4.0",
-    "@vscode/vsce": "^2.19.0",
+    "@types/glob": "^7.2.0",
+    "@types/mocha": "^8.2.3",
+    "@types/node": "^18.19.84",
+    "@types/vscode": "^1.98.0",
+    "@typescript-eslint/eslint-plugin": "^5.62.0",
+    "@typescript-eslint/parser": "^5.62.0",
+    "@vscode/test-electron": "^2.4.1",
+    "@vscode/vsce": "^2.32.0",
     "cpx": "^1.5.0",
-    "eslint": "^7.27.0",
-    "eslint-config-prettier": "^8.6.0",
-    "eslint-plugin-jsdoc": "^39.6.4",
+    "eslint": "^7.32.0",
+    "eslint-config-prettier": "^8.10.0",
+    "eslint-plugin-jsdoc": "^39.9.1",
     "eslint-plugin-prefer-arrow": "^1.2.3",
-    "eslint-plugin-prettier": "^4.0.0",
-    "glob": "^7.1.7",
-    "mocha": "^10.2.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "glob": "^7.2.3",
+    "mocha": "^10.8.2",
     "prettier": "2.5.1",
     "rewire": "^6.0.0",
     "rimraf": "^6.0.1",
-    "typescript": "^4.9.4"
+    "typescript": "^4.9.5"
   }
 }
