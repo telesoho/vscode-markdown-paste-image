@@ -51,6 +51,21 @@ function fetchAndSaveFile(fileURL: string, filepath: string) {
     req = urlParsed.protocol === "https:" ? https : http;
     let request = req
       .get(fileURL, (response) => {
+        // Handle redirects (301, 302, 307, 308)
+        if (
+          response.statusCode >= 300 &&
+          response.statusCode < 400 &&
+          response.headers.location
+        ) {
+          // Get the redirect URL
+          const redirectUrl = new URL(response.headers.location, fileURL).href;
+          // Follow the redirect by calling fetchAndSaveFile again with the new URL
+          fetchAndSaveFile(redirectUrl, filepath)
+            .then((redirectPath) => resolve(redirectPath))
+            .catch((err) => reject(err));
+          return;
+        }
+
         // If the filename does not have an extension, get the content type from the response headers
         if (filename.indexOf(".") < 0) {
           const contentType = response.headers["content-type"];
