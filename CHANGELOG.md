@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.4.3 (2025/04/14)
+
+- fix: Cannot download redirect file.
+
 ## 1.4.2 (2025/03/29)
 
 - feat: Allow shortcuts and option menu bindings for the mdx, quarto and rmd language.
