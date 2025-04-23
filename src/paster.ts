@@ -181,6 +181,7 @@ class Paster {
 
   /**
    * Returns the first matching image rule (if any) based on the current Markdown file path.
+   * Preprocesses variables (including timestamp) once and reuses them in both targetPath and linkPattern.
    */
   private static getMatchingImageRule(): any {
     const config = Paster.getConfig();
@@ -193,7 +194,19 @@ class Paster {
       if (rule.match) {
         const re = new RegExp(rule.match, rule.options || "");
         if (re.test(currentFilePath)) {
-          return rule;
+          // Generate all variables (including timestamp) here
+          const processedRule = { ...rule };
+          if (processedRule.targetPath) {
+            processedRule.targetPath = Predefine.replacePredefinedVars(
+              processedRule.targetPath
+            );
+          }
+          if (processedRule.linkPattern) {
+            processedRule.linkPattern = Predefine.replacePredefinedVars(
+              processedRule.linkPattern
+            );
+          }
+          return processedRule;
         }
       }
     }
@@ -221,7 +234,7 @@ class Paster {
     const rule = Paster.getMatchingImageRule();
     if (rule && rule.targetPath) {
       let targetPattern = rule.targetPath;
-      targetPattern = Predefine.replacePredefinedVars(targetPattern);
+      // targetPattern is already processed in getMatchingImageRule
       // If the rule's pattern does not include an extension, append it.
       if (path.extname(targetPattern) === "") {
         targetPattern += extension;
@@ -282,7 +295,7 @@ class Paster {
     if (rule && rule.linkPattern) {
       const altText = Paster.getAltText();
       let link = rule.linkPattern;
-      link = Predefine.replacePredefinedVars(link);
+      // linkPattern is already processed in getMatchingImageRule
       // Replace custom placeholders.
       link = link
         .replace(/\$\{imageFilePath\}/g, imageFilePath)
