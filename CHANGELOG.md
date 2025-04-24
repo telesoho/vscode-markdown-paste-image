@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.4.4 （2025/04/14）
+
+- fix: timing issue when generating timestamps for imageRules
+
 ## 1.4.3 (2025/04/14)
 
 - fix: Cannot download redirect file.

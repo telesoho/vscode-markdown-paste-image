@@ -49,6 +49,16 @@ suite("Extension Tests", () => {
     ret = paster.Paster.parsePasteImageContext(
       "w:/Source Markdown/Build Ours Blog/images/test.gif"
     );
+
+    // Mock the getConfig method to return encodePath as "encodeSpaceOnly"
+    const originalGetConfig = paster.Paster.getConfig;
+    paster.Paster.getConfig = function () {
+      const config = originalGetConfig.apply(this);
+      return {
+        ...config,
+        encodePath: "encodeSpaceOnly",
+      };
+    };
     assert.strictEqual(
       "w:/Source%20Markdown/Build%20Ours%20Blog/images/test.gif",
       paster.Paster.encodePath(ret.targetFile.fsPath)
@@ -63,7 +73,7 @@ suite("Extension Tests", () => {
       paster.Paster.encodePath(targetFile.fsPath),
       "w:/Source%20Markdown/Build%20Ours%20Blog/images/test.gif"
     );
-
+    paster.Paster.getConfig = originalGetConfig;
     ret = paster.Paster.parsePasteImageContext(
       "d:/Source Markdown/Build Ours Blog/images/"
     );
