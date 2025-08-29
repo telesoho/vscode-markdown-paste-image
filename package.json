@@ -2,7 +2,7 @@
   "name": "vscode-markdown-paste-image",
   "displayName": "Markdown Paste",
   "description": "A smartly paste for markdown.",
-  "version": "1.4.4",
+  "version": "1.4.5",
   "publisher": "telesoho",
   "author": {
     "name": "telesoho",
@@ -55,6 +55,7 @@
     "dev:preinstall": "npx vsce package",
     "dev:install": "code --install-extension ./vscode-markdown-paste-image-*.vsix"
   },
+  "extensionKind": ["ui"],
   "contributes": {
     "configuration": {
       "id": "MarkdownPaste",

@@ -9,6 +9,7 @@ import {
   fetchAndSaveFile,
   newTemporaryFilename,
   base64Encode,
+  isRemoteMode,
 } from "./utils";
 import { existsSync, rmSync, RmOptions } from "fs";
 import { LanguageDetection } from "./language_detection";
@@ -115,7 +116,15 @@ class Paster {
         }
         break;
       case xclip.ClipboardType.Image:
-        Paster.pasteImage();
+        if (false === isRemoteMode()) {
+          Paster.pasteImage();
+        } else {
+          // show warring dialog
+          Logger.showErrorMessage(
+            "Paste Image is not available in Remote Mode (SSH, WSL, Dev Container). " +
+              "Please paste the image locally, or use VS Code’s built-in paste feature instead."
+          );
+        }
         break;
       case xclip.ClipboardType.Unknown:
         Logger.log("Unknown type");

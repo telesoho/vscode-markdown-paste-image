@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.4.5 (2005/08/29)
+
+- fix: Paste Image is disabled in SSH, and Dev Container remote modes.
+
 ## 1.4.4 （2025/04/14）
 
 - fix: timing issue when generating timestamps for imageRules

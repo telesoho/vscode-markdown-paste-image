@@ -5,7 +5,7 @@ import * as path from "path";
 import { mkdir } from "shelljs";
 import * as fs from "fs";
 import moment from "moment";
-import { Uri } from "vscode";
+import { Uri, env } from "vscode";
 import * as os from "os";
 import Logger from "./Logger";
 
@@ -120,9 +120,24 @@ function base64Encode(file) {
   return Buffer.from(bitmap).toString("base64");
 }
 
+/**
+ * Check if the current environment is remote (SSH, WSL, Dev Container)
+ */
+function isRemoteMode() {
+  const remoteName = env.remoteName;
+  if (remoteName) {
+    // "wsl"?
+    if (["ssh-remote", "dev-container"].includes(remoteName)) {
+      return true;
+    }
+  }
+  return false;
+}
+
 export {
   prepareDirForFile,
   fetchAndSaveFile,
   base64Encode,
   newTemporaryFilename,
+  isRemoteMode,
 };
