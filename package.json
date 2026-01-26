@@ -49,13 +49,15 @@
     "prettier": "npx prettier -w .",
     "compile": "npm run lint && tsc -p ./",
     "watch": "tsc -watch -p ./",
-    "pretest": "rimraf ./out_test && npm run prettier && npm run lint && tsc --project ./ts-test.json && cpx \"./res/**/*\" \"./out_test/res\" --clean",
+    "pretest": "rimraf ./out_test && npm run prettier && npm run lint && tsc --project ./ts-test.json && cpy './res/**/*' './out_test/res'",
     "lint": "eslint src --ext ts",
     "test": "node ./out_test/test/runTest.js",
     "dev:preinstall": "npx vsce package",
     "dev:install": "code --install-extension ./vscode-markdown-paste-image-*.vsix"
   },
-  "extensionKind": ["ui"],
+  "extensionKind": [
+    "ui"
+  ],
   "contributes": {
     "configuration": {
       "id": "MarkdownPaste",
@@ -404,7 +406,7 @@
   "dependencies": {
     "@vscode/vscode-languagedetection": "^1.0.22",
     "arch": "^2.2.0",
-    "axios": "^1.8.4",
+    "axios": "^1.11.1",
     "moment": "^2.30.1",
     "node-html-parser": "^6.1.13",
     "openai": "^4.90.0",
@@ -414,7 +416,7 @@
     "xclip": "^1.0.7"
   },
   "devDependencies": {
-    "@types/glob": "^7.2.0",
+    "@types/glob": "^8.1.0",
     "@types/mocha": "^8.2.3",
     "@types/node": "^18.19.84",
     "@types/vscode": "^1.98.0",
@@ -422,17 +424,20 @@
     "@typescript-eslint/parser": "^5.62.0",
     "@vscode/test-electron": "^2.4.1",
     "@vscode/vsce": "^2.32.0",
-    "cpx": "^1.5.0",
+    "cpy-cli": "^5.0.0",
     "eslint": "^7.32.0",
     "eslint-config-prettier": "^8.10.0",
     "eslint-plugin-jsdoc": "^39.9.1",
     "eslint-plugin-prefer-arrow": "^1.2.3",
     "eslint-plugin-prettier": "^4.2.1",
-    "glob": "^7.2.3",
+    "glob": "^11.0.4",
     "mocha": "^10.8.2",
     "prettier": "2.5.1",
     "rewire": "^6.0.0",
     "rimraf": "^6.0.1",
     "typescript": "^4.9.5"
+  },
+  "overrides": {
+    "diff": "^8.0.3"
   }
 }
