@@ -14,6 +14,9 @@ function genBorder(content, node) {
 }
 
 function cell(content, node) {
+  // Escape pipe characters in cell content to prevent Markdown parser from treating them as column separators
+  content = content.replace(/\|/g, "\\|");
+
   const colspan = parseInt(node.getAttribute("colspan") || "0");
   let suffix = "|";
   if (colspan) {
