@@ -2,7 +2,7 @@
   "name": "vscode-markdown-paste-image",
   "displayName": "Markdown Paste",
   "description": "A smartly paste for markdown.",
-  "version": "1.4.5",
+  "version": "1.4.6",
   "publisher": "telesoho",
   "author": {
     "name": "telesoho",
@@ -49,7 +49,7 @@
     "prettier": "npx prettier -w .",
     "compile": "npm run lint && tsc -p ./",
     "watch": "tsc -watch -p ./",
-    "pretest": "rimraf ./out_test && npm run prettier && npm run lint && tsc --project ./ts-test.json && cpy './res/**/*' './out_test/res'",
+    "pretest": "rimraf ./out_test && npm run prettier && npm run lint && tsc --project ./ts-test.json && npx cpy-cli \"res/**/*\" \"out_test/res\"",
     "lint": "eslint src --ext ts",
     "test": "node ./out_test/test/runTest.js",
     "dev:preinstall": "npx vsce package",
