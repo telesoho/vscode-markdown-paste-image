@@ -1,6 +1,11 @@
 # Change Log
 
-## 1.4.5 (2005/08/29)
+## 1.4.6 (2026/02/08)
+
+- fix: Pipe | in HTML table cells breaks Markdown structure #146
+- fix: Nest list paste from HTML not working #145
+
+## 1.4.5 (2025/08/29)
 
 - fix: Paste Image is disabled in SSH, and Dev Container remote modes.
 
