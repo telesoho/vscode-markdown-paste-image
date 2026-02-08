@@ -157,4 +157,69 @@ suite("toMarkdown Tests", () => {
       `Header should have escaped pipe: ${result}`
     );
   });
+
+  // Issue #145: Nested list paste from HTML (e.g. Outlook/calendar) should preserve nesting
+  test("should indent nested ordered list items", () => {
+    const html = `
+      <p>The agenda is as follows:</p>
+      <ol>
+        <li>Next week meeting adjustments (if needed)</li>
+        <li>Status on assignments (by TAs)</li>
+        <li>Issues found in past week with students (by TAs)</li>
+        <li>Next week lecture preparation tasks</li>
+        <li>Any Other Business
+          <ol>
+            <li>Kruskal removal: tried it but cannot due to assignment using it.</li>
+          </ol>
+        </li>
+      </ol>
+    `;
+
+    const result = toMarkdown(html, {
+      emDelimiter: "*",
+    });
+
+    // Top-level items should be "1. ", "2. ", ... "5. "
+    assert.ok(
+      result.includes("1.  Next week meeting"),
+      `Expected top-level item 1: ${result}`
+    );
+    assert.ok(
+      result.includes("5.  Any Other Business"),
+      `Expected top-level item 5: ${result}`
+    );
+
+    // Nested item under "Any Other Business" must be indented (4 spaces) so it renders as sub-item
+    assert.ok(
+      result.includes("    1.  Kruskal removal"),
+      `Expected nested "1." to be indented with 4 spaces (Issue #145). Got: ${result}`
+    );
+    assert.ok(
+      !result.match(/\n1\.  Kruskal removal/m) ||
+        result.includes("    1.  Kruskal removal"),
+      "Nested item should not appear as top-level 1. without leading spaces"
+    );
+  });
+
+  test("should indent nested unordered list items", () => {
+    const html = `
+      <ul>
+        <li>First
+          <ul>
+            <li>Nested bullet</li>
+          </ul>
+        </li>
+      </ul>
+    `;
+
+    const result = toMarkdown(html, {
+      emDelimiter: "*",
+      bulletListMarker: "-",
+    });
+
+    assert.ok(
+      result.includes("    -   Nested bullet"),
+      `Expected nested bullet indented. Got: ${result}`
+    );
+  });
 });

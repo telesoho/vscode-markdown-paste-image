@@ -1,3 +1,18 @@
+/**
+ * Count how many list (ul/ol) ancestors this list item has. Used for nested list indentation.
+ */
+function getListDepth(liNode: {
+  parentNode: { nodeName: string; parentNode: unknown } | null;
+}): number {
+  let depth = 0;
+  let p: { nodeName: string; parentNode: unknown } | null = liNode.parentNode;
+  while (p) {
+    if (p.nodeName === "UL" || p.nodeName === "OL") depth++;
+    p = p.parentNode as { nodeName: string; parentNode: unknown } | null;
+  }
+  return depth;
+}
+
 function genBorder(content, node) {
   const colspan = parseInt(node.getAttribute("colspan") || "0");
   let suffix = " " + content + " |";
@@ -128,6 +143,27 @@ function toMarkdown(content, options) {
       filter: ["div"],
       replacement: function (content) {
         return content + "\n";
+      },
+    },
+    // Nested list support: add indentation by depth so nested items render correctly (Issue #145)
+    {
+      filter: "li",
+      replacement: function (content, node, opts) {
+        content = content.replace(/^\n+/, "").replace(/\n+$/, "\n");
+        const depth = getListDepth(node);
+        const indent = "    "; // 4 spaces per level (CommonMark)
+        const leadingSpaces = depth > 1 ? indent.repeat(depth - 1) : "";
+        const continuationIndent = indent.repeat(depth);
+        content = content.replace(/\n/gm, "\n" + continuationIndent);
+        let prefix = (opts.bulletListMarker || "*") + "   ";
+        const parent = node.parentNode;
+        if (parent && parent.nodeName === "OL") {
+          const start = parent.getAttribute("start");
+          const index = Array.prototype.indexOf.call(parent.children, node);
+          prefix = (start ? Number(start) + index : index + 1) + ".  ";
+        }
+        const lineEnd = node.nextSibling && !/\n$/.test(content) ? "\n" : "";
+        return leadingSpaces + prefix + content + lineEnd;
       },
     },
     {
