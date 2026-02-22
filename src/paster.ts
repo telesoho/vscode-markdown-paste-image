@@ -202,18 +202,32 @@ class Paster {
     for (const rule of rules) {
       if (rule.match) {
         const re = new RegExp(rule.match, rule.options || "");
-        if (re.test(currentFilePath)) {
-          // Generate all variables (including timestamp) here
-          const processedRule = { ...rule };
+        const match = re.exec(currentFilePath);
+        if (match) {
+          let processedRule = { ...rule };
           if (processedRule.targetPath) {
             processedRule.targetPath = Predefine.replacePredefinedVars(
               processedRule.targetPath
             );
+            match.forEach((value, index) => {
+              if (index === 0) return;
+              processedRule.targetPath = processedRule.targetPath.replaceAll(
+                `$${index}`,
+                value
+              );
+            });
           }
           if (processedRule.linkPattern) {
             processedRule.linkPattern = Predefine.replacePredefinedVars(
               processedRule.linkPattern
             );
+            match.forEach((value, index) => {
+              if (index === 0) return;
+              processedRule.linkPattern = processedRule.linkPattern.replaceAll(
+                `$${index}`,
+                value
+              );
+            });
           }
           return processedRule;
         }
