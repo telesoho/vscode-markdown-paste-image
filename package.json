@@ -120,6 +120,11 @@
           "default": "${fileDirname}",
           "description": "The destination to save image file."
         },
+        "MarkdownPaste.basePath": {
+          "type": "string",
+          "default": "",
+          "description": "[Link Text Control] Sets the reference point for calculating the image URL. 1. If set (e.g., '${fileWorkspaceFolder}'), the link will be transformed into a site-root relative path (e.g., '/asset/img.png'). 2. If left empty, it defaults to a relative path from the current editing file. Note: This only affects the text inserted into Markdown and does not change the physical storage location of the image file."
+        },
         "MarkdownPaste.nameBase": {
           "type": "string",
           "scope": "resource",
