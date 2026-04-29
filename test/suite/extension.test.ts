@@ -181,4 +181,63 @@ suite("Extension Tests", () => {
     ret = Predefine.replaceRegPredefinedVars(str, predefine);
     assert.strictEqual(ret, ret_expect);
   });
+
+  test("predefined variables slicing test", () => {
+    const mockFile = vscode.Uri.file(
+      "C:\\user\\project\\vscode-markdown-paste-image\\test\\suite\\extension.test.ts"
+    );
+    const mockWs = vscode.Uri.file(
+      "C:\\user\\project\\vscode-markdown-paste-image"
+    );
+    const predefine = new Predefine(mockFile, mockWs);
+    let ret_expect = "";
+    let str = "";
+    let ret = "";
+
+    // Case 1: Testing negative index to get the last component (the filename)
+    str = "${filePath|-1}";
+    ret = Predefine.replaceRegPredefinedVars(str, predefine);
+    ret_expect = "extension.test.ts";
+    assert.strictEqual(
+      ret,
+      ret_expect,
+      "Should return the last part of the path"
+    );
+
+    // Case 2: Testing positive index to get the first component
+    // Note: On Windows, index 0 is usually the drive letter (e.g., C:)
+    str = "${filePath|0}";
+    ret = Predefine.replaceRegPredefinedVars(str, predefine);
+    assert.ok(ret.length > 0, "Should return the first part of the path");
+
+    // Case 3: Testing range slicing without step (Python style [:-1])
+    // This should return the path components except the last one
+    str = "${filePath|:-1}";
+    ret = Predefine.replaceRegPredefinedVars(str, predefine);
+    assert.strictEqual(
+      ret.includes("extension.test.ts"),
+      false,
+      "Should not include the filename"
+    );
+
+    // Case 4: Testing full range with specific indices
+    str = "${filePath|-3:-1}";
+    ret = Predefine.replaceRegPredefinedVars(str, predefine);
+    ret_expect = "test/suite";
+    console.log(`Debug - Slice -3:-1: ${ret}`);
+    assert.strictEqual(ret, ret_expect);
+
+    // Case 5: Folder test
+    str = "${fileWorkspaceFolder|-1}";
+    ret = Predefine.replaceRegPredefinedVars(str, predefine);
+    ret_expect = "vscode-markdown-paste-image";
+    assert.strictEqual(ret, ret_expect);
+    console.log(`Debug - fileWorkspaceFolder: ${ret}`);
+
+    str = "${relativeFileDirname|-2}";
+    ret = Predefine.replaceRegPredefinedVars(str, predefine);
+    ret_expect = "test";
+    assert.strictEqual(ret, ret_expect);
+    console.log(`Debug - relativeFileDirname: ${ret}`);
+  });
 });

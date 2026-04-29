@@ -12,18 +12,22 @@ class Predefine {
   _fileBasenameNoExtension: string;
   _fileDirname: string;
 
-  constructor() {
+  constructor(fileUri?: vscode.Uri, workspaceFolderUri?: vscode.Uri) {
+    // prioritize using the passed‑in fileUri; if none is provided, then fall back to the currently active editor (the original logic).
     let editor = vscode.window.activeTextEditor;
-    let fileUri = editor && editor.document.uri;
-    let fileWorkspaceFolderUri =
-      fileUri && vscode.workspace.getWorkspaceFolder(fileUri);
+    const targetUri = fileUri ?? editor?.document.uri;
+
+    const targetFolderUri =
+      workspaceFolderUri ??
+      (targetUri
+        ? vscode.workspace.getWorkspaceFolder(targetUri)?.uri
+        : undefined) ??
+      vscode.workspace.workspaceFolders?.[0]?.uri;
+
     this._workspaceRoot =
-      (vscode.workspace.workspaceFolders &&
-        vscode.workspace.workspaceFolders[0].uri.fsPath) ||
-      "";
-    this._filePath = fileUri && fileUri.fsPath;
-    this._fileWorkspaceFolder =
-      (fileWorkspaceFolderUri && fileWorkspaceFolderUri.uri.fsPath) || "";
+      vscode.workspace.workspaceFolders?.[0]?.uri.fsPath || "";
+    this._filePath = targetUri?.fsPath || "";
+    this._fileWorkspaceFolder = targetFolderUri?.fsPath || "";
 
     if (this._filePath) {
       this._fileExtname = path.extname(this._filePath);
@@ -33,6 +37,11 @@ class Predefine {
       );
       this._fileBasename = path.basename(this._filePath);
       this._fileDirname = path.dirname(this._filePath);
+    } else {
+      this._fileExtname = "";
+      this._fileBasenameNoExtension = "";
+      this._fileBasename = "";
+      this._fileDirname = "";
     }
   }
 
