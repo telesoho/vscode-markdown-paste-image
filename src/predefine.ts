@@ -12,18 +12,22 @@ class Predefine {
   _fileBasenameNoExtension: string;
   _fileDirname: string;
 
-  constructor() {
+  constructor(fileUri?: vscode.Uri, workspaceFolderUri?: vscode.Uri) {
+    // prioritize using the passed‑in fileUri; if none is provided, then fall back to the currently active editor (the original logic).
     let editor = vscode.window.activeTextEditor;
-    let fileUri = editor && editor.document.uri;
-    let fileWorkspaceFolderUri =
-      fileUri && vscode.workspace.getWorkspaceFolder(fileUri);
+    const targetUri = fileUri ?? editor?.document.uri;
+
+    const targetFolderUri =
+      workspaceFolderUri ??
+      (targetUri
+        ? vscode.workspace.getWorkspaceFolder(targetUri)?.uri
+        : undefined) ??
+      vscode.workspace.workspaceFolders?.[0]?.uri;
+
     this._workspaceRoot =
-      (vscode.workspace.workspaceFolders &&
-        vscode.workspace.workspaceFolders[0].uri.fsPath) ||
-      "";
-    this._filePath = fileUri && fileUri.fsPath;
-    this._fileWorkspaceFolder =
-      (fileWorkspaceFolderUri && fileWorkspaceFolderUri.uri.fsPath) || "";
+      vscode.workspace.workspaceFolders?.[0]?.uri.fsPath || "";
+    this._filePath = targetUri?.fsPath || "";
+    this._fileWorkspaceFolder = targetFolderUri?.fsPath || "";
 
     if (this._filePath) {
       this._fileExtname = path.extname(this._filePath);
@@ -33,6 +37,11 @@ class Predefine {
       );
       this._fileBasename = path.basename(this._filePath);
       this._fileDirname = path.dirname(this._filePath);
+    } else {
+      this._fileExtname = "";
+      this._fileBasenameNoExtension = "";
+      this._fileBasename = "";
+      this._fileDirname = "";
     }
   }
 
@@ -52,12 +61,16 @@ class Predefine {
     return this.workspaceRoot();
   }
 
-  public filePath() {
-    return this._filePath;
+  public filePath(param?: string): string {
+    const fullPath = this._filePath.replace(/\\/g, "/");
+    const parts = fullPath.split("/").filter((p) => p.length > 0);
+    return this.sliceArrayByParam(parts, param);
   }
 
-  public fileWorkspaceFolder() {
-    return this._fileWorkspaceFolder;
+  public fileWorkspaceFolder(param?: string): string {
+    const fullPath = this._fileWorkspaceFolder.replace(/\\/g, "/");
+    const parts = fullPath.split("/").filter((p) => p.length > 0);
+    return this.sliceArrayByParam(parts, param);
   }
 
   public fileBasename(): string {
@@ -74,11 +87,48 @@ class Predefine {
   public fileDirname(): string {
     return this._fileDirname;
   }
+
   /**
-   * the current opened file's dirname relative to `$fileWorkspaceFolder`
+   * Support for Python-style slicing, without step slicing.
+   * Syntax examples:
+   *
+   * - ${relativeFileDirname}      -> "src/assets/images"
+   * - ${relativeFileDirname|-1}   -> "images"
+   * - ${relativeFileDirname|0:2}  -> "src/assets"
+   * - ${relativeFileDirname|:-1}  -> "src/assets"
    */
-  public relativeFileDirname(): string {
-    return path.relative(this.fileWorkspaceFolder(), this.fileDirname());
+  private sliceArrayByParam(parts: string[], param?: string): string {
+    const cleanParam = param ? param.trim() : undefined;
+    if (!cleanParam || parts.length === 0) return parts.join("/");
+
+    if (cleanParam.includes(":")) {
+      // handle "start:end"
+      const [s, e] = cleanParam.split(":").map((item) => item.trim());
+      const start = s ? parseInt(s) : 0;
+      const end = e ? parseInt(e) : undefined;
+      return parts.slice(start, end).join("/");
+    } else {
+      // handle "index"
+      const index = parseInt(cleanParam);
+      if (isNaN(index)) return parts.join("/");
+
+      // support |-1|
+      const result = parts.slice(index, index === -1 ? undefined : index + 1);
+      return result.join("/");
+    }
+  }
+
+  public relativeFileDirname(param?: string): string {
+    const wsFolder = this.fileWorkspaceFolder();
+    const fileDir = this.fileDirname();
+    if (!wsFolder || !fileDir) return "";
+
+    let rawRelative = path.relative(wsFolder, fileDir).replace(/\\/g, "/");
+    if (rawRelative === ".") rawRelative = "";
+    if (rawRelative === "") return "";
+
+    const parts = rawRelative.split("/").filter((p) => p.length > 0);
+    return this.sliceArrayByParam(parts, param);
   }
 
   /**

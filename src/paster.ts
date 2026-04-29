@@ -300,12 +300,34 @@ class Paster {
     if (!editor) return;
     const fileUri = editor.document.uri;
     if (!fileUri) return;
-    const basePath = path.dirname(fileUri.fsPath);
 
-    // Compute the image file path relative to the current file.
-    let imageFilePath = Paster.encodePath(
-      path.relative(basePath, pasteImgContext.targetFile.fsPath)
+    let basePath: string;
+
+    const config = vscode.workspace.getConfiguration("MarkdownPaste");
+    const customBasePath = config.get<string>("basePath");
+
+    let finalBasePath: string;
+
+    if (customBasePath && customBasePath.trim() !== "") {
+      basePath = Predefine.replacePredefinedVars(customBasePath);
+    } else {
+      // Original behavior
+      basePath = path.dirname(fileUri.fsPath);
+    }
+
+    let imageFilePath = path.relative(
+      basePath,
+      pasteImgContext.targetFile.fsPath
     );
+    imageFilePath = imageFilePath.replace(/\\/g, "/");
+
+    if (customBasePath) {
+      if (!imageFilePath.startsWith("/")) {
+        imageFilePath = "/" + imageFilePath;
+      }
+    }
+
+    imageFilePath = Paster.encodePath(imageFilePath);
 
     // Apply any language rules (if configured).
     const parse_result = Paster.parse_rules(imageFilePath);
