@@ -224,20 +224,20 @@ suite("Extension Tests", () => {
     str = "${filePath|-3:-1}";
     ret = Predefine.replaceRegPredefinedVars(str, predefine);
     ret_expect = "test/suite";
-    console.log(`Debug - Slice -3:-1: ${ret}`);
+    // console.log(`Debug - Slice -3:-1: ${ret}`);
     assert.strictEqual(ret, ret_expect);
 
     // Case 5: Folder test
     str = "${fileWorkspaceFolder|-1}";
     ret = Predefine.replaceRegPredefinedVars(str, predefine);
     ret_expect = "vscode-markdown-paste-image";
+    // console.log(`Debug - fileWorkspaceFolder -1: ${ret}`);
     assert.strictEqual(ret, ret_expect);
-    console.log(`Debug - fileWorkspaceFolder: ${ret}`);
 
     str = "${relativeFileDirname|-2}";
     ret = Predefine.replaceRegPredefinedVars(str, predefine);
     ret_expect = "test";
+    // console.log(`Debug - relativeFileDirname -2: ${ret}`);
     assert.strictEqual(ret, ret_expect);
-    console.log(`Debug - relativeFileDirname: ${ret}`);
   });
 });
