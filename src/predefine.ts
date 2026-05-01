@@ -62,15 +62,17 @@ class Predefine {
   }
 
   public filePath(param?: string): string {
-    const fullPath = this._filePath.replace(/\\/g, "/");
-    const parts = fullPath.split("/").filter((p) => p.length > 0);
-    return this.sliceArrayByParam(parts, param);
+    if (!param) {
+      return this._filePath;
+    }
+    return this.getSlicedPath(this._filePath, param);
   }
 
   public fileWorkspaceFolder(param?: string): string {
-    const fullPath = this._fileWorkspaceFolder.replace(/\\/g, "/");
-    const parts = fullPath.split("/").filter((p) => p.length > 0);
-    return this.sliceArrayByParam(parts, param);
+    if (!param) {
+      return this._fileWorkspaceFolder;
+    }
+    return this.getSlicedPath(this._fileWorkspaceFolder, param);
   }
 
   public fileBasename(): string {
@@ -87,6 +89,16 @@ class Predefine {
   public fileDirname(): string {
     return this._fileDirname;
   }
+  private getSlicedPath(inputPath: string, param: string): string {
+    const sep = path.sep;
+    const { root } = path.parse(inputPath);
+    const body = inputPath.substring(root.length);
+    const parts = root
+      ? [root, ...body.split(sep).filter(Boolean)]
+      : body.split(sep).filter(Boolean);
+    const slicedParts = this.getArraySlice(parts, param);
+    return path.join(...slicedParts);
+  }
 
   /**
    * Support for Python-style slicing, without step slicing.
@@ -97,25 +109,25 @@ class Predefine {
    * - ${relativeFileDirname|0:2}  -> "src/assets"
    * - ${relativeFileDirname|:-1}  -> "src/assets"
    */
-  private sliceArrayByParam(parts: string[], param?: string): string {
-    const cleanParam = param ? param.trim() : undefined;
-    if (!cleanParam || parts.length === 0) return parts.join("/");
+  private getArraySlice<T>(items: T[], param: string): T[] {
+    if (!param || items.length === 0) return items;
+
+    const cleanParam = param.trim();
+    if (!cleanParam) return items;
 
     if (cleanParam.includes(":")) {
-      // handle "start:end"
-      const [s, e] = cleanParam.split(":").map((item) => item.trim());
+      // "start:end"
+      const [s, e] = cleanParam.split(":").map((p) => p.trim());
       const start = s ? parseInt(s) : 0;
       const end = e ? parseInt(e) : undefined;
-      return parts.slice(start, end).join("/");
-    } else {
-      // handle "index"
-      const index = parseInt(cleanParam);
-      if (isNaN(index)) return parts.join("/");
-
-      // support |-1|
-      const result = parts.slice(index, index === -1 ? undefined : index + 1);
-      return result.join("/");
+      return items.slice(start, end);
     }
+
+    // "index"
+    const index = parseInt(cleanParam);
+    if (isNaN(index)) return items;
+
+    return items.slice(index, index === -1 ? undefined : index + 1);
   }
 
   public relativeFileDirname(param?: string): string {
@@ -123,12 +135,12 @@ class Predefine {
     const fileDir = this.fileDirname();
     if (!wsFolder || !fileDir) return "";
 
-    let rawRelative = path.relative(wsFolder, fileDir).replace(/\\/g, "/");
+    let rawRelative = path.relative(wsFolder, fileDir);
     if (rawRelative === ".") rawRelative = "";
     if (rawRelative === "") return "";
+    if (!param) return rawRelative;
 
-    const parts = rawRelative.split("/").filter((p) => p.length > 0);
-    return this.sliceArrayByParam(parts, param);
+    return this.getSlicedPath(rawRelative, param);
   }
 
   /**
