@@ -182,13 +182,61 @@ suite("Extension Tests", () => {
     assert.strictEqual(ret, ret_expect);
   });
 
-  test("predefined variables slicing test", () => {
-    const mockFile = vscode.Uri.file(
-      "C:\\user\\project\\vscode-markdown-paste-image\\test\\suite\\extension.test.ts"
+  test("Infrastructure: should correctly initialize paths based on platform", () => {
+    const isWin = process.platform === "win32";
+
+    const mockFileStr = isWin
+      ? "C:\\user\\project\\test\\file.ts"
+      : "/user/project/test/file.ts";
+    const mockWsStr = isWin ? "C:\\user\\project" : "/user/project";
+
+    const predefine = new Predefine(
+      vscode.Uri.file(mockFileStr),
+      vscode.Uri.file(mockWsStr)
     );
-    const mockWs = vscode.Uri.file(
-      "C:\\user\\project\\vscode-markdown-paste-image"
-    );
+
+    console.log(`[Test 1] Platform detected: ${process.platform}`);
+
+    const actualBasename = predefine.fileBasename();
+    const actualDirname = predefine.fileDirname();
+
+    // Validate Basename parsing
+    if (actualBasename !== "file.ts") {
+      throw new Error(
+        `[Infrastructure Error] Basename mismatch! Expected "file.ts", but got "${actualBasename}". ` +
+          `Check if your mock path format matches the current OS (${process.platform}).`
+      );
+    }
+
+    // Validate Directory Separator consistency
+    if (isWin && !actualDirname.includes("\\")) {
+      throw new Error(
+        `[Infrastructure Error] Win32 validation failed: Dirname should contain backslashes.`
+      );
+    }
+
+    if (!isWin && actualDirname.includes("\\")) {
+      throw new Error(
+        `[Infrastructure Error] POSIX validation failed: Dirname should not contain backslashes.`
+      );
+    }
+
+    console.log("Environment path initialization passed!");
+  });
+
+  test("Predefined variables slicing test", () => {
+    const isWindows = process.platform === "win32";
+    const filePathStr = isWindows
+      ? "C:\\user\\project\\markdown-paste\\test\\suite\\extension.test.ts"
+      : "/user/project/markdown-paste/test/suite/extension.test.ts";
+    const wsPathStr = isWindows
+      ? "C:\\user\\project\\markdown-paste"
+      : "/user/project/markdown-paste";
+
+    const mockFile = vscode.Uri.file(filePathStr);
+    const mockWs = vscode.Uri.file(wsPathStr);
+    console.log(`Debug - mockFile: ${mockFile}`);
+    console.log(`Debug - mockWs: ${mockWs}`);
     const predefine = new Predefine(mockFile, mockWs);
     let ret_expect = "";
     let str = "";
@@ -198,22 +246,30 @@ suite("Extension Tests", () => {
     str = "${filePath|-1}";
     ret = Predefine.replaceRegPredefinedVars(str, predefine);
     ret_expect = "extension.test.ts";
+    console.log(`Debug - Case 1 filePath[-1]: ${ret}`);
     assert.strictEqual(
       ret,
       ret_expect,
-      "Should return the last part of the path"
+      "Case 1: Should return the last part of the path"
     );
 
     // Case 2: Testing positive index to get the first component
-    // Note: On Windows, index 0 is usually the drive letter (e.g., C:)
-    str = "${filePath|0}";
+    // Note: On Windows, index 0 is usually C:\
+    str = "${filePath|0:2}";
     ret = Predefine.replaceRegPredefinedVars(str, predefine);
-    assert.ok(ret.length > 0, "Should return the first part of the path");
+    ret_expect = isWindows ? "c:/user" : "/user";
+    console.log(`Debug - Case 2 filePath[0:2]: ${ret}`);
+    assert.strictEqual(
+      ret,
+      ret_expect,
+      "Should return the first and second part of the path"
+    );
 
     // Case 3: Testing range slicing without step (Python style [:-1])
     // This should return the path components except the last one
     str = "${filePath|:-1}";
     ret = Predefine.replaceRegPredefinedVars(str, predefine);
+    console.log(`Debug - Case 3 filePath[:-1]: ${ret}`);
     assert.strictEqual(
       ret.includes("extension.test.ts"),
       false,
@@ -223,21 +279,22 @@ suite("Extension Tests", () => {
     // Case 4: Testing full range with specific indices
     str = "${filePath|-3:-1}";
     ret = Predefine.replaceRegPredefinedVars(str, predefine);
-    ret_expect = "test/suite";
-    // console.log(`Debug - Slice -3:-1: ${ret}`);
+    // .replaceRegPredefinedVars() returns "/" uniformly
+    ret_expect = isWindows ? "test/suite" : "test/suite";
+    console.log(`Debug - Case 4 filePath[-3:-1]: ${ret}`);
     assert.strictEqual(ret, ret_expect);
 
     // Case 5: Folder test
     str = "${fileWorkspaceFolder|-1}";
     ret = Predefine.replaceRegPredefinedVars(str, predefine);
-    ret_expect = "vscode-markdown-paste-image";
-    // console.log(`Debug - fileWorkspaceFolder -1: ${ret}`);
+    ret_expect = "markdown-paste";
+    console.log(`Debug - Case 5 fileWorkspaceFolder[-1]: ${ret}`);
     assert.strictEqual(ret, ret_expect);
 
     str = "${relativeFileDirname|-2}";
     ret = Predefine.replaceRegPredefinedVars(str, predefine);
     ret_expect = "test";
-    // console.log(`Debug - relativeFileDirname -2: ${ret}`);
+    console.log(`Debug - Case 5 relativeFileDirname[-2]: ${ret}`);
     assert.strictEqual(ret, ret_expect);
   });
 });
