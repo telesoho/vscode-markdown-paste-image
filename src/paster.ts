@@ -306,10 +306,8 @@ class Paster {
     const config = vscode.workspace.getConfiguration("MarkdownPaste");
     const customBasePath = config.get<string>("basePath");
 
-    let finalBasePath: string;
-
     if (customBasePath && customBasePath.trim() !== "") {
-      basePath = Predefine.replacePredefinedVars(customBasePath);
+      basePath = path.resolve(Predefine.replacePredefinedVars(customBasePath));
     } else {
       // Original behavior
       basePath = path.dirname(fileUri.fsPath);
@@ -321,10 +319,12 @@ class Paster {
     );
     imageFilePath = imageFilePath.replace(/\\/g, "/");
 
-    if (customBasePath) {
-      if (!imageFilePath.startsWith("/")) {
-        imageFilePath = "/" + imageFilePath;
-      }
+    if (
+      customBasePath &&
+      !path.isAbsolute(imageFilePath) &&
+      !imageFilePath.startsWith("/")
+    ) {
+      imageFilePath = "/" + imageFilePath;
     }
 
     imageFilePath = Paster.encodePath(imageFilePath);
