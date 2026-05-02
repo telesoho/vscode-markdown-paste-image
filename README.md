@@ -84,6 +84,15 @@ Smartly paste for Markdown.
 
   Default value is `${fileDirname}`.
 
+- `MarkdownPaste.basePath`
+
+  **Link only** — sets the base directory used to compute the image path in the inserted Markdown (or `<img>`) link. It does **not** change the physical save location; use `MarkdownPaste.path` for that.
+
+  - When **empty** (default): the link is a path relative to the current editor file, same as before.
+  - When **set** (e.g. `${fileWorkspaceFolder}`; supports predefined variables): the link is computed relative to that resolved path. If the result is not absolute, a leading `/` may be added so the link reads as site-root-relative (e.g. `/docs/images/foo.png`).
+
+  Default value is `""`.
+
 - `MarkdownPaste.nameBase`
 
   The string as the default image file name. Support predefined variables.

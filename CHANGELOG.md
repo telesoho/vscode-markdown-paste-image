@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.4.7 (2026/05/02)
+
+- feat: Add `MarkdownPaste.basePath` to set the reference directory for the image URL inserted into Markdown only; it does not change where the image file is saved (use `MarkdownPaste.path` for that). When set (supports predefined variables), the link may become a site-root-relative path (e.g. `/assets/img.png`). When empty, behavior matches previous versions (path relative to the current editor file).
+
 ## 1.4.6 (2026/02/08)
 
 - fix: Pipe | in HTML table cells breaks Markdown structure #146
