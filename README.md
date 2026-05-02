@@ -325,7 +325,7 @@ Smartly paste for Markdown.
     }
   ]
   ```
-  
+
   You can also use **regex capture groups** in your `match` patterns. Each captured group can be referenced in `targetPath` and `linkPattern` as `$1`, `$2`, etc. This allows you to dynamically create folders or links based on parts of the Markdown filename or path.
 
   **Example:**

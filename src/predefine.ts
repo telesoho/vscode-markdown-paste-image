@@ -12,18 +12,22 @@ class Predefine {
   _fileBasenameNoExtension: string;
   _fileDirname: string;
 
-  constructor() {
+  constructor(fileUri?: vscode.Uri, workspaceFolderUri?: vscode.Uri) {
+    // prioritize using the passed‑in fileUri; if none is provided, then fall back to the currently active editor (the original logic).
     let editor = vscode.window.activeTextEditor;
-    let fileUri = editor && editor.document.uri;
-    let fileWorkspaceFolderUri =
-      fileUri && vscode.workspace.getWorkspaceFolder(fileUri);
+    const targetUri = fileUri ?? editor?.document.uri;
+
+    const targetFolderUri =
+      workspaceFolderUri ??
+      (targetUri
+        ? vscode.workspace.getWorkspaceFolder(targetUri)?.uri
+        : undefined) ??
+      vscode.workspace.workspaceFolders?.[0]?.uri;
+
     this._workspaceRoot =
-      (vscode.workspace.workspaceFolders &&
-        vscode.workspace.workspaceFolders[0].uri.fsPath) ||
-      "";
-    this._filePath = fileUri && fileUri.fsPath;
-    this._fileWorkspaceFolder =
-      (fileWorkspaceFolderUri && fileWorkspaceFolderUri.uri.fsPath) || "";
+      vscode.workspace.workspaceFolders?.[0]?.uri.fsPath || "";
+    this._filePath = targetUri?.fsPath || "";
+    this._fileWorkspaceFolder = targetFolderUri?.fsPath || "";
 
     if (this._filePath) {
       this._fileExtname = path.extname(this._filePath);
@@ -33,6 +37,11 @@ class Predefine {
       );
       this._fileBasename = path.basename(this._filePath);
       this._fileDirname = path.dirname(this._filePath);
+    } else {
+      this._fileExtname = "";
+      this._fileBasenameNoExtension = "";
+      this._fileBasename = "";
+      this._fileDirname = "";
     }
   }
 
@@ -52,12 +61,18 @@ class Predefine {
     return this.workspaceRoot();
   }
 
-  public filePath() {
-    return this._filePath;
+  public filePath(param?: string): string {
+    if (!param) {
+      return this._filePath;
+    }
+    return this.getSlicedPath(this._filePath, param);
   }
 
-  public fileWorkspaceFolder() {
-    return this._fileWorkspaceFolder;
+  public fileWorkspaceFolder(param?: string): string {
+    if (!param) {
+      return this._fileWorkspaceFolder;
+    }
+    return this.getSlicedPath(this._fileWorkspaceFolder, param);
   }
 
   public fileBasename(): string {
@@ -74,11 +89,58 @@ class Predefine {
   public fileDirname(): string {
     return this._fileDirname;
   }
+  private getSlicedPath(inputPath: string, param: string): string {
+    const sep = path.sep;
+    const { root } = path.parse(inputPath);
+    const body = inputPath.substring(root.length);
+    const parts = root
+      ? [root, ...body.split(sep).filter(Boolean)]
+      : body.split(sep).filter(Boolean);
+    const slicedParts = this.getArraySlice(parts, param);
+    return path.join(...slicedParts);
+  }
+
   /**
-   * the current opened file's dirname relative to `$fileWorkspaceFolder`
+   * Support for Python-style slicing, without step slicing.
+   * Syntax examples:
+   *
+   * - ${relativeFileDirname}      -> "src/assets/images"
+   * - ${relativeFileDirname|-1}   -> "images"
+   * - ${relativeFileDirname|0:2}  -> "src/assets"
+   * - ${relativeFileDirname|:-1}  -> "src/assets"
    */
-  public relativeFileDirname(): string {
-    return path.relative(this.fileWorkspaceFolder(), this.fileDirname());
+  private getArraySlice<T>(items: T[], param: string): T[] {
+    if (!param || items.length === 0) return items;
+
+    const cleanParam = param.trim();
+    if (!cleanParam) return items;
+
+    if (cleanParam.includes(":")) {
+      // "start:end"
+      const [s, e] = cleanParam.split(":").map((p) => p.trim());
+      const start = s ? parseInt(s) : 0;
+      const end = e ? parseInt(e) : undefined;
+      return items.slice(start, end);
+    }
+
+    // "index"
+    const index = parseInt(cleanParam);
+    if (isNaN(index)) return items;
+
+    return items.slice(index, index === -1 ? undefined : index + 1);
+  }
+
+  public relativeFileDirname(param?: string): string {
+    const wsFolder = this.fileWorkspaceFolder();
+    const fileDir = this.fileDirname();
+    if (!wsFolder || !fileDir) return "";
+
+    let rawRelative = path.relative(wsFolder, fileDir);
+    if (rawRelative === ".") rawRelative = "";
+    if (rawRelative === "") return "";
+    if (!param) return rawRelative;
+
+    return this.getSlicedPath(rawRelative, param);
   }
 
   /**
