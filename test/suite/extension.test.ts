@@ -7,6 +7,7 @@
 import * as assert from "assert";
 import * as vscode from "vscode";
 import * as fs from "fs";
+import * as path from "path";
 import { tmpdir } from "os";
 import "../../src/extension";
 import { Predefine } from "../../src/predefine";
@@ -296,5 +297,233 @@ suite("Extension Tests", () => {
     ret_expect = "test";
     console.log(`Debug - Case 5 relativeFileDirname[-2]: ${ret}`);
     assert.strictEqual(ret, ret_expect);
+  });
+});
+
+suite("renderMdFilePath", () => {
+  type PasteCtx = {
+    targetFile: vscode.Uri;
+    convertToBase64: boolean;
+    removeTargetFileAfterConvert: boolean;
+    imgTag?: { width: string; height: string } | null;
+  };
+
+  function mkPasteCtx(
+    imageFsPath: string,
+    imgTag?: { width: string; height: string } | null
+  ): PasteCtx {
+    return {
+      targetFile: vscode.Uri.file(imageFsPath),
+      convertToBase64: false,
+      removeTargetFileAfterConvert: false,
+      imgTag: imgTag ?? undefined,
+    };
+  }
+
+  type RenderMdMocksOpts = {
+    editorFile: string;
+    /** Value returned by `getConfiguration("MarkdownPaste").get("basePath")` */
+    basePathCfg: string;
+    parseRules?: (content: string) => string | null;
+    matchingRule?: { linkPattern?: string } | null;
+    altText?: string;
+  };
+
+  function withRenderMdMocks(opts: RenderMdMocksOpts, fn: () => void): void {
+    const cleanups: Array<() => void> = [];
+
+    const mockEditor = {
+      document: {
+        uri: vscode.Uri.file(opts.editorFile),
+        languageId: "markdown",
+        getText: () => "",
+      },
+      selection: new vscode.Selection(0, 0, 0, 0),
+    };
+
+    Object.defineProperty(vscode.window, "activeTextEditor", {
+      configurable: true,
+      enumerable: true,
+      get: () => mockEditor,
+    });
+    cleanups.push(() => {
+      Reflect.deleteProperty(vscode.window, "activeTextEditor");
+    });
+
+    const origWsGet = vscode.workspace.getConfiguration;
+    (
+      vscode.workspace as unknown as { getConfiguration: typeof origWsGet }
+    ).getConfiguration = (
+      section?: string,
+      scope?: vscode.ConfigurationScope | null
+    ) => {
+      if (section === "MarkdownPaste") {
+        return {
+          get: (key: string) =>
+            key === "basePath" ? opts.basePathCfg : undefined,
+        } as vscode.WorkspaceConfiguration;
+      }
+      return origWsGet.call(vscode.workspace, section, scope);
+    };
+    cleanups.push(() => {
+      vscode.workspace.getConfiguration = origWsGet;
+    });
+
+    const getConfigOrig = paster.Paster.getConfig;
+    paster.Paster.getConfig = function (this: unknown) {
+      const base = getConfigOrig.call(this);
+      return {
+        ...base,
+        encodePath: "none",
+        rules: [],
+        lang_rules: [],
+        applyAllRules: false,
+      };
+    };
+    cleanups.push(() => {
+      paster.Paster.getConfig = getConfigOrig;
+    });
+
+    const parseRulesOrig = paster.Paster.parse_rules;
+    paster.Paster.parse_rules = ((content: string) =>
+      opts.parseRules
+        ? opts.parseRules(content)
+        : null) as typeof parseRulesOrig;
+    cleanups.push(() => {
+      paster.Paster.parse_rules = parseRulesOrig;
+    });
+
+    const getMatchingOrig = paster.Paster.getMatchingImageRule;
+    paster.Paster.getMatchingImageRule = (
+      opts.matchingRule !== undefined ? () => opts.matchingRule : () => null
+    ) as typeof getMatchingOrig;
+    cleanups.push(() => {
+      paster.Paster.getMatchingImageRule = getMatchingOrig;
+    });
+
+    const getAltOrig = paster.Paster.getAltText;
+    paster.Paster.getAltText = (() =>
+      opts.altText ?? "alt") as typeof getAltOrig;
+    cleanups.push(() => {
+      paster.Paster.getAltText = getAltOrig;
+    });
+
+    try {
+      fn();
+    } finally {
+      cleanups.reverse().forEach((c) => c());
+    }
+  }
+
+  test("without basePath: markdown link relative to editor file directory", () => {
+    const root = path.join(tmpdir(), "mdpaste_render_md_no_base");
+    const editorFile = path.join(root, "docs", "readme.md");
+    const imageFile = path.join(root, "docs", "images", "foo.png");
+    const expectedRel = path
+      .relative(path.dirname(editorFile), imageFile)
+      .replace(/\\/g, "/");
+
+    withRenderMdMocks(
+      {
+        editorFile,
+        basePathCfg: "",
+        altText: "myAlt",
+      },
+      () => {
+        const out = paster.Paster.renderMdFilePath(mkPasteCtx(imageFile));
+        assert.strictEqual(out, `![myAlt](${expectedRel})`);
+      }
+    );
+  });
+
+  test("with basePath: site-root style path with leading slash", () => {
+    const root = path.join(tmpdir(), "mdpaste_render_md_with_base");
+    const editorFile = path.join(root, "docs", "readme.md");
+    const imageFile = path.join(root, "docs", "images", "foo.png");
+    const relFromBase = path.relative(root, imageFile).replace(/\\/g, "/");
+    const expectedPath =
+      path.isAbsolute(relFromBase) || relFromBase.startsWith("/")
+        ? relFromBase
+        : `/${relFromBase}`;
+
+    withRenderMdMocks(
+      {
+        editorFile,
+        basePathCfg: root,
+        altText: "x",
+      },
+      () => {
+        const out = paster.Paster.renderMdFilePath(mkPasteCtx(imageFile));
+        assert.strictEqual(out, `![x](${expectedPath})`);
+      }
+    );
+  });
+
+  test("parse_rules return value wins over linkPattern and defaults", () => {
+    const root = path.join(tmpdir(), "mdpaste_render_md_rules");
+    const editorFile = path.join(root, "a.md");
+    const imageFile = path.join(root, "b.png");
+
+    withRenderMdMocks(
+      {
+        editorFile,
+        basePathCfg: "",
+        matchingRule: { linkPattern: "SHOULD_NOT_USE" },
+        parseRules: () => "REPLACED_BY_RULE",
+      },
+      () => {
+        const out = paster.Paster.renderMdFilePath(mkPasteCtx(imageFile));
+        assert.strictEqual(out, "REPLACED_BY_RULE");
+      }
+    );
+  });
+
+  test("matching imageRules linkPattern replaces placeholders", () => {
+    const root = path.join(tmpdir(), "mdpaste_render_md_linkpat");
+    const editorFile = path.join(root, "a.md");
+    const imageFile = path.join(root, "img", "shot.png");
+    const expectedRel = path
+      .relative(path.dirname(editorFile), imageFile)
+      .replace(/\\/g, "/");
+
+    withRenderMdMocks(
+      {
+        editorFile,
+        basePathCfg: "",
+        matchingRule: {
+          linkPattern: "![${altText}](${imageFilePath})",
+        },
+        altText: "cap",
+      },
+      () => {
+        const out = paster.Paster.renderMdFilePath(mkPasteCtx(imageFile));
+        assert.strictEqual(out, `![cap](${expectedRel})`);
+      }
+    );
+  });
+
+  test("imgTag present: emits HTML img with dimensions", () => {
+    const root = path.join(tmpdir(), "mdpaste_render_md_imgtag");
+    const editorFile = path.join(root, "a.md");
+    const imageFile = path.join(root, "b.png");
+    const expectedRel = path
+      .relative(path.dirname(editorFile), imageFile)
+      .replace(/\\/g, "/");
+
+    withRenderMdMocks(
+      {
+        editorFile,
+        basePathCfg: "",
+      },
+      () => {
+        const out = paster.Paster.renderMdFilePath(
+          mkPasteCtx(imageFile, { width: "100", height: "200" })
+        );
+        assert.strictEqual(
+          out,
+          `<img src='${expectedRel}' width='100' height='200'/>`
+        );
+      }
+    );
   });
 });
