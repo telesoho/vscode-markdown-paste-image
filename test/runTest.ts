@@ -1,4 +1,5 @@
 import * as fs from "fs";
+import * as os from "os";
 import * as path from "path";
 
 import { downloadAndUnzipVSCode, runTests } from "@vscode/test-electron";
@@ -29,6 +30,16 @@ async function main() {
     // Passed to --extensionTestsPath
     const extensionTestsPath = path.resolve(__dirname, "./suite/index");
 
+    const launchArgs = ["--disable-extensions"];
+    if (process.platform === "darwin") {
+      // The default profile lives inside `.vscode-test`, which pushes the
+      // single instance socket under it past the 104 byte path limit on
+      // macOS. Point the profile at a short temporary directory instead.
+      launchArgs.push(
+        `--user-data-dir=${path.join(os.tmpdir(), "vscode-test-profile")}`
+      );
+    }
+
     // Download VS Code and unzip it. Resolve the executable ourselves because
     // `@vscode/test-electron` still assumes `Contents/MacOS/Electron` on macOS.
     let vscodeExecutablePath = await downloadAndUnzipVSCode();
@@ -41,7 +52,7 @@ async function main() {
       vscodeExecutablePath,
       extensionDevelopmentPath,
       extensionTestsPath,
-      launchArgs: ["--disable-extensions"],
+      launchArgs,
     });
   } catch (err) {
     console.error("Failed to run tests");
