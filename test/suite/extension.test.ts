@@ -209,16 +209,12 @@ suite("Extension Tests", () => {
       );
     }
 
-    // Validate Directory Separator consistency
-    if (isWin && !actualDirname.includes("\\")) {
+    // Validate Directory Separator consistency: display paths always use
+    // forward slashes, whatever the platform, so that they stay portable
+    // between local and remote documents.
+    if (actualDirname.includes("\\")) {
       throw new Error(
-        `[Infrastructure Error] Win32 validation failed: Dirname should contain backslashes.`
-      );
-    }
-
-    if (!isWin && actualDirname.includes("\\")) {
-      throw new Error(
-        `[Infrastructure Error] POSIX validation failed: Dirname should not contain backslashes.`
+        `[Infrastructure Error] Dirname should not contain backslashes, but got "${actualDirname}".`
       );
     }
 

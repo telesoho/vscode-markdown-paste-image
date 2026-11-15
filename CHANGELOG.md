@@ -1,5 +1,14 @@
 # Change Log
 
+## 1.4.8 (2026/11/15)
+
+- fix: Pasted images were saved to `C:\home\<user>\...` instead of the project folder when the folder was opened through Remote - WSL (#155). Every document on a remote file system was affected, because the target path was always computed with the local Windows path rules and the file was written by the local PowerShell helper.
+- feat: Image paste and `Markdown Download` now work in remote windows (Remote - SSH, WSL, Dev Containers, Codespaces, Tunnels). Paths are computed in the dialect of the document file system, the clipboard image is staged into a local temporary file and written through the document's file system provider (`vscode.workspace.fs`), so links stay relative to the document.
+- feat: On Windows, WSL targets are written directly through the `\\wsl.localhost\<distro>\...` share when it is available; otherwise the image goes through the generic transfer path.
+- fix: `MarkdownPaste.basePath` and paths typed into the filename prompt are now resolved against the document directory instead of the process working directory.
+- fix: A `?` that is not followed by a `width,height` pair is no longer treated as a size query, and notebook cell fragments are no longer carried into the image path.
+- fix: `Markdown Download` no longer resolves before the downloaded bytes are flushed to disk.
+
 ## 1.4.7 (2026/05/02)
 
 - feat: Add `MarkdownPaste.basePath` to set the reference directory for the image URL inserted into Markdown only; it does not change where the image file is saved (use `MarkdownPaste.path` for that). When set (supports predefined variables), the link may become a site-root-relative path (e.g. `/assets/img.png`). When empty, behavior matches previous versions (path relative to the current editor file).

@@ -5,15 +5,30 @@ import { toMarkdown } from "./toMarkdown";
 import { Predefine } from "./predefine";
 import { AIPaster } from "./ai_paster";
 import {
-  prepareDirForFile,
+  newLocalTempFile,
+  removeLocalTempDir,
+  transferLocalFileToUri,
   fetchAndSaveFile,
-  newTemporaryFilename,
-  base64Encode,
-  isRemoteMode,
 } from "./utils";
-import { existsSync, rmSync, RmOptions } from "fs";
+import { rmSync } from "fs";
 import { LanguageDetection } from "./language_detection";
 import Logger from "./Logger";
+import {
+  PathSpace,
+  TargetPath,
+  basenameOf,
+  dirnameOf,
+  fromDisplayPath,
+  getPathSpace,
+  hasExplicitScheme,
+  implFor,
+  isRemoteUri,
+  normalizeDisplay,
+  parentUri,
+  resolveDisplayPath,
+  toDisplayPath,
+  wslUncCandidates,
+} from "./path_space";
 
 class PasteImageContext {
   targetFile?: vscode.Uri;
@@ -97,13 +112,13 @@ class Paster {
           const html = await cb.getTextHtml();
           let markdown = toMarkdown(html, turndownOptions);
           if (enableRulesForHtml) {
-            markdown = Paster.parse(markdown);
+            markdown = await Paster.parse(markdown);
           }
           await Paster.parseByAI(markdown);
         } else {
           const text = await cb.getTextPlain();
           if (text) {
-            let newContent = Paster.parse(text);
+            let newContent = await Paster.parse(text);
             await Paster.parseByAI(newContent);
           }
         }
@@ -111,20 +126,13 @@ class Paster {
       case xclip.ClipboardType.Text:
         const text = await cb.getTextPlain();
         if (text) {
-          let newContent = Paster.parse(text);
+          let newContent = await Paster.parse(text);
           await Paster.parseByAI(newContent);
         }
         break;
       case xclip.ClipboardType.Image:
-        if (false === isRemoteMode()) {
-          Paster.pasteImage();
-        } else {
-          // show warring dialog
-          Logger.showErrorMessage(
-            "Paste Image is not available in Remote Mode (SSH, WSL, Dev Container). " +
-              "Please paste the image locally, or use VS Code’s built-in paste feature instead."
-          );
-        }
+        Paster.warnIfExtensionRunsRemotely();
+        Paster.pasteImage();
         break;
       case xclip.ClipboardType.Unknown:
         Logger.log("Unknown type");
@@ -198,60 +206,90 @@ class Paster {
     if (!rules) return null;
     const editor = vscode.window.activeTextEditor;
     if (!editor) return null;
-    const currentFilePath = editor.document.uri.fsPath;
+    const docUri = editor.document.uri;
+    // Try both the native and the display form, so rules written before remote
+    // support (which may contain backslashes) keep matching.
+    const candidates = [docUri.fsPath, toDisplayPath(docUri)];
     for (const rule of rules) {
-      if (rule.match) {
+      if (!rule.match) continue;
+      for (const candidate of candidates) {
+        if (!candidate) continue;
         const re = new RegExp(rule.match, rule.options || "");
-        const match = re.exec(currentFilePath);
-        if (match) {
-          let processedRule = { ...rule };
-          if (processedRule.targetPath) {
-            processedRule.targetPath = Predefine.replacePredefinedVars(
-              processedRule.targetPath
+        const match = re.exec(candidate);
+        if (!match) continue;
+        let processedRule = { ...rule };
+        if (processedRule.targetPath) {
+          processedRule.targetPath = Predefine.replacePredefinedVars(
+            processedRule.targetPath
+          );
+          match.forEach((value, index) => {
+            if (index === 0) return;
+            processedRule.targetPath = processedRule.targetPath.replaceAll(
+              `$${index}`,
+              value
             );
-            match.forEach((value, index) => {
-              if (index === 0) return;
-              processedRule.targetPath = processedRule.targetPath.replaceAll(
-                `$${index}`,
-                value
-              );
-            });
-          }
-          if (processedRule.linkPattern) {
-            processedRule.linkPattern = Predefine.replacePredefinedVars(
-              processedRule.linkPattern
-            );
-            match.forEach((value, index) => {
-              if (index === 0) return;
-              processedRule.linkPattern = processedRule.linkPattern.replaceAll(
-                `$${index}`,
-                value
-              );
-            });
-          }
-          return processedRule;
+          });
         }
+        if (processedRule.linkPattern) {
+          processedRule.linkPattern = Predefine.replacePredefinedVars(
+            processedRule.linkPattern
+          );
+          match.forEach((value, index) => {
+            if (index === 0) return;
+            processedRule.linkPattern = processedRule.linkPattern.replaceAll(
+              `$${index}`,
+              value
+            );
+          });
+        }
+        return processedRule;
       }
     }
     return null;
   }
 
   /**
-   * Generate a path for the target image.
-   * @param extension Extension of target image file.
-   * @returns The generated image path.
+   * Resolve a target path expression into a display path. Absolute expressions
+   * (POSIX, Windows drive or explicit URI) are kept, relative ones are resolved
+   * against the directory of the document being edited.
    */
-  private static genTargetImagePath(extension: string = ".png"): string {
+  private static resolveTargetDisplay(
+    docUri: vscode.Uri,
+    space: PathSpace,
+    target: string
+  ): string {
+    if (hasExplicitScheme(target)) return target;
+    const impl = implFor(space);
+    return resolveDisplayPath(
+      dirnameOf(docUri, space),
+      space,
+      impl.join(target)
+    );
+  }
+
+  /**
+   * Generate the target for the pasted image.
+   * @param extension Extension of target image file.
+   */
+  private static genTargetImage(
+    extension: string = ".png"
+  ): TargetPath | undefined {
     let editor = vscode.window.activeTextEditor;
-    if (!editor) return;
+    if (!editor) return undefined;
     let fileUri = editor.document.uri;
-    if (!fileUri) return;
+    if (!fileUri) return undefined;
     if (fileUri.scheme === "untitled") {
       vscode.window.showInformationMessage(
         "Before pasting an image, you need to save the current edited file first."
       );
-      return;
+      return undefined;
     }
+
+    // Paths are computed in the dialect of the document's file system, so a
+    // remote document keeps its POSIX paths instead of being translated into
+    // local Windows paths.
+    const space = getPathSpace(fileUri);
+    const impl = implFor(space);
 
     // Check if a custom image rule applies.
     const rule = Paster.getMatchingImageRule();
@@ -259,37 +297,45 @@ class Paster {
       let targetPattern = rule.targetPath;
       // targetPattern is already processed in getMatchingImageRule
       // If the rule's pattern does not include an extension, append it.
-      if (path.extname(targetPattern) === "") {
+      if (impl.extname(targetPattern) === "") {
         targetPattern += extension;
       }
-      return targetPattern;
+      const display = Paster.resolveTargetDisplay(
+        fileUri,
+        space,
+        targetPattern
+      );
+      return { display, uri: fromDisplayPath(fileUri, display) };
     }
 
     // Fallback: default behavior.
-    const filePath = fileUri.fsPath;
-    let folderPathFromConfig = Paster.getConfig().path;
-    folderPathFromConfig =
-      Predefine.replacePredefinedVars(folderPathFromConfig);
+    const config = Paster.getConfig();
+    let folderPathFromConfig = Predefine.replacePredefinedVars(
+      config.path || ""
+    );
+    if (!folderPathFromConfig) folderPathFromConfig = ".";
+
+    if (space !== "win32" && /^[a-zA-Z]:[\\/]/.test(folderPathFromConfig)) {
+      vscode.window.showErrorMessage(
+        `MarkdownPaste.path "${folderPathFromConfig}" is a Windows path, but the current document is on a remote file system. ` +
+          `Use a path in the document's file system instead (e.g. "\${fileDirname}/images").`
+      );
+      return undefined;
+    }
 
     let imageFileName = "";
-    const namePrefix = Paster.getConfig().namePrefix;
-    const nameBase = Paster.getConfig().nameBase;
-    const nameSuffix = Paster.getConfig().nameSuffix;
+    const namePrefix = config.namePrefix ?? "";
+    const nameBase = config.nameBase ?? "";
+    const nameSuffix = config.nameSuffix ?? "";
     imageFileName = namePrefix + nameBase + nameSuffix + extension;
     imageFileName = Predefine.replacePredefinedVars(imageFileName);
 
-    const folderPath = path.dirname(filePath);
-    let imagePath = "";
-    if (path.isAbsolute(folderPathFromConfig)) {
-      imagePath = path
-        .join(folderPathFromConfig, imageFileName)
-        .replace(/\\/g, "/");
-    } else {
-      imagePath = path
-        .join(folderPath, folderPathFromConfig, imageFileName)
-        .replace(/\\/g, "/");
-    }
-    return imagePath;
+    const display = Paster.resolveTargetDisplay(
+      fileUri,
+      space,
+      impl.join(folderPathFromConfig, imageFileName)
+    );
+    return { display, uri: fromDisplayPath(fileUri, display) };
   }
 
   /**
@@ -301,27 +347,40 @@ class Paster {
     const fileUri = editor.document.uri;
     if (!fileUri) return;
 
+    // Relative links are computed in the dialect of the document's file
+    // system, so remote documents get POSIX relative links.
+    const space = getPathSpace(fileUri);
+    const impl = implFor(space);
+    const docDir = dirnameOf(fileUri, space);
+    const targetDisplay = toDisplayPath(pasteImgContext.targetFile, space);
+
     let basePath: string;
 
-    const config = vscode.workspace.getConfiguration("MarkdownPaste");
-    const customBasePath = config.get<string>("basePath");
+    const config = Paster.getConfig();
+    const customBasePath =
+      config.basePath !== undefined
+        ? config.basePath
+        : typeof config.get === "function"
+        ? config.get("basePath")
+        : undefined;
 
     if (customBasePath && customBasePath.trim() !== "") {
-      basePath = path.resolve(Predefine.replacePredefinedVars(customBasePath));
+      basePath = resolveDisplayPath(
+        docDir,
+        space,
+        Predefine.replacePredefinedVars(customBasePath)
+      );
     } else {
       // Original behavior
-      basePath = path.dirname(fileUri.fsPath);
+      basePath = docDir;
     }
 
-    let imageFilePath = path.relative(
-      basePath,
-      pasteImgContext.targetFile.fsPath
-    );
+    let imageFilePath = impl.relative(basePath, targetDisplay);
     imageFilePath = imageFilePath.replace(/\\/g, "/");
 
     if (
       customBasePath &&
-      !path.isAbsolute(imageFilePath) &&
+      !impl.isAbsolute(imageFilePath) &&
       !imageFilePath.startsWith("/")
     ) {
       imageFilePath = "/" + imageFilePath;
@@ -365,17 +424,19 @@ class Paster {
     return [widthProp, heightProp].join(" ").trim();
   }
 
-  private static renderMdImageBase64(
+  private static async renderMdImageBase64(
     pasteImgContext: PasteImageContext
-  ): string {
-    if (
-      !pasteImgContext.targetFile.fsPath ||
-      !existsSync(pasteImgContext.targetFile.fsPath)
-    ) {
-      return;
+  ): Promise<string | undefined> {
+    const targetUri = pasteImgContext.targetFile;
+    let bytes: Uint8Array;
+    try {
+      bytes = await vscode.workspace.fs.readFile(targetUri);
+    } catch (error) {
+      Logger.showErrorMessage("Failed to read the pasted image: " + error);
+      return undefined;
     }
 
-    let renderText = base64Encode(pasteImgContext.targetFile.fsPath);
+    let renderText = Buffer.from(bytes).toString("base64");
     const imgTag = pasteImgContext.imgTag;
     if (imgTag) {
       renderText = `<img src='data:image/png;base64,${renderText}' ${Paster.getDimensionProps(
@@ -386,30 +447,34 @@ class Paster {
       renderText = `![](data:image/png;base64,${renderText})`;
     }
 
-    const rmOptions: RmOptions = {
-      recursive: true,
-      force: true,
-    };
-
-    if (pasteImgContext.removeTargetFileAfterConvert) {
-      rmSync(pasteImgContext.targetFile.fsPath, rmOptions);
+    if (
+      pasteImgContext.removeTargetFileAfterConvert &&
+      targetUri.scheme === "file"
+    ) {
+      // In base64 mode the image only lives in a local temporary directory.
+      rmSync(path.dirname(targetUri.fsPath), {
+        recursive: true,
+        force: true,
+      });
     }
 
     return renderText;
   }
 
-  public static renderMarkdownLink(pasteImgContext: PasteImageContext) {
+  public static async renderMarkdownLink(
+    pasteImgContext: PasteImageContext
+  ): Promise<void> {
     const editor = vscode.window.activeTextEditor;
     if (!editor) return;
-    let renderText: string;
+    let renderText: string | undefined;
     if (pasteImgContext.convertToBase64) {
-      renderText = Paster.renderMdImageBase64(pasteImgContext);
+      renderText = await Paster.renderMdImageBase64(pasteImgContext);
     } else {
       renderText = Paster.renderMdFilePath(pasteImgContext);
     }
 
     if (renderText) {
-      editor.edit((edit) => {
+      await editor.edit((edit) => {
         const current = editor.selection;
         if (current.isEmpty) {
           edit.insert(current.start, renderText);
@@ -477,7 +542,13 @@ class Paster {
     return isApplicable ? content : null;
   }
 
-  static parse(content) {
+  /**
+   * Turn a pasted path that exists on the document's file system into a
+   * relative image link. Works for local and remote documents alike: the path
+   * is resolved in the dialect of the document, and existence is checked
+   * through the document's file system provider.
+   */
+  static async parse(content: string) {
     const editor = vscode.window.activeTextEditor;
     const fileUri = editor.document.uri;
     const ret = Paster.parse_rules(content);
@@ -485,17 +556,32 @@ class Paster {
       return ret;
     }
     try {
-      if (existsSync(content)) {
-        const current_file_path = fileUri.fsPath;
-        const workspace_root_dir =
-          vscode.workspace.workspaceFolders &&
-          vscode.workspace.workspaceFolders[0].uri.path;
-        if (content.startsWith(workspace_root_dir)) {
-          const relative_path = Paster.encodePath(
-            path.relative(path.dirname(current_file_path), content)
+      const space = getPathSpace(fileUri);
+      const impl = implFor(space);
+      const docDir = dirnameOf(fileUri, space);
+      const contentDisplay = hasExplicitScheme(content)
+        ? content
+        : resolveDisplayPath(
+            docDir,
+            space,
+            impl.join(normalizeDisplay(content, space))
           );
-          return `![${Paster.getAltText()}](${relative_path})`;
-        }
+      const contentUri = fromDisplayPath(fileUri, contentDisplay);
+      if (!(await Paster.uriExists(contentUri))) {
+        return content;
+      }
+      const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+      const workspaceRootDisplay = workspaceFolder
+        ? toDisplayPath(workspaceFolder.uri, getPathSpace(workspaceFolder.uri))
+        : "";
+      if (
+        workspaceRootDisplay &&
+        contentDisplay.startsWith(workspaceRootDisplay)
+      ) {
+        const relative_path = Paster.encodePath(
+          impl.relative(docDir, contentDisplay).replace(/\\/g, "/")
+        );
+        return `![${Paster.getAltText()}](${relative_path})`;
       }
     } catch (error) {
       // Do nothing.
@@ -503,61 +589,101 @@ class Paster {
     return content;
   }
 
+  private static async uriExists(target: vscode.Uri): Promise<boolean> {
+    try {
+      await vscode.workspace.fs.stat(target);
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
+
   /**
    * Download image from URL and render Markdown link.
    * @param image_url
    */
-  private static pasteImageURL(image_url) {
+  private static pasteImageURL(image_url: string) {
     const filename = image_url.split("/").pop().split("?")[0];
-    const ext = path.extname(filename);
-    let imagePath = Paster.genTargetImagePath(ext);
-    if (!imagePath) return;
+    const ext = path.posix.extname(filename);
+    const target = Paster.genTargetImage(ext);
+    if (!target) return;
     const silence = Paster.getConfig().silence;
     if (silence) {
-      Paster.downloadFile(image_url, imagePath);
+      Paster.downloadFile(image_url, target.display);
     } else {
       const options: vscode.InputBoxOptions = {
         prompt:
           "You can change the filename. The existing file will be overwritten!",
-        value: imagePath,
+        value: target.display,
         placeHolder: "(e.g:../test/myimg.png?100,60)",
         valueSelection: [
-          imagePath.length - path.basename(imagePath).length,
-          imagePath.length - ext.length,
+          target.display.length - basenameOf(target.display).length,
+          target.display.length - ext.length,
         ],
       };
       vscode.window.showInputBox(options).then((inputVal) => {
+        if (inputVal === undefined) return;
         Paster.downloadFile(image_url, inputVal);
       });
     }
   }
 
-  private static downloadFile(image_url: string, target: string) {
+  private static async downloadFile(image_url: string, target: string) {
     const pasteImgContext = Paster.parsePasteImageContext(target);
     if (!pasteImgContext || !pasteImgContext.targetFile) return;
-    const imgPath = pasteImgContext.targetFile.fsPath;
-    if (!prepareDirForFile(imgPath)) {
-      vscode.window.showErrorMessage("Make folder failed:" + imgPath);
-      return;
+    const targetUri = pasteImgContext.targetFile;
+    const space = getPathSpace(targetUri);
+    const intendedDisplay = toDisplayPath(targetUri, space);
+
+    // Download into a local temporary file first, then transfer it to the
+    // document's file system (local or remote). The download has to stay on
+    // the UI side, where the network and the clipboard live.
+    const tempFile = newLocalTempFile("");
+    try {
+      const localImagePath = await fetchAndSaveFile(image_url, tempFile.path);
+      if (localImagePath === "no image") {
+        vscode.window.showInformationMessage(
+          "There is not an image in the clipboard."
+        );
+        return;
+      }
+      if (!localImagePath) return;
+      if (!implFor(space).extname(intendedDisplay)) {
+        // The URL carried no extension: adopt the one from the response.
+        const downloadedExt = path.posix.extname(localImagePath);
+        pasteImgContext.targetFile = fromDisplayPath(
+          targetUri,
+          intendedDisplay + downloadedExt
+        );
+      }
+      await transferLocalFileToUri(localImagePath, pasteImgContext.targetFile);
+      await Paster.renderMarkdownLink(pasteImgContext);
+    } catch (err) {
+      Logger.showErrorMessage("Download failed:" + err);
+    } finally {
+      removeLocalTempDir(tempFile.dir);
     }
-    fetchAndSaveFile(image_url, imgPath)
-      .then((imagePath: string) => {
-        if (!imagePath) return;
-        if (imagePath === "no image") {
-          vscode.window.showInformationMessage(
-            "There is not an image in the clipboard."
-          );
-          return;
-        }
-        if (imagePath.substring(1, 2) === ":") {
-          imagePath = "file:///" + imagePath;
-        }
-        pasteImgContext.targetFile = vscode.Uri.parse(imagePath);
-        Paster.renderMarkdownLink(pasteImgContext);
-      })
-      .catch((err) => {
-        vscode.window.showErrorMessage("Download failed:" + err);
-      });
+  }
+
+  private static warnIfExtensionRunsRemotely(): void {
+    if (!vscode.env.remoteName) return;
+    const extension = vscode.extensions.getExtension(
+      "telesoho.vscode-markdown-paste-image"
+    );
+    if (!extension) return;
+    const packageKind = (extension.packageJSON as any).extensionKind;
+    const kinds: string[] = Array.isArray(packageKind)
+      ? packageKind
+      : packageKind
+      ? [packageKind]
+      : [];
+    if (kinds.includes("ui")) return;
+    Logger.showErrorMessage(
+      "Paste Image needs to run on the UI side to read the local clipboard, " +
+        "but it is running in the remote workspace. Add " +
+        `"remote.extensionKind": { "telesoho.vscode-markdown-paste-image": ["ui"] } ` +
+        "to your user settings to paste images from the local clipboard."
+    );
   }
 
   /**
@@ -565,23 +691,24 @@ class Paster {
    */
   private static pasteImage() {
     const ext = ".png";
-    let imagePath = Paster.genTargetImagePath(ext);
-    if (!imagePath) return;
+    const target = Paster.genTargetImage(ext);
+    if (!target) return;
     const silence = Paster.getConfig().silence;
     if (silence) {
-      Paster.saveImage(imagePath);
+      Paster.saveImage(target.display);
     } else {
       const options: vscode.InputBoxOptions = {
         prompt:
           "You can change the filename. The existing file will be overwritten!",
-        value: imagePath,
+        value: target.display,
         placeHolder: "(e.g:../test/myimage.png?100,60)",
         valueSelection: [
-          imagePath.length - path.basename(imagePath).length,
-          imagePath.length - ext.length,
+          target.display.length - basenameOf(target.display).length,
+          target.display.length - ext.length,
         ],
       };
       vscode.window.showInputBox(options).then((inputVal) => {
+        if (inputVal === undefined) return;
         Paster.saveImage(inputVal);
       });
     }
@@ -594,22 +721,105 @@ class Paster {
   protected static async saveImage(targetPath: string) {
     const pasteImgContext = Paster.parsePasteImageContext(targetPath);
     if (!pasteImgContext || !pasteImgContext.targetFile) return;
-    const imgPath = pasteImgContext.targetFile.fsPath;
-    if (!prepareDirForFile(imgPath)) {
-      vscode.window.showErrorMessage("Make folder failed:" + imgPath);
-      return;
+
+    try {
+      if (pasteImgContext.convertToBase64) {
+        // Base64 images never touch the document's file system.
+        const tempFile = newLocalTempFile(".png");
+        if (!(await Paster.saveClipboardImageToLocalFile(tempFile.path))) {
+          removeLocalTempDir(tempFile.dir);
+          return;
+        }
+        pasteImgContext.targetFile = vscode.Uri.file(tempFile.path);
+        await Paster.renderMarkdownLink(pasteImgContext);
+        if (!pasteImgContext.removeTargetFileAfterConvert) {
+          removeLocalTempDir(tempFile.dir);
+        }
+        return;
+      }
+
+      const targetUri = pasteImgContext.targetFile;
+      const saved = await Paster.saveClipboardImageToUri(
+        targetUri,
+        getPathSpace(targetUri)
+      );
+      if (!saved) return;
+      await Paster.renderMarkdownLink(pasteImgContext);
+    } catch (err) {
+      Logger.showErrorMessage("Failed to save the pasted image: " + err);
     }
-    const shell = xclip.getShell();
-    const cb = shell.getClipboard();
-    const imagePath = await cb.getImage(imgPath);
-    if (!imagePath) return;
+  }
+
+  private static async saveClipboardImageToUri(
+    targetUri: vscode.Uri,
+    space: PathSpace
+  ): Promise<boolean> {
+    // Fast path: WSL exposes its file system as a UNC share, which lets the
+    // native clipboard helper write the image without an extra round trip.
+    if (await Paster.trySaveClipboardImageDirect(targetUri)) return true;
+
+    // Generic path: write locally, then hand the bytes to the file system
+    // provider of the target (local, SSH, container, ...). This is the only
+    // path that works for every remote, and it works for local files too.
+    const tempFile = newLocalTempFile(".png");
+    try {
+      if (!(await Paster.saveClipboardImageToLocalFile(tempFile.path))) {
+        return false;
+      }
+      await transferLocalFileToUri(tempFile.path, targetUri);
+      return true;
+    } finally {
+      removeLocalTempDir(tempFile.dir);
+    }
+  }
+
+  /**
+   * Ask the clipboard helper to write the PNG straight into the target file
+   * system. Only possible when that file system is reachable through a
+   * Windows path (WSL's UNC shares). Returns false on any problem: the caller
+   * then falls back to the generic transfer path.
+   */
+  private static async trySaveClipboardImageDirect(
+    targetUri: vscode.Uri
+  ): Promise<boolean> {
+    if (process.platform !== "win32" || !isRemoteUri(targetUri)) return false;
+    const display = toDisplayPath(targetUri);
+    const candidates = wslUncCandidates(targetUri.authority, display);
+    if (candidates.length === 0) return false;
+
+    const cb = xclip.getShell().getClipboard();
+    for (const candidate of candidates) {
+      try {
+        await vscode.workspace.fs.createDirectory(parentUri(targetUri));
+        const result = await cb.getImage(candidate);
+        if (!result || result === "no image") continue;
+        // Make sure the bytes really landed before trusting the shortcut.
+        await vscode.workspace.fs.stat(targetUri);
+        return true;
+      } catch (error) {
+        // Try the next candidate, then the generic path.
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Let the clipboard helper write the clipboard image into a local file.
+   * Returns false (after telling the user) when the clipboard has no image.
+   */
+  private static async saveClipboardImageToLocalFile(
+    localPath: string
+  ): Promise<boolean> {
+    const cb = xclip.getShell().getClipboard();
+    const imagePath = await cb.getImage(localPath);
+    if (!imagePath) return false;
     if (imagePath === "no image") {
       vscode.window.showInformationMessage(
         "There is not an image in the clipboard."
       );
-      return;
+      return false;
     }
-    Paster.renderMarkdownLink(pasteImgContext);
+    return true;
   }
 
   /**
@@ -621,38 +831,69 @@ class Paster {
   protected static parsePasteImageContext(
     inputVal: string
   ): PasteImageContext | null {
-    if (!inputVal) return;
+    if (!inputVal) return null;
     inputVal = Predefine.replacePredefinedVars(inputVal);
-    if (inputVal && inputVal.length !== inputVal.trim().length) {
+    if (inputVal.length !== inputVal.trim().length) {
       vscode.window.showErrorMessage(
         'The specified path is invalid: "' + inputVal + '"'
       );
-      return;
+      return null;
     }
-    if (inputVal.substring(1, 2) === ":") {
-      inputVal = "file:///" + inputVal;
+
+    // Split the optional "?width,height" suffix. "?" is otherwise a legal
+    // filename character, so only treat it as a size when it looks like one.
+    let targetExpression = inputVal;
+    let query = "";
+    const queryIndex = targetExpression.indexOf("?");
+    if (queryIndex >= 0) {
+      const candidateQuery = targetExpression.substring(queryIndex + 1);
+      if (/^\d+(,\d+)?$/.test(candidateQuery)) {
+        query = candidateQuery;
+        targetExpression = targetExpression.substring(0, queryIndex);
+      }
     }
+    if (!targetExpression) return null;
+
+    const editor = vscode.window.activeTextEditor;
+    const docUri = editor ? editor.document.uri : undefined;
+    const space: PathSpace = docUri
+      ? getPathSpace(docUri)
+      : process.platform === "win32"
+      ? "win32"
+      : "posix";
+
     const pasteImgContext = new PasteImageContext();
-    const inputUri = vscode.Uri.parse(inputVal);
-    const last_char = inputUri.fsPath.slice(-1);
-    if (["/", "\\"].includes(last_char)) {
-      pasteImgContext.targetFile = newTemporaryFilename();
+    const trailingSeparator = /[\\/]$/.test(targetExpression);
+    if (trailingSeparator) {
+      // A trailing separator means "encode the image as a data URI". The
+      // actual temporary file is created by saveImage.
+      pasteImgContext.targetFile = docUri ?? vscode.Uri.file(process.cwd());
       pasteImgContext.convertToBase64 = true;
       pasteImgContext.removeTargetFileAfterConvert = true;
     } else {
-      pasteImgContext.targetFile = inputUri;
+      const impl = implFor(space);
+      const baseDir = docUri
+        ? dirnameOf(docUri, space)
+        : space === "win32"
+        ? "C:/"
+        : "/";
+      const targetDisplay = hasExplicitScheme(targetExpression)
+        ? targetExpression
+        : resolveDisplayPath(baseDir, space, impl.join(targetExpression));
+      pasteImgContext.targetFile = fromDisplayPath(
+        docUri ?? vscode.Uri.file(process.cwd()),
+        targetDisplay
+      );
       pasteImgContext.convertToBase64 = false;
       pasteImgContext.removeTargetFileAfterConvert = false;
     }
     const enableImgTagConfig = Paster.getConfig().enableImgTag;
-    if (enableImgTagConfig && inputUri.query) {
-      const ar = inputUri.query.split(",");
-      if (ar) {
-        pasteImgContext.imgTag = {
-          width: ar[0],
-          height: ar[1],
-        };
-      }
+    if (enableImgTagConfig && query) {
+      const ar = query.split(",");
+      pasteImgContext.imgTag = {
+        width: ar[0],
+        height: ar[1],
+      };
     }
     return pasteImgContext;
   }

@@ -12,13 +12,25 @@ Smartly paste for Markdown.
 - `powershell` command be required (Win32)
 - `pbpaste` command be required (Mac)
 
+## Remote development
+
+The extension runs on the UI side (it needs the local clipboard), and writes the image through the file system provider of the document, so pasting images works in local windows and in remote windows alike:
+
+- Remote - SSH
+- WSL (when the folder is opened with **Remote - WSL**)
+- Dev Containers / Codespaces / Remote - Tunnels
+
+Paths and generated Markdown links are computed in the dialect of the document file system (POSIX for remote documents), so a remote document gets `![](images/foo.png)` and the image lands next to it. Set the target folder through `MarkdownPaste.path` as usual; a Windows path (e.g. `C:\images`) is rejected for remote documents because it cannot be resolved there.
+
+On Windows, WSL targets are written straight through `\\wsl.localhost\<distro>\...` when the share is available; otherwise the image is transferred through a local temporary file. Virtual workspaces (read-only file system providers) are not supported.
+
 ## Features
 
 - Paste smart
 
   Smartly paste in Markdown by pressing 'Ctrl+Alt+V' ('Cmd+Alt+V' on Mac) or `Markdown Paste` command.
 
-  - If you paste an image, the extension will create an new file for the image and insert link code to Markdown (Disabled in SSH & Dev Container mode).
+  - If you paste an image, the extension will create an new file for the image and insert link code to Markdown. This works in local windows and also in every remote window (SSH, WSL, Dev Containers, Codespaces, Tunnels): the clipboard image is read on the UI side and written through the file system of the document, so links stay relative to the remote file.
   - If you paste a text, it will test the text with customize regex, and replace matched content by regex.
   - If you paste a text contain HTML tag, it will try to convert the HTML content to Markdown.
   - If you paste a rich text, it will try to convert the rich text to Markdown.

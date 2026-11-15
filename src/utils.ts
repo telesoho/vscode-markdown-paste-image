@@ -2,21 +2,23 @@ import * as url from "url";
 import * as http from "http";
 import * as https from "https";
 import * as path from "path";
-import { mkdir } from "shelljs";
 import * as fs from "fs";
 import moment from "moment";
-import { Uri, env } from "vscode";
+import * as vscode from "vscode";
 import * as os from "os";
 import Logger from "./Logger";
+import { parentUri } from "./path_space";
 
 /**
  * prepare directory for specified file.
  * @param filePath
  */
 function prepareDirForFile(filePath: string) {
-  let dirName = path.dirname(filePath);
+  const dirName = path.dirname(filePath);
   try {
-    mkdir("-p", dirName);
+    // `recursive` has the same mkdir -p semantics and does not fail when the
+    // directory already exists.
+    fs.mkdirSync(dirName, { recursive: true });
   } catch (error) {
     Logger.log(error);
     return false;
@@ -68,27 +70,33 @@ function fetchAndSaveFile(fileURL: string, filepath: string) {
 
         // If the filename does not have an extension, get the content type from the response headers
         if (filename.indexOf(".") < 0) {
-          const contentType = response.headers["content-type"];
-          filename += `.${contentType.split("/")[1]}`;
+          const contentType = response.headers["content-type"] || "image/png";
+          filename += `.${contentType.split("/")[1] || "png"}`;
         }
         // Get the target path
         const targetPath = `${dest}/${filename}`;
-        // Resolve the promise when the response ends
-        response.on("end", function () {
-          resolve(targetPath);
-        });
-        // If the response status code is 200, create a write stream to the target path
-        if (response.statusCode === 200) {
-          if (prepareDirForFile(targetPath)) {
-            const file = fs.createWriteStream(targetPath);
-            response.pipe(file);
-          } else {
-            reject("Make folder failed:" + dest);
-          }
-          // Reject the promise if the response status code is not 200
-        } else {
+        // Reject the promise if the response status code is not 200
+        if (response.statusCode !== 200) {
+          response.resume();
           reject(`Downloading ${fileURL} failed`);
+          return;
         }
+        if (!prepareDirForFile(targetPath)) {
+          response.resume();
+          reject("Make folder failed:" + dest);
+          return;
+        }
+        const file = fs.createWriteStream(targetPath);
+        // Resolve only once the bytes are on disk: resolving on the response
+        // "end" event raced with the write stream flush.
+        file.on("close", () => resolve(targetPath));
+        file.on("error", (err) =>
+          reject(`Saving ${targetPath} failed: ${err}`)
+        );
+        response.on("error", (err) =>
+          reject(`Downloading ${fileURL} failed: ${err}`)
+        );
+        response.pipe(file);
       })
       // Abort the request if it times out
       .setTimeout(timeout, () => {
@@ -103,11 +111,58 @@ function fetchAndSaveFile(fileURL: string, filepath: string) {
 }
 
 /**
- * Temporary file class
+ * A file created in the OS temp directory, used as a staging area between the
+ * local clipboard helper and the (possibly remote) target file system.
  */
-function newTemporaryFilename(prefix = "markdown_paste"): Uri {
-  let tempDir = fs.mkdtempSync(path.join(os.tmpdir(), prefix));
-  return Uri.parse(path.join(tempDir, moment().format("Y-MM-DD-HH-mm-ss")));
+interface LocalTempFile {
+  /** The temp directory that owns the file (removed when done). */
+  dir: string;
+  /** Absolute local path of the file itself. */
+  path: string;
+}
+
+/**
+ * Create a fresh local temp directory with a file name inside it.
+ * @param extension appended to the file name, e.g. ".png"
+ */
+function newLocalTempFile(extension = ""): LocalTempFile {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "markdown_paste"));
+  const fileName = `${moment().format("Y-MM-DD-HH-mm-ss")}${extension}`;
+  return { dir, path: path.join(dir, fileName) };
+}
+
+/**
+ * Remove a temp directory created by {@link newLocalTempFile}.
+ */
+function removeLocalTempDir(dir: string) {
+  if (!dir) return;
+  try {
+    fs.rmSync(dir, { recursive: true, force: true });
+  } catch (error) {
+    Logger.log(error);
+  }
+}
+
+/**
+ * Send a local file to a (possibly remote) target URI.
+ *
+ * The clipboard helpers can only write to the local disk, so the bytes are
+ * staged locally and then handed to VS Code's file system service, which routes
+ * them to the provider owning `target` (local disk, WSL, SSH, container, ...).
+ */
+async function transferLocalFileToUri(
+  localPath: string,
+  target: vscode.Uri
+): Promise<void> {
+  const bytes = await fs.promises.readFile(localPath);
+  // `createDirectory` has mkdirp semantics; an already existing directory is not
+  // an error worth surfacing here because `writeFile` reports real failures.
+  try {
+    await vscode.workspace.fs.createDirectory(parentUri(target));
+  } catch (error) {
+    // Ignore: writeFile below reports genuine problems.
+  }
+  await vscode.workspace.fs.writeFile(target, bytes);
 }
 
 /**
@@ -120,24 +175,13 @@ function base64Encode(file) {
   return Buffer.from(bitmap).toString("base64");
 }
 
-/**
- * Check if the current environment is remote (SSH, WSL, Dev Container)
- */
-function isRemoteMode() {
-  const remoteName = env.remoteName;
-  if (remoteName) {
-    // "wsl"?
-    if (["ssh-remote", "dev-container"].includes(remoteName)) {
-      return true;
-    }
-  }
-  return false;
-}
-
 export {
   prepareDirForFile,
   fetchAndSaveFile,
   base64Encode,
-  newTemporaryFilename,
-  isRemoteMode,
+  newLocalTempFile,
+  removeLocalTempDir,
+  transferLocalFileToUri,
 };
+
+export type { LocalTempFile };
