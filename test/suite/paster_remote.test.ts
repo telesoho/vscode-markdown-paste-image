@@ -298,6 +298,15 @@ suite("Paster (remote documents)", () => {
       await Paster.saveImage("/home/me/proj/exercise/images/figure-1.png");
     });
 
+    if (process.platform !== "win32") {
+      // The UNC shortcut only exists on Windows, where the clipboard helper can
+      // reach the WSL share. Everywhere else the generic transfer path is used
+      // and the image still has to land in the document's file system.
+      assert.strictEqual(capture.fsState.writes.length, 1);
+      assert.deepStrictEqual(capture.edits, ["![](images/figure-1.png)"]);
+      return;
+    }
+
     assert.strictEqual(capture.clipboard.calls.length, 1);
     assert.strictEqual(
       capture.clipboard.calls[0],
