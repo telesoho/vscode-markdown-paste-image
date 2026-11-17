@@ -12,18 +12,6 @@ Smartly paste for Markdown.
 - `powershell` command be required (Win32)
 - `pbpaste` command be required (Mac)
 
-## Remote development
-
-The extension runs on the UI side (it needs the local clipboard), and writes the image through the file system provider of the document, so pasting images works in local windows and in remote windows alike:
-
-- Remote - SSH
-- WSL (when the folder is opened with **Remote - WSL**)
-- Dev Containers / Codespaces / Remote - Tunnels
-
-Paths and generated Markdown links are computed in the dialect of the document file system (POSIX for remote documents), so a remote document gets `![](images/foo.png)` and the image lands next to it. Set the target folder through `MarkdownPaste.path` as usual; a Windows path (e.g. `C:\images`) is rejected for remote documents because it cannot be resolved there.
-
-On Windows, WSL targets are written straight through `\\wsl.localhost\<distro>\...` when the share is available; otherwise the image is transferred through a local temporary file. Virtual workspaces (read-only file system providers) are not supported.
-
 ## Features
 
 - Paste smart
