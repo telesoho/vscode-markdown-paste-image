@@ -1,16 +1,22 @@
+type ListNode = { nodeName: string; parentNode: ListNode | null };
+
+function isList(node: ListNode | null): boolean {
+  return !!node && (node.nodeName === "UL" || node.nodeName === "OL");
+}
+
 /**
- * Count how many list (ul/ol) ancestors this list item has. Used for nested list indentation.
+ * Count how many lists (ul/ol) this list item's list is nested in directly, without a list item
+ * in between (e.g. <ul><ul><li>). Such lists are not indented by a parent list item, so their
+ * items have to indent themselves.
  */
-function getListDepth(liNode: {
-  parentNode: { nodeName: string; parentNode: unknown } | null;
-}): number {
-  let depth = 0;
-  let p: { nodeName: string; parentNode: unknown } | null = liNode.parentNode;
-  while (p) {
-    if (p.nodeName === "UL" || p.nodeName === "OL") depth++;
-    p = p.parentNode as { nodeName: string; parentNode: unknown } | null;
+function getDirectListNesting(liNode: ListNode): number {
+  let nesting = 0;
+  let list = liNode.parentNode;
+  while (list && isList(list.parentNode)) {
+    nesting++;
+    list = list.parentNode;
   }
-  return depth;
+  return nesting;
 }
 
 function genBorder(content, node) {
@@ -145,15 +151,16 @@ function toMarkdown(content, options) {
         return content + "\n";
       },
     },
-    // Nested list support: add indentation by depth so nested items render correctly (Issue #145)
+    // Nested list support (Issues #145, #157). A list nested in a list item is indented by that
+    // item, which indents all of its content by one level. So each item only adds its own level,
+    // plus the levels of lists nested directly in a list, which no list item indents.
     {
       filter: "li",
       replacement: function (content, node, opts) {
         content = content.replace(/^\n+/, "").replace(/\n+$/, "\n");
-        const depth = getListDepth(node);
         const indent = "    "; // 4 spaces per level (CommonMark)
-        const leadingSpaces = depth > 1 ? indent.repeat(depth - 1) : "";
-        const continuationIndent = indent.repeat(depth);
+        const leadingSpaces = indent.repeat(getDirectListNesting(node));
+        const continuationIndent = leadingSpaces + indent;
         content = content.replace(/\n/gm, "\n" + continuationIndent);
         let prefix = (opts.bulletListMarker || "*") + "   ";
         const parent = node.parentNode;

@@ -222,4 +222,70 @@ suite("toMarkdown Tests", () => {
       `Expected nested bullet indented. Got: ${result}`
     );
   });
+
+  // Issue #157: nested items must be indented exactly one level (4 spaces) per depth.
+  // More than that makes Markdown render them as an indented code block.
+  test("should indent nested list items exactly one level per depth", () => {
+    const html =
+      "<ul><li><p>Parent</p><ul><li><p>Child</p>" +
+      "<ul><li><p>Grandchild</p></li></ul></li></ul></li>" +
+      "<li><p>Next</p></li></ul>";
+
+    const result = toMarkdown(html, {
+      emDelimiter: "*",
+      bulletListMarker: "-",
+    });
+
+    assert.ok(
+      /^-   Parent$/m.test(result),
+      `Expected top-level item: ${result}`
+    );
+    assert.ok(
+      /^ {4}-   Child$/m.test(result),
+      `Expected "Child" indented by exactly 4 spaces. Got: ${result}`
+    );
+    assert.ok(
+      /^ {8}-   Grandchild$/m.test(result),
+      `Expected "Grandchild" indented by exactly 8 spaces. Got: ${result}`
+    );
+    assert.ok(/^-   Next$/m.test(result), `Expected top-level item: ${result}`);
+  });
+
+  test("should indent continuation paragraphs of nested list items", () => {
+    const html =
+      "<ul><li><p>Parent</p><ul><li><p>Child</p><p>More child</p></li></ul></li></ul>";
+
+    const result = toMarkdown(html, {
+      emDelimiter: "*",
+      bulletListMarker: "-",
+    });
+
+    assert.ok(
+      /^ {4}-   Child$/m.test(result),
+      `Expected "Child" indented by exactly 4 spaces. Got: ${result}`
+    );
+    assert.ok(
+      /^ {8}More child$/m.test(result),
+      `Expected continuation paragraph aligned with its item. Got: ${result}`
+    );
+  });
+
+  // Some sources (e.g. Outlook) nest a list directly inside a list, without a list item in between.
+  test("should indent lists nested directly inside a list", () => {
+    const html =
+      "<ol><li>First</li><ol><li>Nested</li></ol><li>Second</li></ol>";
+
+    const result = toMarkdown(html, {
+      emDelimiter: "*",
+    });
+
+    assert.ok(
+      /^1\.  First$/m.test(result),
+      `Expected top-level item: ${result}`
+    );
+    assert.ok(
+      /^ {4}1\.  Nested$/m.test(result),
+      `Expected "Nested" indented by exactly 4 spaces. Got: ${result}`
+    );
+  });
 });
