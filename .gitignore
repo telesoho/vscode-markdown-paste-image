@@ -10,3 +10,4 @@ _jest-editor/
 generated-icons/
 *.zip
 /pnpm-lock.yaml
+.vscode/settings.json
