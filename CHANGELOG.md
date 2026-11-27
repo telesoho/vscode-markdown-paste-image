@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.4.9 (2026/11/27)
+
+- fix: Nested HTML list items were indented twice per depth, so second-level items appeared as indented code blocks instead of list items (#157, #158).
+
 ## 1.4.8 (2026/11/15)
 
 - fix: Pasted images were saved to `C:\home\<user>\...` instead of the project folder when the folder was opened through Remote - WSL (#155). Every document on a remote file system was affected, because the target path was always computed with the local Windows path rules and the file was written by the local PowerShell helper.
